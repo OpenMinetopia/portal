@@ -20,34 +20,34 @@ A web panel for Minecraft players to manage their Minetopia account, plots, bala
 - Minecraft server with the Open Minetopia plugin
 
 ## Installation
-Clone the repository
+1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/minetopia-panel.git
+git clone https://github.com/OpenMinetopia/portal
 cd minetopia-panel
 ```
-Install PHP dependecies
+2. Install PHP dependecies
 ```bash
 composer Install
 ```
-Install and compile frontend dependecies
+3. Install and compile frontend dependecies
 ```bash
 npm install
 npm run build (or npm run dev when testing)
 ```
-Environment setup
+4. Environment setup
 ```bash
 cp .env.example .env
 ```
-Generate application key
+5. Generate application key
 ```bash
 php artisan key:generate 
 ```
-Generate Minecraft API key (add this to your .env file)
+6. Generate Minecraft API key (add this to your .env file)
 ```bash
 php artisan tinker
 echo bin2hex(random_bytes(32));
 ```
-Configure your .env file:
+7. Configure your .env file:
 `APP_NAME=`
 
 `APP_URL=`
@@ -65,15 +65,15 @@ Configure your .env file:
 `DB_PASSWORD=`
 
 
-Add the generated API key
+8. Add the generated API key
 
 `MINECRAFT_API_KEY=your-generated-key`
 
-Run your migrations
+9. Run your migrations
 ```bash
 php artisan migrate
 ```
-Set up storage link
+10. Set up storage link
 ```bash
 php artisan storage:link
 ```
