@@ -17,8 +17,11 @@ class MinecraftVerificationController extends Controller
             $validated = $request->validate([
                 'token' => 'required|string|size:32',
                 'minecraft_username' => 'required|string|max:255',
-                'minecraft_uuid' => 'required|string|size:32',
+                'minecraft_uuid' => 'required|string|size:36', // Allow UUID with dashes
             ]);
+
+            // Strip dashes from the provided UUID
+            $normalizedUuid = MojangApiService::stripUuidDashes($validated['minecraft_uuid']);
 
             // Find user by token
             $user = User::where('token', $validated['token'])->first();
@@ -49,9 +52,9 @@ class MinecraftVerificationController extends Controller
                 ], 400);
             }
 
-            // Remove dashes from stored UUID before comparison
+            // Compare normalized UUIDs
             $storedUuid = MojangApiService::stripUuidDashes($user->minecraft_uuid);
-            if ($storedUuid !== $validated['minecraft_uuid']) {
+            if ($storedUuid !== $normalizedUuid) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Minecraft UUID does not match the registered account.',
@@ -69,7 +72,7 @@ class MinecraftVerificationController extends Controller
             Log::info('Minecraft account verified', [
                 'user_id' => $user->id,
                 'minecraft_username' => $validated['minecraft_username'],
-                'minecraft_uuid' => $validated['minecraft_uuid']
+                'minecraft_uuid' => $normalizedUuid
             ]);
 
             return response()->json([
@@ -104,4 +107,4 @@ class MinecraftVerificationController extends Controller
             ], 500);
         }
     }
-} 
+}
