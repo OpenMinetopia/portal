@@ -15,6 +15,7 @@ class BankAccount extends Model
     ];
 
     protected $casts = [
+        'balance' => 'integer',
         'last_transaction' => 'datetime',
     ];
 
@@ -28,4 +29,40 @@ class BankAccount extends Model
         return $this->hasMany(Transaction::class);
     }
 
+    // Helper methods
+    public function deposit(int $amount, string $reason = null): bool
+    {
+        $this->balance += $amount;
+        $this->last_transaction = now();
+        
+        if ($this->save()) {
+            $this->transactions()->create([
+                'amount' => $amount,
+                'type' => 'deposit',
+                'description' => $reason ?? 'Deposit'
+            ]);
+            return true;
+        }
+        return false;
+    }
+
+    public function withdraw(int $amount, string $reason = null): bool
+    {
+        if ($this->balance < $amount) {
+            return false;
+        }
+
+        $this->balance -= $amount;
+        $this->last_transaction = now();
+        
+        if ($this->save()) {
+            $this->transactions()->create([
+                'amount' => $amount,
+                'type' => 'withdraw',
+                'description' => $reason ?? 'Withdrawal'
+            ]);
+            return true;
+        }
+        return false;
+    }
 }

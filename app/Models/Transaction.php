@@ -10,8 +10,12 @@ class Transaction extends Model
     protected $fillable = [
         'bank_account_id',
         'amount',
-        'description',
-        'type'
+        'type',
+        'description'
+    ];
+
+    protected $casts = [
+        'amount' => 'integer'
     ];
 
     public function bankAccount(): BelongsTo
@@ -19,4 +23,20 @@ class Transaction extends Model
         return $this->belongsTo(BankAccount::class);
     }
 
+    // Helper methods
+    public function isDeposit(): bool
+    {
+        return $this->type === 'deposit';
+    }
+
+    public function isWithdrawal(): bool
+    {
+        return $this->type === 'withdraw';
+    }
+
+    public function getFormattedAmount(): string
+    {
+        $prefix = $this->isDeposit() ? '+' : '-';
+        return $prefix . '$' . number_format($this->amount);
+    }
 }

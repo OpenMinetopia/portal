@@ -4,25 +4,25 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\BankAccount;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class MinetopiaController extends Controller
 {
-    /**
-     * Update player balance
-     */
     public function updateBalance(Request $request)
     {
         try {
             $validated = $request->validate([
                 'minecraft_uuid' => 'required|string|size:32',
-                'balance' => 'required|numeric|min:0',
-                'transaction_type' => 'required|string|in:add,subtract,set'
+                'amount' => 'required|numeric',
+                'transaction_type' => 'required|string|in:add,subtract,set',
+                'description' => 'nullable|string'
             ]);
 
             $user = User::where('minecraft_uuid', $validated['minecraft_uuid'])->first();
-
             if (!$user) {
                 return response()->json([
                     'success' => false,
@@ -31,96 +31,100 @@ class MinetopiaController extends Controller
                 ], 404);
             }
 
-            // Update balance logic here
-            // You'll need to create a Balance model and migration
+            return DB::transaction(function () use ($user, $validated) {
+                $bankAccount = BankAccount::firstOrCreate(
+                    ['user_id' => $user->id],
+                    ['balance' => 0]
+                );
 
-            Log::info('Balance updated', [
-                'user_id' => $user->id,
-                'minecraft_uuid' => $validated['minecraft_uuid'],
-                'amount' => $validated['balance'],
-                'type' => $validated['transaction_type']
-            ]);
+                $oldBalance = $bankAccount->balance;
+                $newBalance = $oldBalance;
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Balance updated successfully',
-                'data' => [
-                    'new_balance' => $newBalance
-                ]
-            ]);
+                switch ($validated['transaction_type']) {
+                    case 'add':
+                        $newBalance = $oldBalance + $validated['amount'];
+                        break;
+                    case 'subtract':
+                        $newBalance = $oldBalance - $validated['amount'];
+                        if ($newBalance < 0) {
+                            return response()->json([
+                                'success' => false,
+                                'message' => 'Insufficient balance',
+                                'error_code' => 'insufficient_balance'
+                            ], 400);
+                        }
+                        break;
+                    case 'set':
+                        $newBalance = $validated['amount'];
+                        break;
+                }
+
+                $bankAccount->update([
+                    'balance' => $newBalance,
+                    'last_transaction' => now()
+                ]);
+
+                Transaction::create([
+                    'bank_account_id' => $bankAccount->id,
+                    'amount' => $validated['amount'],
+                    'description' => $validated['description'] ?? 'Balance update',
+                    'type' => $validated['transaction_type']
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Balance updated successfully',
+                    'data' => [
+                        'old_balance' => $oldBalance,
+                        'new_balance' => $newBalance,
+                        'difference' => $newBalance - $oldBalance
+                    ]
+                ]);
+            });
         } catch (\Exception $e) {
-            Log::error('Balance update error', [
+            Log::error('Error updating balance', [
                 'error' => $e->getMessage(),
                 'minecraft_uuid' => $request->minecraft_uuid ?? null
             ]);
-
             return response()->json([
                 'success' => false,
-                'message' => 'An error occurred while updating balance',
+                'message' => 'Server error',
                 'error_code' => 'server_error'
             ], 500);
         }
     }
 
-    /**
-     * Update player level/XP
-     */
-    public function updateLevel(Request $request)
+    public function getBalance(string $minecraft_uuid)
     {
         try {
-            $validated = $request->validate([
-                'minecraft_uuid' => 'required|string|size:32',
-                'level' => 'required|integer|min:0',
-                'xp' => 'required|integer|min:0',
-                'xp_needed' => 'required|integer|min:0'
+            $user = User::where('minecraft_uuid', $minecraft_uuid)->first();
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found',
+                    'error_code' => 'user_not_found'
+                ], 404);
+            }
+
+            $bankAccount = $user->bankAccounts()->first();
+            
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'balance' => $bankAccount ? $bankAccount->balance : 0,
+                    'last_transaction' => $bankAccount ? $bankAccount->last_transaction : null
+                ]
             ]);
-
-            // Implementation
         } catch (\Exception $e) {
-            // Error handling
-        }
-    }
-
-    /**
-     * Update plot information
-     */
-    public function updatePlot(Request $request)
-    {
-        try {
-            $validated = $request->validate([
-                'minecraft_uuid' => 'required|string|size:32',
-                'plot_id' => 'required|string',
-                'name' => 'required|string',
-                'type' => 'required|string|in:residential,commercial',
-                'location' => 'required|array',
-                'size' => 'required|integer',
-                'daily_rent' => 'required|numeric'
+            Log::error('Error getting balance', [
+                'error' => $e->getMessage(),
+                'minecraft_uuid' => $minecraft_uuid
             ]);
-
-            // Implementation
-        } catch (\Exception $e) {
-            // Error handling
-        }
-    }
-
-    /**
-     * Update company information
-     */
-    public function updateCompany(Request $request)
-    {
-        try {
-            $validated = $request->validate([
-                'minecraft_uuid' => 'required|string|size:32',
-                'company_id' => 'required|string',
-                'name' => 'required|string',
-                'type' => 'required|string',
-                'employees' => 'array',
-                'balance' => 'required|numeric'
-            ]);
-
-            // Implementation
-        } catch (\Exception $e) {
-            // Error handling
+            return response()->json([
+                'success' => false,
+                'message' => 'Server error',
+                'error_code' => 'server_error'
+            ], 500);
         }
     }
 } 

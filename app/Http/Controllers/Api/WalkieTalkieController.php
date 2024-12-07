@@ -4,16 +4,18 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\WalkieTalkie;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
-class MinecraftApiController extends Controller
+class WalkieTalkieController extends Controller
 {
-    public function setOnline(Request $request)
+    public function setChannel(Request $request)
     {
         try {
             $validated = $request->validate([
                 'minecraft_uuid' => 'required|string|size:32',
+                'channel' => 'required|string'
             ]);
 
             $user = User::where('minecraft_uuid', $validated['minecraft_uuid'])->first();
@@ -25,17 +27,23 @@ class MinecraftApiController extends Controller
                 ], 404);
             }
 
-            $user->update([
-                'is_online' => true,
-                'last_login' => now()
-            ]);
+            $walkieTalkie = WalkieTalkie::updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'channel' => $validated['channel'],
+                    'last_used' => now()
+                ]
+            );
 
             return response()->json([
                 'success' => true,
-                'message' => 'Player status updated to online'
+                'message' => 'Channel set successfully',
+                'data' => [
+                    'channel' => $walkieTalkie->channel
+                ]
             ]);
         } catch (\Exception $e) {
-            Log::error('Error setting player online', [
+            Log::error('Error setting walkie-talkie channel', [
                 'error' => $e->getMessage(),
                 'minecraft_uuid' => $request->minecraft_uuid ?? null
             ]);
@@ -47,12 +55,11 @@ class MinecraftApiController extends Controller
         }
     }
 
-    public function setOffline(Request $request)
+    public function useEmergency(Request $request)
     {
         try {
             $validated = $request->validate([
-                'minecraft_uuid' => 'required|string|size:32',
-                'playtime' => 'required|integer'
+                'minecraft_uuid' => 'required|string|size:32'
             ]);
 
             $user = User::where('minecraft_uuid', $validated['minecraft_uuid'])->first();
@@ -64,18 +71,37 @@ class MinecraftApiController extends Controller
                 ], 404);
             }
 
-            $user->update([
-                'is_online' => false,
-                'last_logout' => now(),
-                'playtime' => $validated['playtime']
+            $walkieTalkie = $user->walkieTalkie;
+            if (!$walkieTalkie) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User does not have a walkie-talkie',
+                    'error_code' => 'no_walkie_talkie'
+                ], 404);
+            }
+
+            if ($walkieTalkie->isOnEmergencyCooldown()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Emergency function is on cooldown',
+                    'error_code' => 'emergency_cooldown'
+                ], 400);
+            }
+
+            $walkieTalkie->update([
+                'last_used' => now(),
+                'emergency_cooldown_until' => now()->addMinutes(5)
             ]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Player status updated to offline'
+                'message' => 'Emergency signal sent successfully',
+                'data' => [
+                    'cooldown_until' => $walkieTalkie->emergency_cooldown_until
+                ]
             ]);
         } catch (\Exception $e) {
-            Log::error('Error setting player offline', [
+            Log::error('Error using walkie-talkie emergency', [
                 'error' => $e->getMessage(),
                 'minecraft_uuid' => $request->minecraft_uuid ?? null
             ]);

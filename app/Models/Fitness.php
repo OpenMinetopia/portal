@@ -13,7 +13,12 @@ class Fitness extends Model
         'user_id',
         'total_fitness',
         'max_fitness',
-        'current_status'
+        'current_status',
+        'statistics'
+    ];
+
+    protected $casts = [
+        'statistics' => 'array'
     ];
 
     public function user(): BelongsTo
@@ -21,5 +26,8 @@ class Fitness extends Model
         return $this->belongsTo(User::class);
     }
 
-
+    public function getStatistic(string $name, int $default = 0): int
+    {
+        return $this->statistics[$name] ?? $default;
+    }
 }

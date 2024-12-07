@@ -25,4 +25,19 @@ class Vehicle extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    // Helper methods
+    public function getLicensePlate(): ?string
+    {
+        return $this->custom_data['license_plate'] ?? null;
+    }
+
+    public function getColor(): ?string
+    {
+        return $this->custom_data['color'] ?? null;
+    }
+
+    public function getFuelLevel(): int
+    {
+        return $this->custom_data['fuel_level'] ?? 100;
+    }
 }

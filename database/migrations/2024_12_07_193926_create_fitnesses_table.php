@@ -17,6 +17,7 @@ return new class extends Migration
             $table->integer('total_fitness')->default(0);
             $table->integer('max_fitness')->default(100);
             $table->string('current_status')->nullable();
+            $table->json('statistics')->nullable();
             $table->timestamps();
         });
     }
