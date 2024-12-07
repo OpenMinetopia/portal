@@ -3,19 +3,20 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 
 class MinecraftVerificationController extends Controller
 {
     public function show()
     {
+        $user = auth()->user();
+        
         return view('minecraft.verify', [
-            'token' => auth()->user()->token,
-            'minecraft_username' => auth()->user()->minecraft_username
+            'token' => $user->token,
+            'minecraft_username' => $user->minecraft_username
         ]);
     }
 
-    public function verify(): \Illuminate\Http\RedirectResponse
+    public function verify(Request $request)
     {
         $user = auth()->user();
 
@@ -23,6 +24,12 @@ class MinecraftVerificationController extends Controller
             return redirect()->route('dashboard');
         }
 
-        return back()->with('error', 'Minecraft account verification failed. Please try again.');
+        // Check if user has been verified through the API
+        if (!$user->minecraft_verified) {
+            return back()->with('error', 'Je account is nog niet geverifieerd. Gebruik /koppel in de game.');
+        }
+
+        return redirect()->route('dashboard')
+            ->with('success', 'Je account is succesvol geverifieerd!');
     }
 }
