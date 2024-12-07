@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
 
 class MinecraftVerificationController extends Controller
 {
@@ -14,83 +14,88 @@ class MinecraftVerificationController extends Controller
     {
         try {
             $validated = $request->validate([
-                'token' => 'required|string|size:32',
-                'minecraft_username' => 'required|string|max:255',
-                'minecraft_uuid' => 'required|string|max:36', // UUID from Minecraft
+                'token' => 'required|string|size:8',
+                'minecraft_uuid' => 'required|string|size:36',
+                'minecraft_username' => 'required|string|max:16',
+                'api_key' => 'required|string'
             ]);
 
-            // Find user by token
-            $user = User::where('token', $validated['token'])->first();
+            // Verify API key
+            if ($request->api_key !== config('services.minecraft.api_key')) {
+                Log::warning('Invalid API key used for Minecraft verification', [
+                    'ip' => $request->ip(),
+                    'minecraft_uuid' => $request->minecraft_uuid
+                ]);
+                return response()->json(['error' => 'Invalid API key'], 401);
+            }
+
+            // Find user by verification token
+            $user = User::where('minecraft_verification_token', $validated['token'])
+                       ->where('minecraft_verified', false)
+                       ->first();
 
             if (!$user) {
                 return response()->json([
-                    'success' => false,
-                    'message' => 'Invalid token.',
-                    'error_code' => 'invalid_token'
+                    'error' => 'Invalid or expired token',
+                    'message' => 'Deze code is ongeldig of verlopen. Vraag een nieuwe aan via het panel.'
                 ], 404);
             }
 
-            // Check if account is already verified
-            if ($user->minecraft_verified) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'This token has already been used.',
-                    'error_code' => 'already_verified'
-                ], 400);
-            }
-
-            // Check if minecraft username matches
-            if (strtolower($user->minecraft_username) !== strtolower($validated['minecraft_username'])) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Minecraft username does not match the registered account.',
-                    'error_code' => 'username_mismatch'
-                ], 400);
-            }
-
-            // Verify the account
+            // Update user with Minecraft data
             $user->update([
+                'minecraft_uuid' => $validated['minecraft_uuid'],
+                'minecraft_username' => $validated['minecraft_username'],
                 'minecraft_verified' => true,
                 'minecraft_verified_at' => now(),
-                'minecraft_uuid' => $validated['minecraft_uuid']
+                'minecraft_verification_token' => null
             ]);
 
-            // Log the successful verification
-            Log::info('Minecraft account verified', [
-                'user_id' => $user->id,
-                'minecraft_username' => $validated['minecraft_username'],
-                'minecraft_uuid' => $validated['minecraft_uuid']
-            ]);
+            // Clear any cached data for this user
+            Cache::tags(['minecraft_user'])->forget($user->id);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Account successfully verified.',
-                'data' => [
-                    'user_id' => $user->id,
+                'message' => 'Account succesvol gekoppeld!',
+                'user' => [
+                    'id' => $user->id,
+                    'minecraft_uuid' => $user->minecraft_uuid,
                     'minecraft_username' => $user->minecraft_username,
-                    'verified_at' => $user->minecraft_verified_at
+                    'roles' => $user->roles->pluck('name')
                 ]
-            ], 200);
-
-        } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed.',
-                'errors' => $e->errors(),
-                'error_code' => 'validation_failed'
-            ], 422);
+            ]);
         } catch (\Exception $e) {
             Log::error('Minecraft verification error', [
                 'error' => $e->getMessage(),
-                'token' => $request->token ?? null,
-                'minecraft_username' => $request->minecraft_username ?? null
+                'minecraft_uuid' => $request->minecraft_uuid ?? null
             ]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'An error occurred during verification.',
-                'error_code' => 'server_error'
+                'error' => 'Verification failed',
+                'message' => 'Er is een fout opgetreden. Probeer het later opnieuw.'
             ], 500);
         }
+    }
+
+    public function getPlayerData(string $uuid)
+    {
+        $user = User::where('minecraft_uuid', $uuid)
+                   ->with(['roles' => function($q) {
+                       $q->where('is_game_role', true);
+                   }])
+                   ->first();
+
+        if (!$user) {
+            return response()->json(['error' => 'Player not found'], 404);
+        }
+
+        return response()->json([
+            'user' => [
+                'id' => $user->id,
+                'minecraft_uuid' => $user->minecraft_uuid,
+                'minecraft_username' => $user->minecraft_username,
+                'game_roles' => $user->roles->pluck('name'),
+                'verified' => true
+            ]
+        ]);
     }
 } 

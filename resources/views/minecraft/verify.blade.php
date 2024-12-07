@@ -13,7 +13,7 @@
         }
     </script>
 </head>
-<body class="h-full bg-gray-50 dark:bg-gray-900" x-data="{ 
+<body class="h-full bg-gray-50 dark:bg-gray-900" x-data="{
     darkMode: localStorage.theme === 'dark',
     copied: false,
     toggleDarkMode() {
@@ -44,10 +44,10 @@
                 </button>
             </div>
             <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-                Connect Your Minecraft Account
+                Koppel jouw Minecraft account
             </h2>
             <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-                Follow these steps to verify your account
+                Volg deze stappen om je snel te verifieren
             </p>
         </div>
 
@@ -58,12 +58,12 @@
                     <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
                         <h3 class="text-lg font-medium text-gray-900 dark:text-white flex items-center">
                             <span class="flex items-center justify-center w-6 h-6 bg-indigo-600 rounded-full text-white text-sm mr-3">1</span>
-                            Launch Minecraft
+                            Minecraft starten
                         </h3>
                         <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                            Open Minecraft and connect to the server: 
+                            Start minecraft en join onze server:
                             <span class="mt-1 block font-mono text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/50 px-3 py-2 rounded-md">
-                                play.minetopia.com
+                                {{ config('minetopia.server_address') }}
                             </span>
                         </p>
                     </div>
@@ -72,10 +72,10 @@
                     <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
                         <h3 class="text-lg font-medium text-gray-900 dark:text-white flex items-center">
                             <span class="flex items-center justify-center w-6 h-6 bg-indigo-600 rounded-full text-white text-sm mr-3">2</span>
-                            Run the Command
+                            Command uitvoeren
                         </h3>
                         <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                            Copy and paste this command in the Minecraft chat:
+                            Kopieer en plak deze command in de chat
                         </p>
                         <div class="mt-3">
                             <div class="flex relative" x-data="{ command: '/koppel {{ $token }}' }">
@@ -83,7 +83,7 @@
                                     /koppel {{ $token }}
                                 </code>
                                 <div class="relative ml-2">
-                                    <button @click="copyToClipboard(command)" 
+                                    <button @click="copyToClipboard(command)"
                                         class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 transition-all duration-200"
                                         :class="{ 'bg-green-600 hover:bg-green-700': copied }">
                                         <template x-if="!copied">
@@ -98,7 +98,7 @@
                                         </template>
                                     </button>
                                     <!-- Tooltip -->
-                                    <div x-show="copied" 
+                                    <div x-show="copied"
                                         x-transition:enter="transition ease-out duration-200"
                                         x-transition:enter-start="opacity-0 translate-y-1"
                                         x-transition:enter-end="opacity-100 translate-y-0"
@@ -106,12 +106,12 @@
                                         x-transition:leave-start="opacity-100 translate-y-0"
                                         x-transition:leave-end="opacity-0 translate-y-1"
                                         class="absolute right-0 mt-2 w-32 bg-black text-white text-xs rounded py-1 px-2 text-center">
-                                        Copied to clipboard!
+                                        Gekopieerd!
                                     </div>
                                 </div>
                             </div>
                             <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                                This token is unique to your account. Keep it secure!
+                                Deze token is uniek. Houd hem veilig!
                             </p>
                         </div>
                     </div>
@@ -120,16 +120,16 @@
                     <div>
                         <h3 class="text-lg font-medium text-gray-900 dark:text-white flex items-center">
                             <span class="flex items-center justify-center w-6 h-6 bg-indigo-600 rounded-full text-white text-sm mr-3">3</span>
-                            Verify Connection
+                            Verbinding verifieren
                         </h3>
                         <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                            After running the command, click the button below to verify your account:
+                            Command uitgevoerd? Klik op de knop en zie of het is gelukt.
                         </p>
                         <form action="{{ route('minecraft.verify') }}" method="POST" class="mt-4">
                             @csrf
-                            <button type="submit" 
+                            <button type="submit"
                                 class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
-                                Verify Account
+                                Account verifieren
                             </button>
                         </form>
                     </div>
@@ -155,4 +155,4 @@
         </div>
     </div>
 </body>
-</html> 
+</html>
