@@ -3,22 +3,10 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\MinecraftVerificationController;
-use App\Http\Controllers\Admin\RoleController;
-use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Auth\MinecraftVerificationController;
 use App\Http\Controllers\ApiDocumentationController;
-use App\Http\Controllers\Dashboard\PlotController;
-use App\Http\Controllers\Dashboard\VehicleController;
-use App\Http\Controllers\Dashboard\BankController;
-use App\Http\Controllers\Dashboard\TransactionController;
-use App\Http\Controllers\Dashboard\ArrestController;
-use App\Http\Controllers\Dashboard\FineController;
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Portal\PlotController;
 use App\Http\Controllers\Portal\DashboardController;
-
-Route::get('/', function () {
-    return view('welcome');
-});
 
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisterController::class, 'create'])->name('register');
@@ -29,53 +17,25 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    // Verification routes
     Route::get('/verify-minecraft', [MinecraftVerificationController::class, 'show'])
         ->name('minecraft.verify');
     Route::post('/verify-minecraft', [MinecraftVerificationController::class, 'verify']);
 
-    // Protected routes that require verification
     Route::middleware('minecraft.verified')->group(function () {
-        // Dashboard accessible to all verified users
-        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-        
+        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
         Route::prefix('portal')->name('portal.')->group(function () {
             Route::resource('plots', PlotController::class);
-            Route::resource('bank', BankController::class)->only(['index', 'show']);
-            Route::resource('vehicles', VehicleController::class);
-            
-            // Add other portal routes as needed
         });
     });
 
     Route::post('logout', [LoginController::class, 'destroy'])->name('logout');
 
-    // Add these routes inside the auth middleware group
     Route::middleware(['auth', 'verified'])->group(function () {
-        // Properties routes
         Route::prefix('dashboard')->name('dashboard.')->group(function () {
-            // Plots
             Route::resource('plots', PlotController::class);
-            
-            // Vehicles
-            Route::resource('vehicles', VehicleController::class);
-            
-            // Bank & Transactions
-            Route::resource('bank', BankController::class)->only(['index', 'show']);
-            Route::resource('transactions', TransactionController::class)->only(['index', 'show']);
-            
-            // Police routes (with police middleware)
-            Route::middleware('police')->prefix('police')->name('police.')->group(function () {
-                Route::resource('arrests', ArrestController::class);
-                Route::resource('fines', FineController::class);
-            });
         });
     });
-
-    // Profile routes
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
 });
 
 Route::prefix('api-docs')->group(function () {

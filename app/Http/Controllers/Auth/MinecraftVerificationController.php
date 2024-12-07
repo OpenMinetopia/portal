@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Auth;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 class MinecraftVerificationController extends Controller
@@ -9,8 +10,8 @@ class MinecraftVerificationController extends Controller
     public function show()
     {
         $user = auth()->user();
-        
-        return view('minecraft.verify', [
+
+        return view('auth.verify', [
             'token' => $user->token,
             'minecraft_username' => $user->minecraft_username
         ]);

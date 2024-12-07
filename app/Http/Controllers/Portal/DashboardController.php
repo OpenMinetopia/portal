@@ -16,8 +16,9 @@ class DashboardController extends Controller
                 'balance' => $user->getCurrentBalance(),
                 'plots' => [
                     'total' => $user->plots()->count(),
-                    'residential' => $user->plots()->where('type', 'residential')->count(),
-                    'commercial' => $user->plots()->where('type', 'commercial')->count(),
+                    'area' => $user->plots()->get()->sum(function($plot) {
+                        return $plot->getArea();
+                    })
                 ],
                 'vehicles' => $user->vehicles()->count() ?? 0,
                 'level' => [

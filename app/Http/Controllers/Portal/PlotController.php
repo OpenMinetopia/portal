@@ -20,8 +20,9 @@ class PlotController extends Controller
             'plots' => $plots,
             'stats' => [
                 'total' => $user->plots()->count(),
-                'residential' => $user->plots()->where('type', 'residential')->count(),
-                'commercial' => $user->plots()->where('type', 'commercial')->count()
+                'area' => $user->plots()->get()->sum(function($plot) {
+                    return $plot->getArea();
+                })
             ]
         ]);
     }
@@ -29,10 +30,35 @@ class PlotController extends Controller
     public function show(Plot $plot)
     {
         $this->authorize('view', $plot);
-        
+
         return view('portal.plots.show', [
-            'plot' => $plot->load(['members', 'owner']),
-            'recentActivity' => $plot->activities()->latest()->take(5)->get()
+            'plot' => $plot->load(['members', 'owner'])
         ]);
     }
-} 
+
+    public function edit(Plot $plot)
+    {
+        $this->authorize('update', $plot);
+
+        return view('dashboard.plots.edit', [
+            'plot' => $plot->load(['members'])
+        ]);
+    }
+
+    public function update(Request $request, Plot $plot)
+    {
+        $this->authorize('update', $plot);
+
+        $validated = $request->validate([
+            'description' => 'nullable|string|max:500',
+            'flags' => 'array',
+            'flags.*' => 'string'
+        ]);
+
+        $plot->update($validated);
+
+        return redirect()
+            ->route('dashboard.plots.show', $plot)
+            ->with('success', 'Plot updated successfully');
+    }
+}

@@ -23,7 +23,7 @@
         }
     </script>
 </head>
-<body class="h-full bg-gray-50 dark:bg-gray-900" x-data="{ 
+<body class="h-full bg-gray-50 dark:bg-gray-900" x-data="{
     sidebarOpen: false,
     darkMode: localStorage.theme === 'dark',
     toggleDarkMode() {
@@ -37,7 +37,7 @@
     }
 }">
     <!-- Mobile sidebar backdrop -->
-    <div x-show="sidebarOpen" 
+    <div x-show="sidebarOpen"
         class="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 lg:hidden"
         x-transition:enter="transition-opacity ease-linear duration-300"
         x-transition:enter-start="opacity-0"
@@ -47,10 +47,10 @@
         x-transition:leave-end="opacity-0"
         @click="sidebarOpen = false"></div>
 
-    @include('layouts.partials.sidebar')
+    @include('portal.layouts.partials.sidebar')
 
     <div class="lg:pl-72">
-        @include('layouts.partials.header')
+        @include('portal.layouts.partials.header')
 
         <main class="py-10">
             <div class="px-4 sm:px-6 lg:px-8">
@@ -61,4 +61,4 @@
 
     @stack('scripts')
 </body>
-</html> 
+</html>
