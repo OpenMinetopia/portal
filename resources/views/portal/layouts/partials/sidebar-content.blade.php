@@ -33,18 +33,133 @@
                     </a>
                 </li>
 
-{{--                <li>--}}
-{{--                    <a href="{{ route('portal.bank.index') }}" --}}
-{{--                        class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.bank.*') --}}
-{{--                            ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400' --}}
-{{--                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-indigo-600 dark:hover:text-indigo-400'--}}
-{{--                        }}">--}}
-{{--                        <x-heroicon-s-banknotes class="h-6 w-6 shrink-0" />--}}
-{{--                        Bank--}}
-{{--                    </a>--}}
-{{--                </li>--}}
+                <li>
+                    <a href="{{ route('portal.bank.index') }}" 
+                        class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.bank.*') 
+                            ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400' 
+                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-indigo-600 dark:hover:text-indigo-400'
+                        }}">
+                        <x-heroicon-s-banknotes class="h-6 w-6 shrink-0" />
+                        Bank
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{{ route('portal.vehicles.index') }}" 
+                        class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.vehicles.*') 
+                            ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400' 
+                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-indigo-600 dark:hover:text-indigo-400'
+                        }}">
+                        <x-heroicon-s-truck class="h-6 w-6 shrink-0" />
+                        Voertuigen
+                    </a>
+                </li>
             </ul>
         </li>
+
+        @if(auth()->user()->isAdmin() || auth()->user()->roles->contains('id', 3))
+            <!-- Police Section -->
+            <li>
+                <div class="text-xs font-semibold leading-6 text-gray-500 dark:text-gray-400">POLITIE</div>
+                <ul role="list" class="-mx-2 mt-2 space-y-1">
+                    <li>
+                        <a href="{{ route('portal.emergency-calls.index') }}"
+                            class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.emergency-calls.*')
+                                ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
+                                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-indigo-600 dark:hover:text-indigo-400'
+                            }}">
+                            <x-heroicon-s-phone class="h-6 w-6 shrink-0" />
+                            Noodoproepen
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ route('portal.arrests.index') }}"
+                            class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.arrests.*')
+                                ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
+                                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-indigo-600 dark:hover:text-indigo-400'
+                            }}">
+                            <x-heroicon-s-lock-closed class="h-6 w-6 shrink-0" />
+                            Arrestaties
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ route('portal.walkie-talkies.index') }}"
+                            class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.walkie-talkies.*')
+                                ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
+                                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-indigo-600 dark:hover:text-indigo-400'
+                            }}">
+                            <x-heroicon-s-signal class="h-6 w-6 shrink-0" />
+                            Portofoons
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ route('portal.detection-gates.index') }}"
+                            class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.detection-gates.*')
+                                ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
+                                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-indigo-600 dark:hover:text-indigo-400'
+                            }}">
+                            <x-heroicon-s-shield-check class="h-6 w-6 shrink-0" />
+                            Detectiepoorten
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ route('portal.fines.index') }}"
+                            class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.fines.*')
+                                ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
+                                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-indigo-600 dark:hover:text-indigo-400'
+                            }}">
+                            <x-heroicon-s-document-text class="h-6 w-6 shrink-0" />
+                            Boetes
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        @endif
+
+        @if(auth()->user()->isAdmin())
+            <!-- Admin Section -->
+            <li>
+                <div class="text-xs font-semibold leading-6 text-gray-500 dark:text-gray-400">BEHEER</div>
+                <ul role="list" class="-mx-2 mt-2 space-y-1">
+                    <li>
+                        <a href="{{ route('portal.admin.users.index') }}"
+                            class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.admin.users.*')
+                                ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
+                                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-indigo-600 dark:hover:text-indigo-400'
+                            }}">
+                            <x-heroicon-s-users class="h-6 w-6 shrink-0" />
+                            Gebruikers
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ route('portal.admin.roles.index') }}"
+                            class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.admin.roles.*')
+                                ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
+                                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-indigo-600 dark:hover:text-indigo-400'
+                            }}">
+                            <x-heroicon-s-key class="h-6 w-6 shrink-0" />
+                            Rollen
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ route('portal.admin.teleporters.index') }}"
+                            class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.admin.teleporters.*')
+                                ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
+                                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-indigo-600 dark:hover:text-indigo-400'
+                            }}">
+                            <x-heroicon-s-arrow-right-circle class="h-6 w-6 shrink-0" />
+                            Teleporters
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        @endif
 
         <!-- User Profile Section -->
         <li class="mt-auto">

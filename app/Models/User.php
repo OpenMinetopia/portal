@@ -13,11 +13,24 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
-        'password',
-        'minecraft_uuid',
         'minecraft_username',
-        'is_verified',
+        'token',
+        'password',
+        'minecraft_verified',
+        'minecraft_uuid',
+        'minecraft_verified_at',
+        'level',
+        'calculated_level',
+        'playtime',
+        'default_prefix',
+        'prefix_color',
+        'level_color',
+        'name_color',
+        'chat_color',
         'last_login',
+        'last_logout',
+        'is_online',
+        'health_statistic',
     ];
 
     protected $hidden = [
@@ -27,8 +40,12 @@ class User extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'is_verified' => 'boolean',
+        'minecraft_verified_at' => 'datetime',
+        'minecraft_verified' => 'boolean',
+        'password' => 'hashed',
         'last_login' => 'datetime',
+        'last_logout' => 'datetime',
+        'is_online' => 'boolean',
     ];
 
     // Relationships
