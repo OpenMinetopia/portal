@@ -20,9 +20,6 @@ class MinecraftVerificationController extends Controller
                 'minecraft_uuid' => 'required|string|size:36', // Allow UUID with dashes
             ]);
 
-            // Strip dashes from the provided UUID
-            $normalizedUuid = MojangApiService::stripUuidDashes($validated['minecraft_uuid']);
-
             // Find user by token
             $user = User::where('token', $validated['token'])->first();
 
@@ -52,9 +49,7 @@ class MinecraftVerificationController extends Controller
                 ], 400);
             }
 
-            // Compare normalized UUIDs
-            $storedUuid = MojangApiService::stripUuidDashes($user->minecraft_uuid);
-            if ($storedUuid !== $normalizedUuid) {
+            if ($user->minecraft_plain_uuid !== $validated['minecraft_uuid']) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Minecraft UUID does not match the registered account.',
@@ -66,13 +61,6 @@ class MinecraftVerificationController extends Controller
             $user->update([
                 'minecraft_verified' => true,
                 'minecraft_verified_at' => now()
-            ]);
-
-            // Log the successful verification
-            Log::info('Minecraft account verified', [
-                'user_id' => $user->id,
-                'minecraft_username' => $validated['minecraft_username'],
-                'minecraft_uuid' => $normalizedUuid
             ]);
 
             return response()->json([
@@ -93,13 +81,6 @@ class MinecraftVerificationController extends Controller
                 'error_code' => 'validation_failed'
             ], 422);
         } catch (\Exception $e) {
-            Log::error('Minecraft verification error', [
-                'error' => $e->getMessage(),
-                'token' => $request->token ?? null,
-                'minecraft_username' => $request->minecraft_username ?? null,
-                'minecraft_uuid' => $request->minecraft_uuid ?? null
-            ]);
-
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred during verification.',

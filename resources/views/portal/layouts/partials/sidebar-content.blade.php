@@ -23,7 +23,7 @@
                 </li>
 
                 <li>
-                    <a href="{{ route('portal.plots.index') }}"
+                    <a href="#"
                         class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.plots.*')
                             ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
                             : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-indigo-600 dark:hover:text-indigo-400'
@@ -34,24 +34,13 @@
                 </li>
 
                 <li>
-                    <a href="{{ route('portal.bank.index') }}" 
-                        class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.bank.*') 
-                            ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400' 
+                    <a href="#"
+                        class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.bank.*')
+                            ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
                             : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-indigo-600 dark:hover:text-indigo-400'
                         }}">
                         <x-heroicon-s-banknotes class="h-6 w-6 shrink-0" />
                         Bank
-                    </a>
-                </li>
-
-                <li>
-                    <a href="{{ route('portal.vehicles.index') }}" 
-                        class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.vehicles.*') 
-                            ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400' 
-                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-indigo-600 dark:hover:text-indigo-400'
-                        }}">
-                        <x-heroicon-s-truck class="h-6 w-6 shrink-0" />
-                        Voertuigen
                     </a>
                 </li>
             </ul>
@@ -63,7 +52,7 @@
                 <div class="text-xs font-semibold leading-6 text-gray-500 dark:text-gray-400">POLITIE</div>
                 <ul role="list" class="-mx-2 mt-2 space-y-1">
                     <li>
-                        <a href="{{ route('portal.emergency-calls.index') }}"
+                        <a href="#"
                             class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.emergency-calls.*')
                                 ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
                                 : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-indigo-600 dark:hover:text-indigo-400'
@@ -74,7 +63,7 @@
                     </li>
 
                     <li>
-                        <a href="{{ route('portal.arrests.index') }}"
+                        <a href="#"
                             class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.arrests.*')
                                 ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
                                 : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-indigo-600 dark:hover:text-indigo-400'
@@ -85,18 +74,7 @@
                     </li>
 
                     <li>
-                        <a href="{{ route('portal.walkie-talkies.index') }}"
-                            class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.walkie-talkies.*')
-                                ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
-                                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-indigo-600 dark:hover:text-indigo-400'
-                            }}">
-                            <x-heroicon-s-signal class="h-6 w-6 shrink-0" />
-                            Portofoons
-                        </a>
-                    </li>
-
-                    <li>
-                        <a href="{{ route('portal.detection-gates.index') }}"
+                        <a href="#"
                             class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.detection-gates.*')
                                 ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
                                 : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-indigo-600 dark:hover:text-indigo-400'
@@ -107,7 +85,7 @@
                     </li>
 
                     <li>
-                        <a href="{{ route('portal.fines.index') }}"
+                        <a href="#"
                             class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.fines.*')
                                 ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
                                 : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-indigo-600 dark:hover:text-indigo-400'
@@ -148,7 +126,7 @@
                     </li>
 
                     <li>
-                        <a href="{{ route('portal.admin.teleporters.index') }}"
+                        <a href="#"
                             class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.admin.teleporters.*')
                                 ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
                                 : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-indigo-600 dark:hover:text-indigo-400'
@@ -170,10 +148,10 @@
                          class="h-10 w-10 rounded-full bg-gray-50 dark:bg-gray-800 ring-2 ring-white dark:ring-gray-900">
                     <div class="flex-1 min-w-0">
                         <p class="text-sm font-semibold text-gray-900 dark:text-white truncate">
-                            {{ auth()->user()->name }}
+                            {{ auth()->user()->minecraft_username }} ({{ auth()->user()->getLevelAttribute() }})
                         </p>
                         <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
-                            {{ auth()->user()->minecraft_username }}
+                            {{ auth()->user()->getPrefixAttribute() }}
                         </p>
                     </div>
 

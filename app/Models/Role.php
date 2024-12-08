@@ -34,4 +34,4 @@ class Role extends Model
     {
         return $this->is_admin || $this->permissions->contains('slug', $permission);
     }
-} 
+}

@@ -10,30 +10,8 @@ class DashboardController extends Controller
     public function index()
     {
         $user = auth()->user();
-        
-        return view('portal.dashboard', [
-            'stats' => [
-                'balance' => $user->getCurrentBalance(),
-                'plots' => [
-                    'total' => $user->plots()->count(),
-                    'area' => $user->plots()->get()->sum(function($plot) {
-                        return $plot->getArea();
-                    })
-                ],
-                'vehicles' => $user->vehicles()->count() ?? 0,
-                'level' => [
-                    'current' => $user->level ?? 1,
-                    'progress' => $user->level_progress ?? 0,
-                    'next' => ($user->level ?? 1) + 1
-                ],
-                'fitness' => [
-                    'current' => $user->getCurrentFitness(),
-                    'max' => $user->getMaxFitness(),
-                    'percentage' => $user->getFitnessPercentage()
-                ]
-            ],
-            'recentActivity' => $this->getRecentActivity($user)
-        ]);
+
+        return view('portal.dashboard');
     }
 
     private function getRecentActivity($user)
@@ -77,4 +55,4 @@ class DashboardController extends Controller
 
         return $activity->sortByDesc('time')->take(5);
     }
-} 
+}

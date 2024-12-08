@@ -115,12 +115,12 @@
 
                             <div>
                                 <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Plots</dt>
-                                <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $user->plots->count() }}</dd>
+                                <dd class="mt-1 text-sm text-gray-900 dark:text-white">TO DO</dd>
                             </div>
 
                             <div>
                                 <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Voertuigen</dt>
-                                <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $user->vehicles->count() }}</dd>
+                                <dd class="mt-1 text-sm text-gray-900 dark:text-white">TO DO</dd>
                             </div>
                         </dl>
                     </div>
@@ -134,7 +134,7 @@
                     <div class="px-4 py-5 sm:px-6 border-b border-gray-200 dark:border-gray-700">
                         <div class="flex items-center justify-between">
                             <h3 class="text-base font-semibold text-gray-900 dark:text-white">Rollen</h3>
-                            
+
                             <!-- Role Assignment Dropdown -->
                             <div x-data="{ open: false, confirmDelete: false, roleToDelete: null }" @keydown.escape.window="open = false; confirmDelete = false">
                                 <!-- Role Assignment Button -->
@@ -166,8 +166,8 @@
                                                         @endif
                                                     </div>
                                                     <div class="ml-3 flex h-6 items-center">
-                                                        <input type="checkbox" 
-                                                               name="roles[]" 
+                                                        <input type="checkbox"
+                                                               name="roles[]"
                                                                value="{{ $role->id }}"
                                                                {{ $user->roles->contains($role) ? 'checked' : '' }}
                                                                class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800">
@@ -186,7 +186,7 @@
 
                                 <!-- Delete Role Confirmation Modal -->
                                 <template x-teleport="body">
-                                    <div x-show="confirmDelete" 
+                                    <div x-show="confirmDelete"
                                          class="relative z-50"
                                          @click.away="confirmDelete = false">
                                         <div class="fixed inset-0 bg-gray-500/75 dark:bg-gray-900/75 transition-opacity"></div>
@@ -240,7 +240,7 @@
                                     <span class="inline-flex items-center rounded-md bg-indigo-50 px-2 py-1 text-sm font-medium text-indigo-700 ring-1 ring-inset ring-indigo-600/20 dark:bg-indigo-500/10 dark:text-indigo-400 dark:ring-indigo-500/20">
                                         {{ $role->name }}
                                     </span>
-                                    <button type="button" 
+                                    <button type="button"
                                             @click="confirmDelete = true; roleToDelete = {{ $role->id }}"
                                             class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300">
                                         <x-heroicon-s-x-mark class="h-5 w-5" />
@@ -286,4 +286,4 @@
             </div>
         </div>
     </div>
-@endsection 
+@endsection

@@ -12,20 +12,19 @@ class MojangApiService
         try {
             // First, get UUID from username using Mojang's API
             $response = Http::get("https://api.mojang.com/users/profiles/minecraft/{$username}");
-            
+
             if (!$response->successful()) {
                 return null;
             }
 
             $playerData = $response->json();
-            
+
             return [
                 'uuid' => $playerData['id'], // Store UUID without dashes
                 'name' => $playerData['name'],
                 'skin_url' => $this->getSkinUrl($playerData['id'])
             ];
         } catch (\Exception $e) {
-            \Log::error('Mojang API Error: ' . $e->getMessage());
             return null;
         }
     }
@@ -33,11 +32,8 @@ class MojangApiService
     protected function getSkinUrl(string $uuid)
     {
         try {
-            // Use Crafatar API for getting skin (more reliable than Mojang's API)
-            // Crafatar accepts both dashed and undashed UUIDs
             return "https://crafatar.com/avatars/{$uuid}?overlay=true";
         } catch (\Exception $e) {
-            \Log::error('Skin fetch error: ' . $e->getMessage());
             return null;
         }
     }
@@ -64,4 +60,4 @@ class MojangApiService
             substr($uuid, 20)
         );
     }
-} 
+}

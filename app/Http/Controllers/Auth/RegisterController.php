@@ -40,6 +40,7 @@ class RegisterController extends Controller
             'email' => $validated['email'],
             'minecraft_username' => $playerData['name'],
             'minecraft_uuid' => $playerData['uuid'],
+            'minecraft_plain_uuid' => $mojangApi->formatUuid($playerData['uuid']),
             'password' => Hash::make($validated['password']),
             'token' => Str::random(32),
         ]);
@@ -54,4 +55,4 @@ class RegisterController extends Controller
 
         return redirect()->route('dashboard');
     }
-} 
+}

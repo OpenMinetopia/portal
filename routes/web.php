@@ -35,53 +35,20 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
         Route::prefix('portal')->name('portal.')->group(function () {
-            Route::resource('plots', PlotController::class);
-            Route::get('/bank', [BankController::class, 'index'])->name('bank.index');
-            Route::resource('vehicles', VehicleController::class);
 
-            // Police Routes (protected by middleware)
+            // TODO: CREATE PLOT ROUTES
+
             Route::middleware(['auth', 'police.access'])->group(function () {
-                Route::resource('emergency-calls', EmergencyCallController::class);
-                Route::resource('detection-gates', DetectionGateController::class);
-                Route::resource('fines', FineController::class);
-                Route::resource('arrests', ArrestController::class);
-                Route::resource('walkie-talkies', WalkieTalkieController::class);
+                // TODO: CREATE POLICE ROUTES
             });
 
             Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
                 Route::resource('users', AdminUserController::class);
                 Route::resource('roles', AdminRoleController::class);
-                Route::resource('teleporters', AdminTeleporterController::class);
-                
-                // Additional user management routes
                 Route::post('users/{user}/roles', [AdminUserController::class, 'updateRoles'])->name('users.roles.update');
             });
         });
     });
 
     Route::post('logout', [LoginController::class, 'destroy'])->name('logout');
-
-    Route::middleware(['auth', 'verified'])->group(function () {
-        Route::prefix('dashboard')->name('dashboard.')->group(function () {
-            Route::resource('plots', PlotController::class);
-        });
-    });
-});
-
-Route::prefix('api-docs')->group(function () {
-    Route::get('/', [ApiDocumentationController::class, 'index'])->name('api-docs.index');
-    Route::get('/authentication', [ApiDocumentationController::class, 'authentication'])->name('api-docs.authentication');
-    Route::get('/player', [ApiDocumentationController::class, 'player'])->name('api-docs.player');
-    Route::get('/police', [ApiDocumentationController::class, 'police'])->name('api-docs.police');
-    Route::get('/emergency', [ApiDocumentationController::class, 'emergency'])->name('api-docs.emergency');
-    Route::get('/plots', [ApiDocumentationController::class, 'plots'])->name('api-docs.plots');
-    Route::get('/economy', [ApiDocumentationController::class, 'economy'])->name('api-docs.economy');
-    Route::get('/vehicles', [ApiDocumentationController::class, 'vehicles'])->name('api-docs.vehicles');
-    Route::get('/chat', [ApiDocumentationController::class, 'chat'])->name('api-docs.chat');
-    Route::get('/fitness', [ApiDocumentationController::class, 'fitness'])->name('api-docs.fitness');
-    Route::get('/teleporters', [ApiDocumentationController::class, 'teleporters'])->name('api-docs.teleporters');
-    Route::get('/detection-gates', [ApiDocumentationController::class, 'detectionGates'])->name('api-docs.detection-gates');
-    Route::get('/level', [ApiDocumentationController::class, 'level'])->name('api-docs.level');
-    Route::get('/walkie-talkie', [ApiDocumentationController::class, 'walkieTalkie'])->name('api-docs.walkie-talkie');
-    Route::get('/bank', [ApiDocumentationController::class, 'bank'])->name('api-docs.bank');
 });

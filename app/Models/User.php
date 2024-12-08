@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\Plugin\PlayerService;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -18,19 +19,8 @@ class User extends Authenticatable
         'password',
         'minecraft_verified',
         'minecraft_uuid',
+        'minecraft_plain_uuid',
         'minecraft_verified_at',
-        'level',
-        'calculated_level',
-        'playtime',
-        'default_prefix',
-        'prefix_color',
-        'level_color',
-        'name_color',
-        'chat_color',
-        'last_login',
-        'last_logout',
-        'is_online',
-        'health_statistic',
     ];
 
     protected $hidden = [
@@ -43,9 +33,6 @@ class User extends Authenticatable
         'minecraft_verified_at' => 'datetime',
         'minecraft_verified' => 'boolean',
         'password' => 'hashed',
-        'last_login' => 'datetime',
-        'last_logout' => 'datetime',
-        'is_online' => 'boolean',
     ];
 
     // Relationships
@@ -70,83 +57,59 @@ class User extends Authenticatable
         });
     }
 
-    public function arrests()
-    {
-        return $this->hasMany(Arrest::class, 'minecraft_uuid', 'minecraft_uuid');
-    }
-
-    public function fines()
-    {
-        return $this->hasMany(Fine::class, 'minecraft_uuid', 'minecraft_uuid');
-    }
-
-    public function plots()
-    {
-        return $this->hasMany(Plot::class);
-    }
-
-    public function vehicles()
-    {
-        return $this->hasMany(Vehicle::class);
-    }
-
-    public function bankAccount()
-    {
-        return $this->hasOne(BankAccount::class);
-    }
-
-    public function fitness()
-    {
-        return $this->hasOne(Fitness::class);
-    }
-
-    public function plotMemberships()
-    {
-        return $this->belongsToMany(Plot::class, 'plot_members')
-            ->withTimestamps()
-            ->withPivot(['role']);
-    }
-
-    // Helper methods
     public function hasRole($role)
     {
         return $this->roles->contains('name', $role);
     }
 
-    public function isPoliceOfficer()
+    /**
+     * Get the player's level.
+     *
+     * @return int
+     */
+    public function getLevelAttribute(): int
     {
-        return $this->hasRole('police_officer');
+        $service = app(PlayerService::class);
+        $data = $service->getPlayerData($this->minecraft_plain_uuid);
+
+        return $data['level'];
     }
 
-    public function getCurrentBalance()
+    /**
+     * Get the player's fitness.
+     *
+     * @return int
+     */
+    public function getFitnessAttribute(): int
     {
-        return $this->bankAccount?->balance ?? 0;
+        $service = app(PlayerService::class);
+        $data = $service->getPlayerData($this->minecraft_plain_uuid);
+
+        return $data['fitness'];
     }
 
-    public function getCurrentFitness()
+    /**
+     * Get the player's prefix.
+     *
+     * @return string
+     */
+    public function getPrefixAttribute(): string
     {
-        return $this->fitness?->total_fitness ?? 100;
+        $service = app(PlayerService::class);
+        $data = $service->getPlayerData($this->minecraft_plain_uuid);
+
+        return $data['prefix'];
     }
 
-    public function getMaxFitness()
+    /**
+     * Get available prefixes.
+     *
+     * @return array
+     */
+    public function getAvailablePrefixesAttribute(): array
     {
-        return $this->fitness?->max_fitness ?? 100;
+        $service = app(PlayerService::class);
+        return $service->getPlayerPrefixes($this->minecraft_plain_uuid);
     }
 
-    public function getFitnessPercentage()
-    {
-        $max = $this->getMaxFitness();
-        if ($max === 0) return 0;
-        return round(($this->getCurrentFitness() / $max) * 100);
-    }
-
-    public function getActiveArrests()
-    {
-        return $this->arrests()->where('release_time', '>', now())->get();
-    }
-
-    public function getUnpaidFines()
-    {
-        return $this->fines()->where('paid', false)->get();
-    }
 }

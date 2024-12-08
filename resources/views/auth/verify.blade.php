@@ -63,7 +63,7 @@
                         <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
                             Start minecraft en join onze server:
                             <span class="mt-1 block font-mono text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/50 px-3 py-2 rounded-md">
-                                {{ config('minetopia.server_address') }}
+                                {{ config('plugin.server_address') }}
                             </span>
                         </p>
                     </div>
