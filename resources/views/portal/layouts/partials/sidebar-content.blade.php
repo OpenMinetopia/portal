@@ -48,6 +48,19 @@
                         </a>
                     </li>
                 @endif
+
+                @if(\App\Models\PortalFeature::where('key', 'companies')->where('is_enabled', true)->exists())
+                    <li>
+                        <a href="{{ route('portal.companies.registry') }}"
+                           class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.companies.registry')
+                                ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
+                                : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-indigo-400 dark:hover:bg-gray-800'
+                            }}">
+                            <x-heroicon-o-magnifying-glass class="h-6 w-6 shrink-0"/>
+                            Bedrijvenregister
+                        </a>
+                    </li>
+                @endif
             </ul>
         </li>
 

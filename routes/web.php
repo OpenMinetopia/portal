@@ -15,6 +15,7 @@ use App\Http\Controllers\Portal\CompaniesController;
 use App\Http\Controllers\Portal\Admin\CompanyTypeController;
 use App\Http\Controllers\Portal\CompanyRequestManagementController;
 use App\Http\Controllers\Portal\Admin\DissolutionRequestManagementController;
+use App\Http\Controllers\Portal\CompanyRegistryController;
 
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisterController::class, 'create'])->name('register');
@@ -82,6 +83,13 @@ Route::middleware('auth')->group(function () {
 
             // Company routes for users
             Route::middleware('companies.enabled')->group(function () {
+                Route::get('/companies/register/search', [CompanyRegistryController::class, 'index'])
+                    ->name('companies.registry');
+                Route::get('/companies/registry/search', [CompanyRegistryController::class, 'search'])
+                    ->name('companies.registry.search');
+                Route::get('/companies/registry/{company}', [CompanyRegistryController::class, 'show'])
+                    ->name('companies.registry.show');
+
                 Route::prefix('companies')->name('companies.')->group(function () {
                     Route::get('/', [CompaniesController::class, 'index'])->name('index');
                     Route::get('/register', [CompaniesController::class, 'register'])->name('register');

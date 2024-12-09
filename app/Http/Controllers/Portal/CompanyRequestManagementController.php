@@ -68,7 +68,7 @@ class CompanyRequestManagementController extends Controller
                     ]);
 
                     return redirect()
-                        ->route('portal.companies.manage.index')
+                        ->route('portal.companies.requests.index')
                         ->with('success', 'De bedrijfs aanvraag is succesvol goedgekeurd en het bedrijf is aangemaakt.');
 
                 } catch (\Exception $e) {
@@ -86,7 +86,7 @@ class CompanyRequestManagementController extends Controller
                 ]);
 
                 return redirect()
-                    ->route('portal.companies.manage.index')
+                    ->route('portal.companies.requests.index')
                     ->with('success', 'De bedrijfs aanvraag is succesvol afgewezen.');
             }
 
