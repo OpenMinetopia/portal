@@ -36,21 +36,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Online Users -->
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-lg">
-                <div class="p-6">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0 p-3 bg-indigo-100 dark:bg-indigo-500/10 rounded-lg">
-                            <x-heroicon-s-signal class="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Online</h3>
-                            <p class="text-2xl font-semibold text-gray-900 dark:text-white">{{ number_format($stats['online']) }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- Users Table -->
@@ -160,4 +145,4 @@
             @endif
         </div>
     </div>
-@endsection 
+@endsection

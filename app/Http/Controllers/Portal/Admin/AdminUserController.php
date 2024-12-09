@@ -19,16 +19,14 @@ class AdminUserController extends Controller
             'users' => $users,
             'stats' => [
                 'total' => User::count(),
-                'verified' => User::where('minecraft_verified', true)->count(),
-                'online' => User::where('is_online', true)->count()
-            ]
+                'verified' => User::where('minecraft_verified', true)->count()]
         ]);
     }
 
     public function show(User $user)
     {
         return view('portal.admin.users.show', [
-            'user' => $user->load(['roles', 'bankAccount', 'plots', 'vehicles']),
+            'user' => $user->load(['roles']),
             'roles' => Role::all()
         ]);
     }
@@ -75,4 +73,4 @@ class AdminUserController extends Controller
             ->route('portal.admin.users.show', $user)
             ->with('success', 'Rollen succesvol bijgewerkt');
     }
-} 
+}

@@ -7,7 +7,6 @@ use App\Http\Controllers\Auth\MinecraftVerificationController;
 use App\Http\Controllers\Portal\DashboardController;
 use App\Http\Controllers\Portal\Admin\AdminUserController;
 use App\Http\Controllers\Portal\Admin\AdminRoleController;
-use App\Http\Controllers\Portal\Admin\AdminTeleporterController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Portal\Admin\PermitTypeController;
 use App\Http\Controllers\Portal\PermitsController;
@@ -34,12 +33,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
         Route::prefix('portal')->name('portal.')->group(function () {
-            // Admin routes should be first
             Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
                 // User & Role Management
                 Route::resource('users', AdminUserController::class);
                 Route::resource('roles', AdminRoleController::class);
-                Route::resource('teleporters', AdminTeleporterController::class);
 
                 // Settings
                 Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
@@ -57,7 +54,7 @@ Route::middleware('auth')->group(function () {
             });
 
             // Company Management Routes
-            Route::prefix('companies')->name('companies.')->middleware(['companies.manage'])->group(function () {
+            Route::prefix('companies')->name('companies.')->middleware(['companies.manage', 'companies.enabled'])->group(function () {
                 Route::get('/requests', [CompanyRequestManagementController::class, 'index'])->name('requests.index');
                 Route::get('/requests/{companyRequest}', [CompanyRequestManagementController::class, 'show'])->name('requests.show');
                 Route::post('/requests/{companyRequest}/handle', [CompanyRequestManagementController::class, 'handle'])->name('requests.handle');
