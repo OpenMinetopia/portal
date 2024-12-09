@@ -4,13 +4,14 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use App\Models\PortalFeature;
 
-class PoliceAccess
+class EnsureBrokerEnabled
 {
     public function handle(Request $request, Closure $next)
     {
-        if (!auth()->user()->isAdmin() && !auth()->user()->hasPermission('manage-police')) {
-            abort(403, 'Je hebt geen toegang tot deze functie.');
+        if (!PortalFeature::where('key', 'broker')->where('is_enabled', true)->exists()) {
+            abort(404);
         }
 
         return $next($request);

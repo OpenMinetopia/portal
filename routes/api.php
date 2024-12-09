@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\WalkieTalkieController;
 use App\Http\Controllers\Api\DetectionGateController;
 use App\Http\Controllers\Api\TeleporterController;
 use App\Http\Controllers\Api\FitnessController;
+use App\Http\Controllers\Api\PlayerDatabaseController;
 use Illuminate\Support\Facades\Route;
 
 // Public endpoints (no API key required)
@@ -27,4 +28,10 @@ Route::middleware('api.key')->group(function () {
     // Verification endpoint
     Route::post('/minecraft/verify', [MinecraftVerificationController::class, 'verify'])
         ->name('api.minecraft.verify');
+});
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/police/players', [PlayerDatabaseController::class, 'search'])
+        ->middleware('police')
+        ->name('api.police.players.search');
 });

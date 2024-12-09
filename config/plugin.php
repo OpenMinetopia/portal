@@ -2,7 +2,7 @@
 
 return [
     'api' => [
-        'url' => env('PLUGIN_API_URL', 'http://localhost:8080'),
+        'url' => env('PLUGIN_API_URL', 'http://94.176.214.90:25570'),
         'key' => env('PLUGIN_API_KEY'),
     ],
 

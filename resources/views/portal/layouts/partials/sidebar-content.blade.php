@@ -22,7 +22,57 @@
                         Dashboard
                     </a>
                 </li>
+                <li>
+                    <a href="{{ route('portal.bank-accounts.index') }}"
+                       class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.bank-accounts.*')
+                            ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
+                            : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-indigo-400 dark:hover:bg-gray-800'
+                        }}">
+                        <x-heroicon-o-credit-card class="h-6 w-6 shrink-0"/>
+                        Mijn bankrekeningen
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('portal.plots.index') }}"
+                       class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.plots.*')
+                            ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
+                            : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-indigo-400 dark:hover:bg-gray-800'
+                        }}">
+                        <x-heroicon-o-map class="h-6 w-6 shrink-0"/>
+                        Mijn plots
+                    </a>
+                </li>
 
+                <li>
+                    <a href="{{ route('portal.criminal-records.index') }}"
+                       class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.criminal-records.*')
+                            ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
+                            : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-indigo-400 dark:hover:bg-gray-800'
+                        }}">
+                        <x-heroicon-o-document-text class="h-6 w-6 shrink-0"/>
+                        Mijn strafblad
+                    </a>
+                </li>
+
+                @if(\App\Models\PortalFeature::where('key', 'broker')->where('is_enabled', true)->exists())
+                <li>
+                    <a href="{{ route('portal.plots.listings.index') }}"
+                       class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.plots.listings.*')
+                            ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
+                            : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-indigo-400 dark:hover:bg-gray-800'
+                        }}">
+                        <x-heroicon-o-currency-dollar class="h-6 w-6 shrink-0"/>
+                        Makelaar
+                    </a>
+                </li>
+                @endif
+
+            </ul>
+        </li>
+
+        <li>
+            <div class="text-xs font-semibold leading-6 text-gray-500 dark:text-gray-400">BEDRIJVEN & VERGUNNINGEN</div>
+            <ul role="list" class="-mx-2 mt-2 space-y-1">
                 @if(\App\Models\PortalFeature::where('key', 'permits')->where('is_enabled', true)->exists())
                     <li>
                         <a href="{{ route('portal.permits.index') }}"
@@ -36,31 +86,32 @@
                     </li>
                 @endif
 
-                @if(\App\Models\PortalFeature::where('key', 'companies')->where('is_enabled', true)->exists())
-                    <li>
-                        <a href="{{ route('portal.companies.index') }}"
-                           class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.companies.index', 'portal.companies.request', 'portal.companies.show', 'portal.companies.register')
+                    @if(\App\Models\PortalFeature::where('key', 'companies')->where('is_enabled', true)->exists())
+                        <li>
+                            <a href="{{ route('portal.companies.index') }}"
+                               class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.companies.index', 'portal.companies.request', 'portal.companies.show', 'portal.companies.register')
                                 ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
                                 : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-indigo-400 dark:hover:bg-gray-800'
                             }}">
-                            <x-heroicon-o-building-office class="h-6 w-6 shrink-0"/>
-                            Mijn bedrijven
-                        </a>
-                    </li>
-                @endif
+                                <x-heroicon-o-building-office class="h-6 w-6 shrink-0"/>
+                                Mijn bedrijven
+                            </a>
+                        </li>
+                    @endif
 
-                @if(\App\Models\PortalFeature::where('key', 'companies')->where('is_enabled', true)->exists())
-                    <li>
-                        <a href="{{ route('portal.companies.registry') }}"
-                           class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.companies.registry')
+                    @if(\App\Models\PortalFeature::where('key', 'companies')->where('is_enabled', true)->exists())
+                        <li>
+                            <a href="{{ route('portal.companies.registry') }}"
+                               class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.companies.registry')
                                 ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
                                 : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-indigo-400 dark:hover:bg-gray-800'
                             }}">
-                            <x-heroicon-o-magnifying-glass class="h-6 w-6 shrink-0"/>
-                            Bedrijvenregister
-                        </a>
-                    </li>
-                @endif
+                                <x-heroicon-o-magnifying-glass class="h-6 w-6 shrink-0"/>
+                                Bedrijvenregister
+                            </a>
+                        </li>
+                    @endif
+
             </ul>
         </li>
 
@@ -138,6 +189,25 @@
                         </li>
                     @endif
 
+                </ul>
+            </li>
+        @endif
+
+        @if(auth()->user()->isAdmin() || auth()->user()->hasPermission('manage-police'))
+            <!-- Police Section -->
+            <li>
+                <div class="text-xs font-semibold leading-6 text-gray-500 dark:text-gray-400">POLITIE</div>
+                <ul role="list" class="-mx-2 mt-2 space-y-1">
+                    <li>
+                        <a href="{{ route('portal.police.players.index') }}"
+                           class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.police.players.*')
+                                ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
+                                : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-indigo-400 dark:hover:bg-gray-800'
+                            }}">
+                            <x-heroicon-o-users class="h-6 w-6 shrink-0"/>
+                            Spelersdatabase
+                        </a>
+                    </li>
                 </ul>
             </li>
         @endif

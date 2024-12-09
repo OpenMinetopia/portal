@@ -29,6 +29,41 @@ class MojangApiService
         }
     }
 
+    /**
+     * Get player name from UUID
+     *
+     * @param string $uuid
+     * @return array|null
+     */
+    public function getPlayerDataFromUuid(string $uuid)
+    {
+        try {
+            // Cache the result for 1 hour to prevent excessive API calls
+            return Cache::remember('mojang_player_' . $uuid, 3600, function () use ($uuid) {
+                // Get the profile data from Mojang API
+                $response = Http::get("https://api.mojang.com/user/profile/{$uuid}");
+
+                if (!$response->successful()) {
+                    return null;
+                }
+
+                $profileData = $response->json();
+
+                if (!is_array($profileData) || !isset($profileData['name'])) {
+                    return null;
+                }
+
+                return [
+                    'uuid' => $uuid,
+                    'name' => $profileData['name'],
+                    'skin_url' => $this->getSkinUrl($uuid)
+                ];
+            });
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
     protected function getSkinUrl(string $uuid)
     {
         try {

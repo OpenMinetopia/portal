@@ -6,11 +6,12 @@ use Illuminate\Foundation\Configuration\Middleware;
 use App\Http\Middleware\EnsureMinecraftVerified;
 use App\Http\Middleware\AdminAccess;
 use App\Http\Middleware\ValidateApiKey;
-use App\Http\Middleware\PoliceAccess;
 use App\Http\Middleware\CanManagePermits;
 use App\Http\Middleware\EnsurePermitsEnabled;
 use App\Http\Middleware\EnsureCompaniesEnabled;
 use App\Http\Middleware\CanManageCompanies;
+use App\Http\Middleware\PoliceAccess;
+use App\Http\Middleware\EnsureBrokerEnabled;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -24,11 +25,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'minecraft.verified' => EnsureMinecraftVerified::class,
             'api.key' => ValidateApiKey::class,
             'admin' => AdminAccess::class,
-            'police.access' => PoliceAccess::class,
             'permit.manage'  => CanManagePermits::class,
             'permits.enabled' => EnsurePermitsEnabled::class,
             'companies.enabled' => EnsureCompaniesEnabled::class,
             'companies.manage' => CanManageCompanies::class,
+            'police.access' => PoliceAccess::class,
+            'broker.enabled' => EnsureBrokerEnabled::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

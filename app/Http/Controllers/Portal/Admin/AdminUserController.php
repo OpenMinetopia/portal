@@ -60,6 +60,9 @@ class AdminUserController extends Controller
             ->with('success', 'Gebruiker succesvol bijgewerkt');
     }
 
+    /**
+     * Update the user's roles.
+     */
     public function updateRoles(Request $request, User $user)
     {
         $validated = $request->validate([
@@ -69,8 +72,6 @@ class AdminUserController extends Controller
 
         $user->roles()->sync($validated['roles'] ?? []);
 
-        return redirect()
-            ->route('portal.admin.users.show', $user)
-            ->with('success', 'Rollen succesvol bijgewerkt');
+        return back()->with('success', 'Rollen succesvol bijgewerkt');
     }
 }

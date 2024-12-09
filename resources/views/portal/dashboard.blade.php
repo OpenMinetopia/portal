@@ -16,7 +16,7 @@
                         </div>
                         <div class="ml-4">
                             <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Huidige saldo</h3>
-                            <p class="text-2xl font-semibold text-gray-900 dark:text-white">TO DO</p>
+                            <p class="text-2xl font-semibold text-gray-900 dark:text-white">{{ auth()->user()->formatted_balance_with_currency }}</p>
                         </div>
                     </div>
                 </div>
@@ -31,7 +31,9 @@
                         </div>
                         <div class="ml-4">
                             <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Plots</h3>
-                            <p class="text-2xl font-semibold text-gray-900 dark:text-white">TO DO</p>
+                            <p class="text-2xl font-semibold text-gray-900 dark:text-white">
+                                {{ count(auth()->user()->getPlotsAttribute()) }}
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -89,7 +91,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 @endsection

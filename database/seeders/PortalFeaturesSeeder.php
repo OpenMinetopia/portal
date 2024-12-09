@@ -11,12 +11,6 @@ class PortalFeaturesSeeder extends Seeder
     {
         $features = [
             [
-                'key' => 'permits',
-                'name' => 'Vergunningen',
-                'description' => 'Beheer vergunningen voor spelers en bedrijven',
-                'is_enabled' => false
-            ],
-            [
                 'key' => 'companies',
                 'name' => 'Bedrijven',
                 'description' => 'Beheer bedrijven en hun eigenaren (KvK)',
@@ -26,7 +20,13 @@ class PortalFeaturesSeeder extends Seeder
                 'key' => 'permits',
                 'name' => 'Vergunningen',
                 'description' => 'Schakel het vergunningen systeem in of uit.',
-                'is_enabled' => true,
+                'is_enabled' => false,
+            ],
+            [
+                'key' => 'broker',
+                'name' => 'Makelaar',
+                'description' => 'Laat spelers plot kopen en verkopen.',
+                'is_enabled' => false
             ],
         ];
 
@@ -37,4 +37,4 @@ class PortalFeaturesSeeder extends Seeder
             );
         }
     }
-} 
+}

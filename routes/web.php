@@ -16,6 +16,11 @@ use App\Http\Controllers\Portal\Admin\CompanyTypeController;
 use App\Http\Controllers\Portal\CompanyRequestManagementController;
 use App\Http\Controllers\Portal\Admin\DissolutionRequestManagementController;
 use App\Http\Controllers\Portal\CompanyRegistryController;
+use App\Http\Controllers\Portal\CriminalRecordController;
+use App\Http\Controllers\Portal\Police\PlayerDatabaseController;
+use App\Http\Controllers\Portal\BankAccountController;
+use App\Http\Controllers\Portal\PlotController;
+use App\Http\Controllers\Portal\PlotListingController;
 
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisterController::class, 'create'])->name('register');
@@ -33,10 +38,42 @@ Route::middleware('auth')->group(function () {
     Route::middleware('minecraft.verified')->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
+        Route::get('/portal/criminal-records', [CriminalRecordController::class, 'index'])
+            ->name('portal.criminal-records.index');
+
+        Route::get('/portal/bank-accounts', [BankAccountController::class, 'index'])
+            ->name('portal.bank-accounts.index');
+
+        Route::get('/portal/bank-accounts/{uuid}', [BankAccountController::class, 'show'])
+            ->name('portal.bank-accounts.show');
+
+        Route::get('/portal/plots', [PlotController::class, 'index'])
+            ->name('portal.plots.index');
+        Route::get('/portal/plots/{name}', [PlotController::class, 'show'])
+            ->name('portal.plots.show');
+
+        Route::middleware('broker.enabled')->group(function () {
+            Route::get('/plots/te-koop', [PlotListingController::class, 'index'])
+                ->name('portal.plots.listings.index');
+            
+            Route::get('/plots/te-koop/{listing}/kopen', [PlotListingController::class, 'showBuyForm'])
+                ->name('portal.plots.listings.buy.show');
+            Route::post('/plots/te-koop/{listing}/kopen', [PlotListingController::class, 'buy'])
+                ->name('portal.plots.listings.buy');
+            
+            Route::get('/plots/{plot}/verkopen', [PlotListingController::class, 'create'])
+                ->name('portal.plots.listings.create');
+            Route::post('/plots/{plot}/verkopen', [PlotListingController::class, 'store'])
+                ->name('portal.plots.listings.store');
+            Route::delete('/plots/te-koop/{listing}', [PlotListingController::class, 'destroy'])
+                ->name('portal.plots.listings.destroy');
+        });
+
         Route::prefix('portal')->name('portal.')->group(function () {
             Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
                 // User & Role Management
                 Route::resource('users', AdminUserController::class);
+                Route::post('users/{user}/roles', [AdminUserController::class, 'updateRoles'])->name('users.roles.update');
                 Route::resource('roles', AdminRoleController::class);
 
                 // Settings
@@ -120,6 +157,13 @@ Route::middleware('auth')->group(function () {
                     });
                 });
             });
+
+            // Police routes
+            Route::middleware(['police.access'])->prefix('police')->name('police.')->group(function () {
+                Route::get('/players', [PlayerDatabaseController::class, 'index'])->name('players.index');
+                Route::get('/players/{user}', [PlayerDatabaseController::class, 'show'])->name('players.show');
+            });
+
         });
     });
 

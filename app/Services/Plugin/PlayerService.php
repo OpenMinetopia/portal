@@ -35,7 +35,19 @@ class PlayerService
     }
 
     /**
-     * Get player prefixes with fallback.
+     * Get player colors.
+     *
+     * @param string $playerName
+     * @return array
+     */
+    public function getPlayerColors(string $playerName): array
+    {
+        $data = $this->apiService->get("/api/player/{$playerName}/colors", [], 10);
+        return $data['colors'] ?? [];
+    }
+
+    /**
+     * Get player prefixes.
      *
      * @param string $playerName
      * @return array
@@ -43,7 +55,21 @@ class PlayerService
     public function getPlayerPrefixes(string $playerName): array
     {
         $data = $this->apiService->get("/api/player/{$playerName}/prefixes", [], 10);
-
         return $data['prefixes'] ?? [];
     }
+
+    /**
+     * Format playtime from seconds to readable string.
+     *
+     * @param int $seconds
+     * @return string
+     */
+    public function formatPlaytime(int $seconds): string
+    {
+        $hours = floor($seconds / 3600);
+        $minutes = floor(($seconds % 3600) / 60);
+
+        return "{$hours} uur, {$minutes} minuten";
+    }
+
 }

@@ -24,12 +24,12 @@ class PluginApiService
      * @param int|null $cacheMinutes
      * @return mixed
      */
-    public function get(string $endpoint, array $query = [], int $cacheMinutes = null)
+    public function get(string $endpoint, array $query = [], int $cacheMinutes = null): mixed
     {
         $url = $this->baseUrl . $endpoint;
 
         if ($cacheMinutes) {
-            return Cache::remember($url . '?' . http_build_query($query), $cacheMinutes, function () use ($url, $query) {
+            return Cache::remember($url . '?' . http_build_query($query), $cacheMinutes * 60, function () use ($url, $query) {
                 return $this->makeRequest('GET', $url, $query);
             });
         }
@@ -45,17 +45,16 @@ class PluginApiService
      * @param array $data
      * @return mixed
      */
-    private function makeRequest(string $method, string $url, array $data = [])
+    private function makeRequest(string $method, string $url, array $data = []): mixed
     {
         try {
             $response = Http::withHeaders([
                 'X-API-Key' => $this->apiKey,
-            ])->{$method}($url, $data);
+            ])->timeout(30)->get($url, $data);
 
             if ($response->successful()) {
                 $json = $response->json();
 
-                // Return fallback if success is false
                 if (isset($json['success']) && !$json['success']) {
                     return null;
                 }

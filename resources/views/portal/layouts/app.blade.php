@@ -60,5 +60,8 @@
     </div>
 
     @stack('scripts')
+
+    <x-notification/>
+
 </body>
 </html>

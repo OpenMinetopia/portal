@@ -3,9 +3,14 @@
 namespace App\Models;
 
 use App\Services\Plugin\PlayerService;
+use App\Services\Plugin\BankingService;
+use App\Services\Plugin\CriminalRecordService;
+use App\Services\Plugin\PlotService;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Collection;
 
 class User extends Authenticatable
 {
@@ -110,6 +115,123 @@ class User extends Authenticatable
     {
         $service = app(PlayerService::class);
         return $service->getPlayerPrefixes($this->minecraft_plain_uuid);
+    }
+
+    /**
+     * Get the user's bank account details.
+     *
+     * @return array
+     */
+    public function getBankAccountAttribute(): array
+    {
+        $service = app(BankingService::class);
+        return $service->getBankAccount($this->minecraft_plain_uuid);
+    }
+
+    /**
+     * Get the user's bank balance.
+     *
+     * @return float
+     */
+    public function getBalanceAttribute(): float
+    {
+        return $this->bank_account['balance'] ?? 0;
+    }
+
+    /**
+     * Get the user's formatted bank balance.
+     *
+     * @return string
+     */
+    public function getFormattedBalanceAttribute(): string
+    {
+        return number_format($this->balance, 2, ',', '.');
+    }
+
+    /**
+     * Get the user's formatted bank balance with currency.
+     *
+     * @return string
+     */
+    public function getFormattedBalanceWithCurrencyAttribute(): string
+    {
+        return '€ ' . $this->formatted_balance;
+    }
+
+    /**
+     * Get the user's criminal records.
+     *
+     * @return array
+     */
+    public function getCriminalRecordsAttribute(): array
+    {
+        $service = app(CriminalRecordService::class);
+        return $service->getPlayerRecords($this->minecraft_plain_uuid);
+    }
+
+    /**
+     * Get the user's criminal records count.
+     */
+    public function getCriminalRecordsCountAttribute(): int
+    {
+        return count($this->criminal_records);
+    }
+
+    /**
+     * Get the user's colors.
+     *
+     * @return array
+     */
+    public function getColorsAttribute(): array
+    {
+        $service = app(PlayerService::class);
+        return $service->getPlayerColors($this->minecraft_plain_uuid);
+    }
+
+    /**
+     * Get formatted playtime.
+     *
+     * @return string
+     */
+    public function getPlaytimeAttribute(): string
+    {
+        $service = app(PlayerService::class);
+        $data = $service->getPlayerData($this->minecraft_plain_uuid);
+        return $service->formatPlaytime($data['playtime_seconds'] ?? 0);
+    }
+
+    /**
+     * Check if user is online.
+     *
+     * @return bool
+     */
+    public function getIsOnlineAttribute(): bool
+    {
+        $service = app(PlayerService::class);
+        $data = $service->getPlayerData($this->minecraft_plain_uuid);
+        return $data['is_online'] ?? false;
+    }
+
+    /**
+     * Get the user's bank accounts.
+     *
+     * @return array
+     */
+    public function getBankAccountsAttribute(): array
+    {
+        $service = app(BankingService::class);
+        return $service->getPlayerBankAccounts($this->minecraft_plain_uuid);
+    }
+
+    /**
+     * Get the user's plots.
+     *
+     * @return array
+     */
+    public function getPlotsAttribute(): array
+    {
+        $service = app(PlotService::class);
+        return $service->getPlayerPlots($this->minecraft_plain_uuid);
     }
 
 }
