@@ -98,7 +98,7 @@ class User extends Authenticatable
         $service = app(PlayerService::class);
         $data = $service->getPlayerData($this->minecraft_plain_uuid);
 
-        return $data['prefix'];
+        return $data['active_prefix'];
     }
 
     /**

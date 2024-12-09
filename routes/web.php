@@ -4,19 +4,18 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\MinecraftVerificationController;
-use App\Http\Controllers\ApiDocumentationController;
-use App\Http\Controllers\Portal\PlotController;
 use App\Http\Controllers\Portal\DashboardController;
-use App\Http\Controllers\Portal\BankController;
-use App\Http\Controllers\Portal\VehicleController;
-use App\Http\Controllers\Portal\EmergencyCallController;
-use App\Http\Controllers\Portal\DetectionGateController;
-use App\Http\Controllers\Portal\FineController;
-use App\Http\Controllers\Portal\ArrestController;
-use App\Http\Controllers\Portal\WalkieTalkieController;
 use App\Http\Controllers\Portal\Admin\AdminUserController;
 use App\Http\Controllers\Portal\Admin\AdminRoleController;
 use App\Http\Controllers\Portal\Admin\AdminTeleporterController;
+use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Portal\Admin\PermitTypeController;
+use App\Http\Controllers\Portal\PermitsController;
+use App\Http\Controllers\Portal\PermitRequestManagementController;
+use App\Http\Controllers\Portal\CompaniesController;
+use App\Http\Controllers\Portal\Admin\CompanyTypeController;
+use App\Http\Controllers\Portal\CompanyRequestManagementController;
+use App\Http\Controllers\Portal\Admin\DissolutionRequestManagementController;
 
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisterController::class, 'create'])->name('register');
@@ -35,17 +34,86 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
         Route::prefix('portal')->name('portal.')->group(function () {
-
-            // TODO: CREATE PLOT ROUTES
-
-            Route::middleware(['auth', 'police.access'])->group(function () {
-                // TODO: CREATE POLICE ROUTES
-            });
-
+            // Admin routes should be first
             Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+                // User & Role Management
                 Route::resource('users', AdminUserController::class);
                 Route::resource('roles', AdminRoleController::class);
-                Route::post('users/{user}/roles', [AdminUserController::class, 'updateRoles'])->name('users.roles.update');
+                Route::resource('teleporters', AdminTeleporterController::class);
+
+                // Settings
+                Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
+                Route::put('settings/features', [SettingsController::class, 'updateFeatures'])->name('settings.update-features');
+
+                // Admin permit type management
+                Route::prefix('permits')->name('permits.')->group(function () {
+                    Route::get('/types', [PermitTypeController::class, 'index'])->name('types.index');
+                    Route::get('/types/create', [PermitTypeController::class, 'create'])->name('types.create');
+                    Route::post('/types', [PermitTypeController::class, 'store'])->name('types.store');
+                    Route::get('/types/{permitType}/edit', [PermitTypeController::class, 'edit'])->name('types.edit');
+                    Route::put('/types/{permitType}', [PermitTypeController::class, 'update'])->name('types.update');
+                    Route::delete('/types/{permitType}', [PermitTypeController::class, 'destroy'])->name('types.destroy');
+                });
+            });
+
+            // Company Management Routes
+            Route::prefix('companies')->name('companies.')->middleware(['companies.manage'])->group(function () {
+                Route::get('/requests', [CompanyRequestManagementController::class, 'index'])->name('requests.index');
+                Route::get('/requests/{companyRequest}', [CompanyRequestManagementController::class, 'show'])->name('requests.show');
+                Route::post('/requests/{companyRequest}/handle', [CompanyRequestManagementController::class, 'handle'])->name('requests.handle');
+
+                Route::get('/dissolutions', [DissolutionRequestManagementController::class, 'index'])->name('dissolutions.index');
+                Route::get('/dissolutions/{dissolutionRequest}', [DissolutionRequestManagementController::class, 'show'])->name('dissolutions.show');
+                Route::post('/dissolutions/{dissolutionRequest}/handle', [DissolutionRequestManagementController::class, 'handle'])->name('dissolutions.handle');
+            });
+
+
+            // Regular portal routes
+            Route::middleware('permits.enabled')->group(function () {
+                Route::get('/permits', [PermitsController::class, 'index'])->name('permits.index');
+                Route::get('/permits/{permitType}/request', [PermitsController::class, 'request'])->name('permits.request');
+                Route::post('/permits/{permitType}/request', [PermitsController::class, 'store'])->name('permits.store');
+                Route::get('/permits/requests/{permitRequest}', [PermitsController::class, 'show'])->name('permits.show');
+
+                // Permit management routes (for authorized roles)
+                Route::middleware('permit.manage')->group(function () {
+                    Route::get('/permits/manage', [PermitRequestManagementController::class, 'index'])->name('permits.manage.index');
+                    Route::get('/permits/manage/{permitRequest}', [PermitRequestManagementController::class, 'show'])->name('permits.manage.show');
+                    Route::post('/permits/manage/{permitRequest}/handle', [PermitRequestManagementController::class, 'handle'])->name('permits.manage.handle');
+                });
+            });
+
+            // Company routes for users
+            Route::middleware('companies.enabled')->group(function () {
+                Route::prefix('companies')->name('companies.')->group(function () {
+                    Route::get('/', [CompaniesController::class, 'index'])->name('index');
+                    Route::get('/register', [CompaniesController::class, 'register'])->name('register');
+                    Route::get('/{companyType}/request', [CompaniesController::class, 'request'])->name('request');
+                    Route::post('/{companyType}/request', [CompaniesController::class, 'store'])->name('store');
+                    Route::get('/lookup', [CompaniesController::class, 'lookup'])->name('lookup');
+                    Route::post('/{company}/dissolve', [CompaniesController::class, 'dissolve'])->name('dissolve');
+                    Route::get('/requests/{companyRequest}', [CompaniesController::class, 'showRequest'])->name('requests.show');
+                    Route::get('/{company}', [CompaniesController::class, 'show'])->name('show');
+
+                    // Company management routes (for authorized roles)
+                    Route::middleware('companies.manage')->group(function () {
+                        Route::get('/manage', [CompanyRequestManagementController::class, 'index'])->name('manage.index');
+                        Route::get('/manage/{companyRequest}', [CompanyRequestManagementController::class, 'show'])->name('manage.show');
+                        Route::post('/manage/{companyRequest}/handle', [CompanyRequestManagementController::class, 'handle'])->name('manage.handle');
+                    });
+                });
+
+                // Admin company type management
+                Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+                    Route::prefix('companies')->name('companies.')->group(function () {
+                        Route::get('/types', [CompanyTypeController::class, 'index'])->name('types.index');
+                        Route::get('/types/create', [CompanyTypeController::class, 'create'])->name('types.create');
+                        Route::post('/types', [CompanyTypeController::class, 'store'])->name('types.store');
+                        Route::get('/types/{companyType}/edit', [CompanyTypeController::class, 'edit'])->name('types.edit');
+                        Route::put('/types/{companyType}', [CompanyTypeController::class, 'update'])->name('types.update');
+                        Route::delete('/types/{companyType}', [CompanyTypeController::class, 'destroy'])->name('types.destroy');
+                    });
+                });
             });
         });
     });

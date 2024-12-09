@@ -24,7 +24,13 @@ class PlayerService
         return [
             'level' => $data['level'] ?? 'N/A',
             'fitness' => $data['fitness'] ?? 'N/A',
-            'prefix' => $data['prefix'] ?? 'N/A',
+            'active_prefix' => $data['active_prefix'] ?? 'N/A',
+            'active_name_color' => $data['active_name_color'] ?? 'N/A',
+            'playtime_seconds' => $data['playtimeSeconds'] ?? 'N/A',
+            'active_chat_color' => $data['active_chat_color'] ?? 'N/A',
+            'active_prefix_color' => $data['active_prefix_color'] ?? 'N/A',
+            'active_level_color' => $data['active_level_color'] ?? 'N/A',
+            'calculated_level' => $data['calculated_level'] ?? 'N/A',
         ];
     }
 

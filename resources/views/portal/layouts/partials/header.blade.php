@@ -8,7 +8,16 @@
             <x-heroicon-s-bars-3 class="h-6 w-6" />
         </button>
 
-        <div class="flex flex-1 justify-end">
+        <!-- Page Title -->
+        @hasSection('header')
+            <div class="flex-1">
+                <h1 class="text-lg font-semibold text-gray-900 dark:text-white">
+                    @yield('header')
+                </h1>
+            </div>
+        @endif
+
+        <div class="flex justify-end">
             <!-- Logout Button -->
             <form method="POST" action="{{ route('logout') }}">
                 @csrf

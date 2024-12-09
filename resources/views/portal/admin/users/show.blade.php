@@ -82,14 +82,14 @@
                             <div>
                                 <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Laatste Login</dt>
                                 <dd class="mt-1 text-sm text-gray-900 dark:text-white">
-                                    {{ $user->last_login ? $user->last_login->format('d M Y H:i') : 'Nooit' }}
+                                    #
                                 </dd>
                             </div>
 
                             <div>
                                 <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Laatste Logout</dt>
                                 <dd class="mt-1 text-sm text-gray-900 dark:text-white">
-                                    {{ $user->last_logout ? $user->last_logout->format('d M Y H:i') : 'Nooit' }}
+                                    #
                                 </dd>
                             </div>
                         </dl>
@@ -99,18 +99,18 @@
                 <!-- Game Stats -->
                 <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg">
                     <div class="px-4 py-5 sm:px-6 border-b border-gray-200 dark:border-gray-700">
-                        <h3 class="text-base font-semibold text-gray-900 dark:text-white">Game Statistieken</h3>
+                        <h3 class="text-base font-semibold text-gray-900 dark:text-white">Game statistieken</h3>
                     </div>
                     <div class="px-4 py-5 sm:p-6">
                         <dl class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                             <div>
                                 <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Speeltijd</dt>
-                                <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $user->playtime ?? '0' }} minuten</dd>
+                                <dd class="mt-1 text-sm text-gray-900 dark:text-white">#</dd>
                             </div>
 
                             <div>
-                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Bank Saldo</dt>
-                                <dd class="mt-1 text-sm text-gray-900 dark:text-white">${{ number_format($user->getCurrentBalance()) }}</dd>
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Bank saldo</dt>
+                                <dd class="mt-1 text-sm text-gray-900 dark:text-white">#</dd>
                             </div>
 
                             <div>
