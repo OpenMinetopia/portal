@@ -7,7 +7,7 @@
     <div class="space-y-6">
         <!-- Back Button -->
         <div>
-            <a href="{{ route('portal.admin.companies.dissolutions.index') }}"
+            <a href="{{ route('portal.companies.dissolutions.index') }}"
                class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
                 <x-heroicon-s-arrow-left class="w-5 h-5 mr-1"/>
                 Terug naar overzicht
@@ -97,7 +97,7 @@
                         <div class="px-4 py-5 sm:px-6 border-b border-gray-200 dark:border-gray-700">
                             <h3 class="text-base font-semibold text-gray-900 dark:text-white">Aanvraag Verwerken</h3>
                         </div>
-                        <form action="{{ route('portal.admin.companies.dissolutions.handle', $dissolutionRequest) }}" method="POST">
+                        <form action="{{ route('portal.companies.dissolutions.handle', $dissolutionRequest) }}" method="POST">
                             @csrf
                             <div class="px-4 py-5 sm:p-6 space-y-6">
                                 <!-- Status Selection -->
@@ -108,7 +108,7 @@
                                         <label>
                                             <input type="radio" name="status" value="approved" x-model="status" class="peer sr-only" required>
                                             <div class="relative px-4 py-3 border-2 rounded-lg cursor-pointer transition-all duration-150
-                                                        peer-checked:border-green-500 peer-checked:ring-1 peer-checked:ring-green-500 
+                                                        peer-checked:border-green-500 peer-checked:ring-1 peer-checked:ring-green-500
                                                         peer-checked:bg-green-50 dark:peer-checked:bg-green-500/10
                                                         hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                                 <div class="flex items-center justify-between">
@@ -129,7 +129,7 @@
                                         <label>
                                             <input type="radio" name="status" value="denied" x-model="status" class="peer sr-only" required>
                                             <div class="relative px-4 py-3 border-2 rounded-lg cursor-pointer transition-all duration-150
-                                                        peer-checked:border-red-500 peer-checked:ring-1 peer-checked:ring-red-500 
+                                                        peer-checked:border-red-500 peer-checked:ring-1 peer-checked:ring-red-500
                                                         peer-checked:bg-red-50 dark:peer-checked:bg-red-500/10
                                                         hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                                 <div class="flex items-center justify-between">
@@ -237,4 +237,4 @@
             </div>
         </div>
     @endif
-@endsection 
+@endsection

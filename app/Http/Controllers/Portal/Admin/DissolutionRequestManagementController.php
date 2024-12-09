@@ -12,12 +12,6 @@ class DissolutionRequestManagementController extends Controller
     public function index()
     {
         $requests = DissolutionRequest::with(['company', 'user'])
-            ->when(!auth()->user()->isAdmin(), function ($query) {
-                // If not admin, only show requests for company types they can manage
-                return $query->whereHas('company.type', function ($q) {
-                    $q->whereJsonContains('authorized_roles', auth()->user()->roles->pluck('id'));
-                });
-            })
             ->latest()
             ->paginate(10);
 
@@ -26,12 +20,7 @@ class DissolutionRequestManagementController extends Controller
 
     public function show(DissolutionRequest $dissolutionRequest)
     {
-        // Check if user can manage this request
-        if (!auth()->user()->isAdmin() && !auth()->user()->roles->pluck('id')->intersect($dissolutionRequest->company->type->authorized_roles)->count()) {
-            abort(403);
-        }
-
-        return view('portal.admin.companies.dissolutions.index', compact('dissolutionRequest'));
+        return view('portal.admin.companies.dissolutions.show', compact('dissolutionRequest'));
     }
 
     public function handle(Request $request, DissolutionRequest $dissolutionRequest)
