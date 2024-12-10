@@ -97,6 +97,35 @@
                             </p>
                         </div>
 
+                        <!-- Bank Account Selection -->
+                        <div class="space-y-2">
+                            <label for="payout_bank_account_uuid" 
+                                   class="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-gray-100">
+                                <x-heroicon-s-credit-card class="w-5 h-5 text-gray-400"/>
+                                Uitbetaling bankrekening <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative rounded-md shadow-sm">
+                                <select name="payout_bank_account_uuid" 
+                                        id="payout_bank_account_uuid"
+                                        required
+                                        class="block w-full py-3 pl-3 pr-10 border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                    <option value="">Selecteer een bankrekening</option>
+                                    @foreach(auth()->user()->bank_accounts as $account)
+                                        <option value="{{ $account['uuid'] }}" 
+                                                @if($account['type'] === 'PRIVATE') selected @endif>
+                                            {{ $account['name'] }} (€ {{ number_format($account['balance'], 2, ',', '.') }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                                    <x-heroicon-s-chevron-down class="w-5 h-5 text-gray-400"/>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">
+                                Selecteer de bankrekening waarop je de betaling wilt ontvangen
+                            </p>
+                        </div>
+
                         <!-- Description Input -->
                         <div class="space-y-2">
                             <label for="description"

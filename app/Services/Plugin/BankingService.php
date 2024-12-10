@@ -23,7 +23,7 @@ class BankingService
      */
     public function getBankAccount(string $uuid): array
     {
-        $data = $this->apiService->get("/api/bankaccount/{$uuid}", [], 5);
+        $data = $this->apiService->get("/api/bankaccount/{$uuid}");
         return $data ?? [];
     }
 
@@ -35,7 +35,7 @@ class BankingService
      */
     public function getBankAccountUsers(string $uuid): array
     {
-        $data = $this->apiService->get("/api/bankaccount/{$uuid}/users", [], 5);
+        $data = $this->apiService->get("/api/bankaccount/{$uuid}/users");
         
         if (!isset($data['users'])) {
             return [];
@@ -64,7 +64,7 @@ class BankingService
      */
     public function getAllBankAccounts(): array
     {
-        $data = $this->apiService->get("/api/bankaccounts", [], 5);
+        $data = $this->apiService->get("/api/bankaccounts");
         return $data['accounts'] ?? [];
     }
 
@@ -76,7 +76,7 @@ class BankingService
      */
     public function getPlayerBankAccounts(string $uuid): array
     {
-        $data = $this->apiService->get("/api/player/{$uuid}/bankaccounts", [], 5);
+        $data = $this->apiService->get("/api/player/{$uuid}/bankaccounts");
         $accounts = $data['accounts'] ?? [];
 
         // Transform accounts from object to array with uuid as key
@@ -92,5 +92,37 @@ class BankingService
             })
             ->values()
             ->toArray();
+    }
+
+    /**
+     * Withdraw money from a bank account.
+     *
+     * @param string $uuid
+     * @param float $amount
+     * @return bool
+     */
+    public function withdraw(string $uuid, float $amount): bool
+    {
+        $response = $this->apiService->post("/api/bankaccount/{$uuid}/withdraw", [
+            'amount' => $amount
+        ]);
+
+        return $response['success'] ?? false;
+    }
+
+    /**
+     * Deposit money to a bank account.
+     *
+     * @param string $uuid
+     * @param float $amount
+     * @return bool
+     */
+    public function deposit(string $uuid, float $amount): bool
+    {
+        $response = $this->apiService->post("/api/bankaccount/{$uuid}/deposit", [
+            'amount' => $amount
+        ]);
+
+        return $response['success'] ?? false;
     }
 }

@@ -6,9 +6,20 @@ use App\Http\Controllers\Controller;
 use App\Models\PlotListing;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Services\Plugin\BankingService;
+use App\Services\Plugin\PlotService;
 
 class PlotListingController extends Controller
 {
+    protected BankingService $bankingService;
+    protected PlotService $plotService;
+
+    public function __construct(BankingService $bankingService, PlotService $plotService)
+    {
+        $this->bankingService = $bankingService;
+        $this->plotService = $plotService;
+    }
+
     public function index()
     {
         $listings = PlotListing::with('seller')
@@ -49,7 +60,8 @@ class PlotListingController extends Controller
             'price' => 'required|numeric|min:0',
             'description' => 'required|string|max:1000',
             'image' => 'nullable|image|max:2048',
-            'instant_buy' => 'nullable|boolean'
+            'instant_buy' => 'nullable|boolean',
+            'payout_bank_account_uuid' => 'required|string'
         ]);
 
         // Get plot details from user's plots
@@ -72,6 +84,7 @@ class PlotListingController extends Controller
         PlotListing::create([
             'plot_name' => $plotName,
             'seller_id' => auth()->id(),
+            'payout_bank_account_uuid' => $validated['payout_bank_account_uuid'],
             'price' => $validated['price'],
             'description' => $validated['description'],
             'image_path' => $imagePath,
@@ -93,8 +106,8 @@ class PlotListingController extends Controller
 
     public function showBuyForm(PlotListing $listing)
     {
-        // Add validation checks
-        if ($listing->seller_id === auth()->id()) {
+        // Only prevent non-admins from buying their own plots
+        if ($listing->seller_id === auth()->id() && !auth()->user()->isAdmin()) {
             return redirect()->route('portal.plots.listings.index')
                 ->with('error', [
                     'title' => 'Actie niet mogelijk',
@@ -123,9 +136,17 @@ class PlotListingController extends Controller
         ]);
     }
 
-    public function buy(PlotListing $listing)
+    public function buy(Request $request, PlotListing $listing)
     {
-        if ($listing->seller_id === auth()->id()) {
+        $validated = $request->validate([
+            'buyer_bank_account_uuid' => 'required|string',
+            'terms' => 'required|accepted'
+        ], [
+            'buyer_bank_account_uuid.required' => 'Selecteer een bankrekening om mee te betalen.',
+            'terms.accepted' => 'Je moet akkoord gaan met de voorwaarden.'
+        ]);
+
+        if ($listing->seller_id === auth()->id() && !auth()->user()->isAdmin()) {
             return back()->with('error', [
                 'title' => 'Actie niet mogelijk',
                 'message' => 'Je kunt je eigen plot niet kopen.'
@@ -139,26 +160,80 @@ class PlotListingController extends Controller
             ]);
         }
 
-        // Check if user has enough balance
-        if (auth()->user()->balance < $listing->price) {
+        // Get buyer's bank account
+        $buyerAccount = collect(auth()->user()->bank_accounts)
+            ->firstWhere('uuid', $validated['buyer_bank_account_uuid']);
+
+        if (!$buyerAccount || $buyerAccount['balance'] < $listing->price) {
             return back()->with('error', [
                 'title' => 'Onvoldoende saldo',
-                'message' => 'Je hebt onvoldoende saldo om dit plot te kopen.'
+                'message' => 'De geselecteerde bankrekening heeft onvoldoende saldo.'
             ]);
         }
 
-        // TODO: CREATE BUYING LOGIC
-        // 1. Transfer money from buyer to seller
-        // 2. Transfer plot ownership
-        // 3. Send notifications to both parties
+        try {
+            // Withdraw from buyer's account
+            $withdrawSuccess = $this->bankingService->withdraw(
+                $validated['buyer_bank_account_uuid'],
+                $listing->price
+            );
 
-        $listing->update(['status' => 'sold']);
+            if (!$withdrawSuccess) {
+                throw new \Exception('Failed to withdraw money from buyer account');
+            }
 
-        return redirect()->route('portal.plots.listings.index')
-            ->with('success', [
-                'title' => 'Plot gekocht!',
-                'message' => 'Je hebt het plot succesvol gekocht. Het plot wordt automatisch aan je overgedragen.'
+            // Deposit to seller's account
+            $depositSuccess = $this->bankingService->deposit(
+                $listing->payout_bank_account_uuid,
+                $listing->price
+            );
+
+            if (!$depositSuccess) {
+                // Rollback withdrawal if deposit fails
+                $this->bankingService->deposit(
+                    $validated['buyer_bank_account_uuid'],
+                    $listing->price
+                );
+                throw new \Exception('Failed to deposit money to seller account');
+            }
+
+            // Transfer plot ownership
+            $transferSuccess = $this->plotService->transferOwnership(
+                $listing->plot_name,
+                auth()->user()->minecraft_plain_uuid
+            );
+
+            if (!$transferSuccess) {
+                // Rollback the transaction if plot transfer fails
+                $this->bankingService->withdraw(
+                    $listing->payout_bank_account_uuid,
+                    $listing->price
+                );
+                $this->bankingService->deposit(
+                    $validated['buyer_bank_account_uuid'],
+                    $listing->price
+                );
+                throw new \Exception('Failed to transfer plot ownership');
+            }
+
+            // Update listing
+            $listing->update([
+                'status' => 'sold',
+                'buyer_bank_account_uuid' => $validated['buyer_bank_account_uuid']
             ]);
+
+            return redirect()->route('portal.plots.listings.index')
+                ->with('success', [
+                    'title' => 'Plot gekocht!',
+                    'message' => 'Je hebt het plot succesvol gekocht. Het plot wordt automatisch aan je overgedragen.'
+                ]);
+
+        } catch (\Exception $e) {
+            return back()->with('error', [
+                'title' => 'Er ging iets mis',
+                'message' => 'Er is een fout opgetreden: ' . $e->getMessage() . '. Probeer het later opnieuw.'
+            ]);
+        }
     }
 
     public function destroy(PlotListing $listing)

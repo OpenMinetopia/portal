@@ -131,29 +131,125 @@
                     </div>
                 </div>
 
+                <!-- Bank Account Selection -->
+                <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg">
+                    <div class="px-6 py-5 border-b border-gray-200 dark:border-gray-700">
+                        <h3 class="text-base font-semibold text-gray-900 dark:text-white">Betaalrekening</h3>
+                        <p class="mt-1 text-sm text-gray-500">Selecteer de bankrekening waarmee je wilt betalen</p>
+                    </div>
+                    <div class="px-6 py-5">
+                        <div class="space-y-4">
+                            @foreach(auth()->user()->bank_accounts as $account)
+                                <label for="account_{{ $account['uuid'] }}"
+                                       class="relative flex items-start p-4 rounded-lg border cursor-pointer @if($account['balance'] >= $listing->price) border-gray-200 dark:border-gray-700 hover:border-indigo-500 dark:hover:border-indigo-500 @else border-red-200 dark:border-red-800 cursor-not-allowed @endif transition-colors">
+                                    <div class="flex items-center h-5">
+                                        <input type="radio" 
+                                               name="buyer_bank_account_uuid"
+                                               id="account_{{ $account['uuid'] }}"
+                                               value="{{ $account['uuid'] }}"
+                                               @if($account['type'] === 'PRIVATE') checked @endif
+                                               @if($account['balance'] < $listing->price) disabled @endif
+                                               class="h-5 w-5 text-indigo-600 focus:ring-indigo-500 border-gray-300 @if($account['balance'] < $listing->price) opacity-50 cursor-not-allowed @endif">
+                                    </div>
+                                    <div class="ml-3 flex-grow @if($account['balance'] < $listing->price) opacity-50 @endif">
+                                        <span class="text-base font-medium text-gray-900 dark:text-white">
+                                            {{ $account['name'] }}
+                                        </span>
+                                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mt-1 gap-2">
+                                            <p class="text-sm text-gray-700 dark:text-gray-300">
+                                                Saldo: € {{ number_format($account['balance'], 2, ',', '.') }}
+                                            </p>
+                                            @if($account['balance'] < $listing->price)
+                                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400">
+                                                    <x-heroicon-s-exclamation-circle class="h-4 w-4"/>
+                                                    Onvoldoende saldo
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </label>
+                            @endforeach
+                            
+                            @if(collect(auth()->user()->bank_accounts)->every(fn($account) => $account['balance'] < $listing->price))
+                                <div class="mt-4 bg-red-50 dark:bg-red-500/10 rounded-lg p-4">
+                                    <div class="flex">
+                                        <div class="flex-shrink-0">
+                                            <x-heroicon-s-exclamation-triangle class="h-5 w-5 text-red-400"/>
+                                        </div>
+                                        <div class="ml-3">
+                                            <h3 class="text-sm font-medium text-red-800 dark:text-red-300">
+                                                Onvoldoende saldo
+                                            </h3>
+                                            <div class="mt-2 text-sm text-red-700 dark:text-red-200">
+                                                <p>Je hebt op geen enkele bankrekening voldoende saldo om dit plot te kopen.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Confirmation -->
                 <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg">
                     <div class="p-6">
                         <div class="space-y-4">
-                            <div class="flex items-center">
-                                <input id="terms" name="terms" type="checkbox" required
-                                       class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600">
-                                <label for="terms" class="ml-2 block text-sm text-gray-900 dark:text-white">
-                                    Ik begrijp dat deze aankoop definitief is
-                                </label>
-                            </div>
+                            @if($errors->any())
+                                <div class="bg-red-50 dark:bg-red-500/10 rounded-lg p-4">
+                                    <div class="flex">
+                                        <div class="flex-shrink-0">
+                                            <x-heroicon-s-x-circle class="h-5 w-5 text-red-400"/>
+                                        </div>
+                                        <div class="ml-3">
+                                            <h3 class="text-sm font-medium text-red-800 dark:text-red-300">
+                                                Er zijn fouten opgetreden
+                                            </h3>
+                                            <div class="mt-2 text-sm text-red-700 dark:text-red-200">
+                                                <ul class="list-disc list-inside space-y-1">
+                                                    @foreach($errors->all() as $error)
+                                                        <li>{{ $error }}</li>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
 
                             <form action="{{ route('portal.plots.listings.buy', $listing) }}" method="POST">
                                 @csrf
+                                <input type="hidden" name="buyer_bank_account_uuid" id="selected_bank_account">
+
+                                <div class="group relative">
+                                    <div class="flex items-center gap-3 p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-indigo-500 dark:hover:border-indigo-500 transition-colors">
+                                        <div class="flex-shrink-0">
+                                            <input id="terms" name="terms" type="checkbox" required
+                                                   class="h-5 w-5 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600">
+                                        </div>
+                                        <label for="terms" class="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-white cursor-pointer">
+                                            Ik ga akkoord met de aankoop
+                                            <x-heroicon-o-information-circle class="h-5 w-5 text-gray-400"/>
+                                        </label>
+                                    </div>
+
+                                    <!-- Tooltip -->
+                                    <div class="absolute bottom-full left-0 mb-2 w-full opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                        <div class="bg-gray-900 dark:bg-gray-700 text-white p-3 rounded-lg text-sm shadow-lg">
+                                            Door akkoord te gaan bevestig je dat je begrijpt dat deze aankoop definitief is en niet ongedaan kan worden gemaakt.
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <button type="submit"
-                                        class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
+                                        class="mt-4 w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
                                     Plot kopen voor {{ $listing->formatted_price }}
                                 </button>
-                            </form>
 
-                            <p class="text-xs text-center text-gray-500 dark:text-gray-400">
-                                Door op 'Plot kopen' te klikken ga je akkoord met de aankoop en wordt het bedrag direct van je saldo afgeschreven
-                            </p>
+                                <p class="text-xs text-center text-gray-500 dark:text-gray-400">
+                                    Door op 'Plot kopen' te klikken ga je akkoord met de aankoop en wordt het bedrag direct van je saldo afgeschreven
+                                </p>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -163,18 +259,36 @@
 
     @push('scripts')
     <script>
-        // Enable/disable submit button based on checkbox
+        // Enable/disable submit button based on checkbox and bank account selection
         const termsCheckbox = document.getElementById('terms');
         const submitButton = document.querySelector('button[type="submit"]');
+        const bankAccountInputs = document.querySelectorAll('input[name="buyer_bank_account_uuid"]');
+        const selectedBankAccountInput = document.getElementById('selected_bank_account');
         
-        submitButton.disabled = true;
-        submitButton.classList.add('opacity-50', 'cursor-not-allowed');
+        function updateSubmitButton() {
+            const hasSelectedBank = Array.from(bankAccountInputs).some(input => input.checked);
+            submitButton.disabled = !termsCheckbox.checked || !hasSelectedBank;
+            submitButton.classList.toggle('opacity-50', submitButton.disabled);
+            submitButton.classList.toggle('cursor-not-allowed', submitButton.disabled);
+        }
         
-        termsCheckbox.addEventListener('change', function() {
-            submitButton.disabled = !this.checked;
-            submitButton.classList.toggle('opacity-50', !this.checked);
-            submitButton.classList.toggle('cursor-not-allowed', !this.checked);
+        // Initialize button state
+        updateSubmitButton();
+        
+        // Update hidden input when radio selection changes
+        bankAccountInputs.forEach(input => {
+            input.addEventListener('change', function() {
+                selectedBankAccountInput.value = this.value;
+                updateSubmitButton();
+            });
+            
+            // Set initial value if checked
+            if (input.checked) {
+                selectedBankAccountInput.value = input.value;
+            }
         });
+        
+        termsCheckbox.addEventListener('change', updateSubmitButton);
     </script>
     @endpush
 @endsection 

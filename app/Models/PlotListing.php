@@ -13,6 +13,8 @@ class PlotListing extends Model
     protected $fillable = [
         'plot_name',
         'seller_id',
+        'payout_bank_account_uuid',
+        'buyer_bank_account_uuid',
         'price',
         'description',
         'image_path',

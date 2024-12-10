@@ -24,17 +24,23 @@ class PluginApiService
      * @param int|null $cacheMinutes
      * @return mixed
      */
-    public function get(string $endpoint, array $query = [], int $cacheMinutes = null): mixed
+    public function get(string $endpoint, array $query = []): mixed
     {
         $url = $this->baseUrl . $endpoint;
-
-        if ($cacheMinutes) {
-            return Cache::remember($url . '?' . http_build_query($query), $cacheMinutes * 60, function () use ($url, $query) {
-                return $this->makeRequest('GET', $url, $query);
-            });
-        }
-
         return $this->makeRequest('GET', $url, $query);
+    }
+
+    /**
+     * Make a POST request to the plugin API.
+     *
+     * @param string $endpoint
+     * @param array $data
+     * @return mixed
+     */
+    public function post(string $endpoint, array $data = []): mixed
+    {
+        $url = $this->baseUrl . $endpoint;
+        return $this->makeRequest('POST', $url, $data);
     }
 
     /**
@@ -48,9 +54,15 @@ class PluginApiService
     private function makeRequest(string $method, string $url, array $data = []): mixed
     {
         try {
-            $response = Http::withHeaders([
+            $request = Http::withHeaders([
                 'X-API-Key' => $this->apiKey,
-            ])->timeout(30)->get($url, $data);
+            ])->timeout(30);
+
+            $response = match ($method) {
+                'GET' => $request->get($url, $data),
+                'POST' => $request->post($url, $data),
+                default => throw new \InvalidArgumentException("Unsupported HTTP method: {$method}")
+            };
 
             if ($response->successful()) {
                 $json = $response->json();

@@ -82,7 +82,7 @@
                                             </div>
                                         </td>
                                         <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                            {{ \Carbon\Carbon::parse($record['date'])->format('d-m-Y H:i') }}
+                                            {{ \Carbon\Carbon::createFromTimestampMs($record['date'])->format('d-m-Y H:i') }}
                                         </td>
                                     </tr>
                                 @empty
