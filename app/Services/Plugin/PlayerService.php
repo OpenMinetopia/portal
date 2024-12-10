@@ -26,7 +26,7 @@ class PlayerService
             'fitness' => $data['fitness'] ?? 'N/A',
             'active_prefix' => $data['active_prefix'] ?? 'N/A',
             'active_name_color' => $data['active_name_color'] ?? 'N/A',
-            'playtime_seconds' => $data['playtimeSeconds'] ?? 'N/A',
+            'playtime_seconds' => (int)($data['playtime_seconds'] ?? 0),
             'active_chat_color' => $data['active_chat_color'] ?? 'N/A',
             'active_prefix_color' => $data['active_prefix_color'] ?? 'N/A',
             'active_level_color' => $data['active_level_color'] ?? 'N/A',
@@ -37,24 +37,24 @@ class PlayerService
     /**
      * Get player colors.
      *
-     * @param string $playerName
+     * @param string $uuid
      * @return array
      */
-    public function getPlayerColors(string $playerName): array
+    public function getPlayerColors(string $uuid): array
     {
-        $data = $this->apiService->get("/api/player/{$playerName}/colors", [], 10);
+        $data = $this->apiService->get("/api/player/{$uuid}/colors");
         return $data['colors'] ?? [];
     }
 
     /**
      * Get player prefixes.
      *
-     * @param string $playerName
+     * @param string $uuid
      * @return array
      */
-    public function getPlayerPrefixes(string $playerName): array
+    public function getPlayerPrefixes(string $uuid): array
     {
-        $data = $this->apiService->get("/api/player/{$playerName}/prefixes", [], 10);
+        $data = $this->apiService->get("/api/player/{$uuid}/prefixes");
         return $data['prefixes'] ?? [];
     }
 

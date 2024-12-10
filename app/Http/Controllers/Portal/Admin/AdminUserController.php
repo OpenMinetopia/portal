@@ -6,9 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Role;
 use Illuminate\Http\Request;
+use App\Services\Plugin\PlayerService;
 
 class AdminUserController extends Controller
 {
+    protected PlayerService $playerService;
+
+    public function __construct(PlayerService $playerService)
+    {
+        $this->playerService = $playerService;
+    }
+
     public function index()
     {
         $users = User::with(['roles'])
@@ -34,7 +42,7 @@ class AdminUserController extends Controller
     public function edit(User $user)
     {
         return view('portal.admin.users.edit', [
-            'user' => $user->load('roles'),
+            'user' => $user->load(['roles']),
             'roles' => Role::all()
         ]);
     }
