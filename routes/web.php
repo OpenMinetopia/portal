@@ -168,4 +168,9 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::post('logout', [LoginController::class, 'destroy'])->name('logout');
+
+    Route::post('notifications/mark-all-read', function() {
+        auth()->user()->unreadNotifications->markAsRead();
+        return back();
+    })->name('notifications.mark-all-read');
 });

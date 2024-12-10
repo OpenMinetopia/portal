@@ -70,6 +70,10 @@
             </ul>
         </li>
 
+        @if(
+            \App\Models\PortalFeature::where('key', 'permits')->where('is_enabled', true)->exists() ||
+            \App\Models\PortalFeature::where('key', 'companies')->where('is_enabled', true)->exists()
+        )
         <li>
             <div class="text-xs font-semibold leading-6 text-gray-500 dark:text-gray-400">BEDRIJVEN & VERGUNNINGEN</div>
             <ul role="list" class="-mx-2 mt-2 space-y-1">
@@ -114,6 +118,7 @@
 
             </ul>
         </li>
+        @endif
 
         @if(
             (auth()->user()->isAdmin() || auth()->user()->hasPermission('manage-companies'))

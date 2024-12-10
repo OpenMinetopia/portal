@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Services\Plugin\BankingService;
 use App\Services\Plugin\PlotService;
+use App\Notifications\PlotTransactionNotification;
 
 class PlotListingController extends Controller
 {
@@ -221,6 +222,10 @@ class PlotListingController extends Controller
                 'status' => 'sold',
                 'buyer_bank_account_uuid' => $validated['buyer_bank_account_uuid']
             ]);
+
+            // Send notifications to both buyer and seller
+            $listing->seller->notify(new PlotTransactionNotification($listing, 'sold'));
+            auth()->user()->notify(new PlotTransactionNotification($listing, 'bought'));
 
             return redirect()->route('portal.plots.listings.index')
                 ->with('success', [
