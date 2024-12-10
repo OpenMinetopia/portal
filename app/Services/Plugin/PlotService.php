@@ -20,9 +20,22 @@ class PlotService
      */
     public function addOwner(string $plotName, string $playerUuid): bool
     {
+        \Log::info("Adding owner to plot", [
+            'plot' => $plotName,
+            'player' => $playerUuid
+        ]);
+
         $response = $this->apiService->post("/api/plots/{$plotName}/owners/add", [
             'uuid' => $playerUuid
         ]);
+
+        if (!($response['success'] ?? false)) {
+            \Log::error("Failed to add owner to plot", [
+                'plot' => $plotName,
+                'player' => $playerUuid,
+                'response' => $response
+            ]);
+        }
 
         return $response['success'] ?? false;
     }
@@ -36,9 +49,22 @@ class PlotService
      */
     public function removeOwner(string $plotName, string $playerUuid): bool
     {
+        \Log::info("Removing owner from plot", [
+            'plot' => $plotName,
+            'player' => $playerUuid
+        ]);
+
         $response = $this->apiService->post("/api/plots/{$plotName}/owners/remove", [
             'uuid' => $playerUuid
         ]);
+
+        if (!($response['success'] ?? false)) {
+            \Log::error("Failed to remove owner from plot", [
+                'plot' => $plotName,
+                'player' => $playerUuid,
+                'response' => $response
+            ]);
+        }
 
         return $response['success'] ?? false;
     }
@@ -84,28 +110,87 @@ class PlotService
      */
     public function transferOwnership(string $plotName, string $newOwnerUuid): bool
     {
-        // Get current plot data
-        $plots = $this->getPlayerPlots($newOwnerUuid);
-        $plot = collect($plots)->firstWhere('name', $plotName);
-        
-        if (!$plot) {
-            return false;
-        }
-
         try {
-            // Remove all members
-            foreach ($plot['members'] as $memberUuid) {
-                $this->removeMember($plotName, $memberUuid);
+            \Log::info("Starting plot transfer", [
+                'plot' => $plotName,
+                'new_owner' => $newOwnerUuid
+            ]);
+
+            // Get plot data using the new endpoint
+            $response = $this->apiService->get("/api/plots/{$plotName}");
+            
+            if (!isset($response['plot']) || !$response['success']) {
+                \Log::error("Failed to get plot data for transfer", [
+                    'plot' => $plotName,
+                    'response' => $response
+                ]);
+                return false;
             }
 
-            // Remove all owners except the last one
-            foreach ($plot['owners'] as $ownerUuid) {
-                $this->removeOwner($plotName, $ownerUuid);
+            $plot = $response['plot'];
+
+            // Remove all members first
+            if (!empty($plot['members'])) {
+                foreach ($plot['members'] as $memberUuid) {
+                    \Log::info("Removing member from plot", [
+                        'plot' => $plotName,
+                        'member' => $memberUuid
+                    ]);
+
+                    if (!$this->removeMember($plotName, $memberUuid)) {
+                        \Log::error("Failed to remove member during transfer", [
+                            'plot' => $plotName,
+                            'member' => $memberUuid
+                        ]);
+                        return false;
+                    }
+                }
             }
 
-            // Add new owner
-            return $this->addOwner($plotName, $newOwnerUuid);
+            // Remove all current owners
+            if (!empty($plot['owners'])) {
+                foreach ($plot['owners'] as $ownerUuid) {
+                    \Log::info("Removing owner from plot", [
+                        'plot' => $plotName,
+                        'owner' => $ownerUuid
+                    ]);
+
+                    if (!$this->removeOwner($plotName, $ownerUuid)) {
+                        \Log::error("Failed to remove owner during transfer", [
+                            'plot' => $plotName,
+                            'owner' => $ownerUuid
+                        ]);
+                        return false;
+                    }
+                }
+            }
+
+            // Wait a bit to ensure all removals are processed
+            usleep(500000); // 0.5 seconds
+
+            // Add the new owner
+            $success = $this->addOwner($plotName, $newOwnerUuid);
+            
+            if ($success) {
+                \Log::info("Successfully transferred plot ownership", [
+                    'plot' => $plotName,
+                    'new_owner' => $newOwnerUuid
+                ]);
+            } else {
+                \Log::error("Failed to add new owner to plot", [
+                    'plot' => $plotName,
+                    'new_owner' => $newOwnerUuid
+                ]);
+            }
+
+            return $success;
         } catch (\Exception $e) {
+            \Log::error('Plot transfer failed with exception', [
+                'plot' => $plotName,
+                'new_owner' => $newOwnerUuid,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return false;
         }
     }

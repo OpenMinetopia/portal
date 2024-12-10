@@ -84,4 +84,4 @@ class PlotListing extends Model
     {
         return 'id';
     }
-} 
+}

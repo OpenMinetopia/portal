@@ -213,7 +213,7 @@ class PlotListingController extends Controller
                     $validated['buyer_bank_account_uuid'],
                     $listing->price
                 );
-                throw new \Exception('Failed to transfer plot ownership');
+                throw new \Exception('Het overzetten van het plot is mislukt. De betaling is teruggestort.');
             }
 
             // Update listing
@@ -229,9 +229,15 @@ class PlotListingController extends Controller
                 ]);
 
         } catch (\Exception $e) {
+            \Log::error('Plot purchase failed', [
+                'plot' => $listing->plot_name,
+                'buyer' => auth()->user()->minecraft_plain_uuid,
+                'error' => $e->getMessage()
+            ]);
+
             return back()->with('error', [
                 'title' => 'Er ging iets mis',
-                'message' => 'Er is een fout opgetreden: ' . $e->getMessage() . '. Probeer het later opnieuw.'
+                'message' => $e->getMessage() . ' Neem contact op met een administrator als dit probleem zich blijft voordoen.'
             ]);
         }
     }

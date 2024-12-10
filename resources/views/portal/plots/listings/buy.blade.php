@@ -217,6 +217,24 @@
                                 </div>
                             @endif
 
+                            @if(session('error'))
+                                <div class="bg-red-50 dark:bg-red-500/10 rounded-lg p-4">
+                                    <div class="flex">
+                                        <div class="flex-shrink-0">
+                                            <x-heroicon-s-exclamation-circle class="h-5 w-5 text-red-400"/>
+                                        </div>
+                                        <div class="ml-3">
+                                            <h3 class="text-sm font-medium text-red-800 dark:text-red-300">
+                                                {{ session('error')['title'] }}
+                                            </h3>
+                                            <div class="mt-2 text-sm text-red-700 dark:text-red-200">
+                                                <p>{{ session('error')['message'] }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
                             <form action="{{ route('portal.plots.listings.buy', $listing) }}" method="POST">
                                 @csrf
                                 <input type="hidden" name="buyer_bank_account_uuid" id="selected_bank_account">
