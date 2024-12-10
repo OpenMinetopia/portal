@@ -111,19 +111,10 @@ class PlotService
     public function transferOwnership(string $plotName, string $newOwnerUuid): bool
     {
         try {
-            \Log::info("Starting plot transfer", [
-                'plot' => $plotName,
-                'new_owner' => $newOwnerUuid
-            ]);
-
             // Get plot data using the new endpoint
             $response = $this->apiService->get("/api/plots/{$plotName}");
-            
+
             if (!isset($response['plot']) || !$response['success']) {
-                \Log::error("Failed to get plot data for transfer", [
-                    'plot' => $plotName,
-                    'response' => $response
-                ]);
                 return false;
             }
 
@@ -132,11 +123,6 @@ class PlotService
             // Remove all members first
             if (!empty($plot['members'])) {
                 foreach ($plot['members'] as $memberUuid) {
-                    \Log::info("Removing member from plot", [
-                        'plot' => $plotName,
-                        'member' => $memberUuid
-                    ]);
-
                     if (!$this->removeMember($plotName, $memberUuid)) {
                         \Log::error("Failed to remove member during transfer", [
                             'plot' => $plotName,
@@ -150,10 +136,6 @@ class PlotService
             // Remove all current owners
             if (!empty($plot['owners'])) {
                 foreach ($plot['owners'] as $ownerUuid) {
-                    \Log::info("Removing owner from plot", [
-                        'plot' => $plotName,
-                        'owner' => $ownerUuid
-                    ]);
 
                     if (!$this->removeOwner($plotName, $ownerUuid)) {
                         \Log::error("Failed to remove owner during transfer", [
@@ -170,7 +152,7 @@ class PlotService
 
             // Add the new owner
             $success = $this->addOwner($plotName, $newOwnerUuid);
-            
+
             if ($success) {
                 \Log::info("Successfully transferred plot ownership", [
                     'plot' => $plotName,
