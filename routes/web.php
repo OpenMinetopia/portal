@@ -21,6 +21,7 @@ use App\Http\Controllers\Portal\Police\PlayerDatabaseController;
 use App\Http\Controllers\Portal\BankAccountController;
 use App\Http\Controllers\Portal\PlotController;
 use App\Http\Controllers\Portal\PlotListingController;
+use App\Http\Controllers\Portal\BankTransactionController;
 
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisterController::class, 'create'])->name('register');
@@ -79,6 +80,8 @@ Route::middleware('auth')->group(function () {
                 // Settings
                 Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
                 Route::put('settings/features', [SettingsController::class, 'updateFeatures'])->name('settings.update-features');
+                Route::put('settings/permit-settings', [SettingsController::class, 'updatePermitSettings'])->name('settings.update-permit-settings');
+                Route::put('settings/company-settings', [SettingsController::class, 'updateCompanySettings'])->name('settings.update-company-settings');
 
                 // Admin permit type management
                 Route::prefix('permits')->name('permits.')->group(function () {
@@ -134,7 +137,7 @@ Route::middleware('auth')->group(function () {
                     Route::post('/{companyType}/request', [CompaniesController::class, 'store'])->name('store');
                     Route::get('/lookup', [CompaniesController::class, 'lookup'])->name('lookup');
                     Route::post('/{company}/dissolve', [CompaniesController::class, 'dissolve'])->name('dissolve');
-                    Route::get('/requests/{companyRequest}', [CompaniesController::class, 'showRequest'])->name('requests.show');
+                    Route::get('/requests/{companyRequest}', [CompaniesController::class, 'showRequest'])->name('request-details');
                     Route::get('/{company}', [CompaniesController::class, 'show'])->name('show');
 
                     // Company management routes (for authorized roles)
@@ -162,6 +165,18 @@ Route::middleware('auth')->group(function () {
             Route::middleware(['police.access'])->prefix('police')->name('police.')->group(function () {
                 Route::get('/players', [PlayerDatabaseController::class, 'index'])->name('players.index');
                 Route::get('/players/{user}', [PlayerDatabaseController::class, 'show'])->name('players.show');
+            });
+
+            Route::prefix('bank-accounts')->name('bank-accounts.')->group(function () {
+                Route::get('/', [BankAccountController::class, 'index'])->name('index');
+                Route::get('/{accountUuid}', [BankAccountController::class, 'show'])->name('show');
+
+                // Transaction routes (protected by transactions.enabled middleware)
+                Route::middleware('transactions.enabled')->group(function () {
+                    Route::get('/{accountUuid}/transfer', [BankTransactionController::class, 'create'])->name('transactions.create');
+                    Route::post('/{accountUuid}/transfer', [BankTransactionController::class, 'store'])->name('transactions.store');
+                    Route::get('/search/users', [BankTransactionController::class, 'search'])->name('transactions.search-users');
+                });
             });
 
         });

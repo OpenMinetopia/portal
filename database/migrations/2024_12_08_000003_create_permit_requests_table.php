@@ -12,12 +12,13 @@ return new class extends Migration
             $table->id();
             $table->foreignId('permit_type_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('handled_by')->nullable()->constrained('users');
-            $table->string('status')->default('pending'); // pending, approved, denied
             $table->json('form_data');
+            $table->string('status')->default('pending');
             $table->text('admin_notes')->nullable();
+            $table->foreignId('handled_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('handled_at')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -25,4 +26,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('permit_requests');
     }
-}; 
+};

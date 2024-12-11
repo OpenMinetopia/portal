@@ -227,7 +227,7 @@
                                             {{ $request->created_at->format('d-m-Y H:i') }}
                                         </td>
                                         <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-3">
-                                            <a href="{{ route('portal.companies.requests.show', $request) }}"
+                                            <a href="{{ route('portal.companies.request-details', $request) }}"
                                                class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300">
                                                 Details
                                             </a>
@@ -253,34 +253,4 @@
             </div>
         </div>
     </div>
-
-    @if(session('success'))
-        <div x-data="{ show: true }"
-             x-show="show"
-             x-transition
-             x-init="setTimeout(() => show = false, 3000)"
-             class="fixed bottom-0 right-0 m-6 w-96 max-w-full">
-            <div class="rounded-lg bg-green-50 p-4 shadow-lg dark:bg-green-500/10">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <x-heroicon-s-check-circle class="h-5 w-5 text-green-400 dark:text-green-500"/>
-                    </div>
-                    <div class="ml-3">
-                        <p class="text-sm font-medium text-green-800 dark:text-green-200">
-                            {{ session('success') }}
-                        </p>
-                    </div>
-                    <div class="ml-auto pl-3">
-                        <div class="-mx-1.5 -my-1.5">
-                            <button @click="show = false" type="button"
-                                    class="inline-flex rounded-md p-1.5 text-green-500 hover:bg-green-100 dark:text-green-400 dark:hover:bg-green-500/20">
-                                <span class="sr-only">Sluiten</span>
-                                <x-heroicon-s-x-mark class="h-5 w-5"/>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
 @endsection 

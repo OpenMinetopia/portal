@@ -10,9 +10,18 @@ use App\Models\DissolutionRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use App\Services\Plugin\BankingService;
+use App\Models\CompanySetting;
 
 class CompaniesController extends Controller
 {
+    protected BankingService $bankingService;
+
+    public function __construct(BankingService $bankingService)
+    {
+        $this->bankingService = $bankingService;
+    }
+
     public function index()
     {
         // Get user's companies and requests
@@ -42,7 +51,10 @@ class CompaniesController extends Controller
             return back()->with('error', 'Dit bedrijfstype is momenteel niet beschikbaar.');
         }
 
-        return view('portal.companies.request', compact('companyType'));
+        return view('portal.companies.request', [
+            'companyType' => $companyType,
+            'bank_accounts' => auth()->user()->bank_accounts
+        ]);
     }
 
     public function lookup(Request $request)
@@ -71,49 +83,58 @@ class CompaniesController extends Controller
     public function store(Request $request, CompanyType $companyType)
     {
         try {
-            // Build validation rules based on company type's form fields
+            // Build validation rules
             $rules = [
-                'form_data.Bedrijfsnaam' => ['required', 'string', 'max:255'],
+                'form_data.Bedrijfsnaam' => [],
+                'bank_account_uuid' => []
             ];
             
             $messages = [
                 'form_data.Bedrijfsnaam.required' => 'De bedrijfsnaam is verplicht.',
                 'form_data.Bedrijfsnaam.max' => 'De bedrijfsnaam mag maximaal 255 karakters bevatten.',
+                'bank_account_uuid.required' => 'Selecteer een bankrekening om het bedrijf mee te betalen.'
             ];
+
+            // Add base rules
+            $rules['form_data.Bedrijfsnaam'][] = 'required';
+            $rules['form_data.Bedrijfsnaam'][] = 'string';
+            $rules['form_data.Bedrijfsnaam'][] = 'max:255';
+            $rules['bank_account_uuid'][] = 'required';
+            $rules['bank_account_uuid'][] = 'string';
 
             foreach ($companyType->form_fields as $field) {
                 $fieldName = 'form_data.' . $field['label'];
-                $fieldRules = [];
+                if ($fieldName !== 'form_data.Bedrijfsnaam') {  // Skip if already handled
+                    $rules[$fieldName] = [];
 
-                if ($field['required']) {
-                    $fieldRules[] = 'required';
-                    $messages[$fieldName.'.required'] = "Het veld '{$field['label']}' is verplicht.";
-                } else {
-                    $fieldRules[] = 'nullable';
+                    if ($field['required']) {
+                        $rules[$fieldName][] = 'required';
+                        $messages[$fieldName.'.required'] = "Het veld '{$field['label']}' is verplicht.";
+                    } else {
+                        $rules[$fieldName][] = 'nullable';
+                    }
+
+                    switch ($field['type']) {
+                        case 'number':
+                            $rules[$fieldName][] = 'numeric';
+                            $messages[$fieldName.'.numeric'] = "Het veld '{$field['label']}' moet een nummer zijn.";
+                            break;
+                        case 'select':
+                            if (isset($field['options']) && is_array($field['options'])) {
+                                $rules[$fieldName][] = Rule::in($field['options']);
+                                $messages[$fieldName.'.in'] = "De geselecteerde optie voor '{$field['label']}' is ongeldig.";
+                            }
+                            break;
+                        case 'checkbox':
+                            $rules[$fieldName][] = 'boolean';
+                            $messages[$fieldName.'.boolean'] = "Het veld '{$field['label']}' moet ja of nee zijn.";
+                            break;
+                        default:
+                            $rules[$fieldName][] = 'string';
+                            $messages[$fieldName.'.string'] = "Het veld '{$field['label']}' moet tekst zijn.";
+                            break;
+                    }
                 }
-
-                switch ($field['type']) {
-                    case 'number':
-                        $fieldRules[] = 'numeric';
-                        $messages[$fieldName.'.numeric'] = "Het veld '{$field['label']}' moet een nummer zijn.";
-                        break;
-                    case 'select':
-                        if (isset($field['options']) && is_array($field['options'])) {
-                            $fieldRules[] = Rule::in($field['options']);
-                            $messages[$fieldName.'.in'] = "De geselecteerde optie voor '{$field['label']}' is ongeldig.";
-                        }
-                        break;
-                    case 'checkbox':
-                        $fieldRules[] = 'boolean';
-                        $messages[$fieldName.'.boolean'] = "Het veld '{$field['label']}' moet ja of nee zijn.";
-                        break;
-                    default:
-                        $fieldRules[] = 'string';
-                        $messages[$fieldName.'.string'] = "Het veld '{$field['label']}' moet tekst zijn.";
-                        break;
-                }
-
-                $rules[$fieldName] = $fieldRules;
             }
 
             // Convert rules arrays to strings
@@ -132,12 +153,48 @@ class CompaniesController extends Controller
 
             $validated = $validator->validated();
 
+            // Get settings for payout account
+            $settings = CompanySetting::first();
+            if (!$settings || !$settings->payout_bank_account_uuid) {
+                return back()->with('error', [
+                    'title' => 'Configuratie fout',
+                    'message' => 'Er is geen uitbetalingsrekening geconfigureerd voor bedrijven.'
+                ]);
+            }
+
+            // Withdraw from user's account
+            $withdrawSuccess = $this->bankingService->withdraw(
+                $validated['bank_account_uuid'],
+                $companyType->price
+            );
+
+            if (!$withdrawSuccess) {
+                throw new \Exception('Failed to withdraw money from user account');
+            }
+
+            // Deposit to government account
+            $depositSuccess = $this->bankingService->deposit(
+                $settings->payout_bank_account_uuid,
+                $companyType->price
+            );
+
+            if (!$depositSuccess) {
+                // Rollback withdrawal if deposit fails
+                $this->bankingService->deposit(
+                    $validated['bank_account_uuid'],
+                    $companyType->price
+                );
+                throw new \Exception('Failed to deposit money to government account');
+            }
+
             // Create the company request
             CompanyRequest::create([
                 'company_type_id' => $companyType->id,
                 'user_id' => auth()->id(),
                 'name' => $validated['form_data']['Bedrijfsnaam'],
                 'form_data' => $validated['form_data'],
+                'bank_account_uuid' => $validated['bank_account_uuid'],
+                'price' => $companyType->price,
                 'status' => 'pending'
             ]);
 
@@ -148,12 +205,17 @@ class CompaniesController extends Controller
         } catch (\Exception $e) {
             \Log::error('Error creating company request', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
+                'user' => auth()->id(),
+                'company_type' => $companyType->id
             ]);
 
             return back()
                 ->withInput()
-                ->withErrors(['error' => 'Er is een fout opgetreden bij het indienen van je aanvraag.']);
+                ->with('error', [
+                    'title' => 'Betaling mislukt',
+                    'message' => 'Er is een fout opgetreden bij de betaling. Probeer het later opnieuw.'
+                ]);
         }
     }
 
@@ -198,7 +260,7 @@ class CompaniesController extends Controller
             abort(403);
         }
 
-        return view('portal.companies.requests.show', compact('companyRequest'));
+        return view('portal.companies.request-details', compact('companyRequest'));
     }
 
     public function show(Company $company)

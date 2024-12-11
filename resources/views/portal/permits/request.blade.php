@@ -51,7 +51,7 @@
                         <div class="px-4 py-5 sm:p-6 space-y-6">
                             @foreach($permitType->form_fields as $field)
                                 <div>
-                                    <label for="form_data_{{ $loop->index }}" 
+                                    <label for="form_data_{{ $loop->index }}"
                                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                                         {{ $field['label'] }}
                                         @if($field['required'])
@@ -119,6 +119,59 @@
                         </div>
                     </div>
 
+                    <!-- Bank Account Selection -->
+                    <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg mt-6">
+                        <div class="px-4 py-5 sm:px-6 border-b border-gray-200 dark:border-gray-700">
+                            <h3 class="text-base font-semibold text-gray-900 dark:text-white">Betaling</h3>
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Selecteer een bankrekening voor de betaling</p>
+                        </div>
+                        <div class="px-4 py-5 sm:p-6 space-y-4">
+                            <div>
+                                <label for="bank_account_uuid" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Betaalrekening <span class="text-red-500">*</span>
+                                </label>
+                                <div class="mt-1">
+                                    <select name="bank_account_uuid" 
+                                            id="bank_account_uuid"
+                                            required
+                                            class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md dark:bg-gray-700 dark:text-white">
+                                        <option value="">Selecteer een bankrekening</option>
+                                        @foreach(auth()->user()->bank_accounts as $account)
+                                            <option value="{{ $account['uuid'] }}" 
+                                                    @if($account['balance'] < $permitType->price) disabled @endif>
+                                                {{ $account['name'] }} (€ {{ number_format($account['balance'], 2, ',', '.') }})
+                                                @if($account['balance'] < $permitType->price)
+                                                    - Onvoldoende saldo
+                                                @endif
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                                    Selecteer de bankrekening waarmee je de vergunning wilt betalen (€ {{ number_format($permitType->price, 2, ',', '.') }})
+                                </p>
+                            </div>
+
+                            @if(collect(auth()->user()->bank_accounts)->every(fn($account) => $account['balance'] < $permitType->price))
+                                <div class="bg-red-50 dark:bg-red-500/10 rounded-lg p-4">
+                                    <div class="flex">
+                                        <div class="flex-shrink-0">
+                                            <x-heroicon-s-exclamation-triangle class="h-5 w-5 text-red-400"/>
+                                        </div>
+                                        <div class="ml-3">
+                                            <h3 class="text-sm font-medium text-red-800 dark:text-red-300">
+                                                Onvoldoende saldo
+                                            </h3>
+                                            <div class="mt-2 text-sm text-red-700 dark:text-red-200">
+                                                <p>Je hebt op geen enkele bankrekening voldoende saldo om deze vergunning aan te vragen.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
                     <!-- Submit Button -->
                     <div class="flex justify-end gap-4">
                         <a href="{{ route('portal.permits.index') }}"
@@ -177,4 +230,4 @@
             </div>
         </div>
     </div>
-@endsection 
+@endsection

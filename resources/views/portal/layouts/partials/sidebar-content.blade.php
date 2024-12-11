@@ -2,7 +2,7 @@
 <div class="flex h-16 shrink-0 items-center">
     <span class="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
         <span
-                class="bg-gradient-to-r from-indigo-500 to-indigo-600 dark:from-indigo-400 dark:to-indigo-500 bg-clip-text text-transparent">Open</span>Minetopia
+            class="bg-gradient-to-r from-indigo-500 to-indigo-600 dark:from-indigo-400 dark:to-indigo-500 bg-clip-text text-transparent">Open</span>Minetopia
     </span>
 </div>
 
@@ -55,16 +55,16 @@
                 </li>
 
                 @if(\App\Models\PortalFeature::where('key', 'broker')->where('is_enabled', true)->exists())
-                <li>
-                    <a href="{{ route('portal.plots.listings.index') }}"
-                       class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.plots.listings.*')
+                    <li>
+                        <a href="{{ route('portal.plots.listings.index') }}"
+                           class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.plots.listings.*')
                             ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
                             : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-indigo-400 dark:hover:bg-gray-800'
                         }}">
-                        <x-heroicon-o-currency-dollar class="h-6 w-6 shrink-0"/>
-                        Makelaar
-                    </a>
-                </li>
+                            <x-heroicon-o-currency-dollar class="h-6 w-6 shrink-0"/>
+                            Makelaar
+                        </a>
+                    </li>
                 @endif
 
             </ul>
@@ -74,21 +74,21 @@
             \App\Models\PortalFeature::where('key', 'permits')->where('is_enabled', true)->exists() ||
             \App\Models\PortalFeature::where('key', 'companies')->where('is_enabled', true)->exists()
         )
-        <li>
-            <div class="text-xs font-semibold leading-6 text-gray-500 dark:text-gray-400">BEDRIJVEN & VERGUNNINGEN</div>
-            <ul role="list" class="-mx-2 mt-2 space-y-1">
-                @if(\App\Models\PortalFeature::where('key', 'permits')->where('is_enabled', true)->exists())
-                    <li>
-                        <a href="{{ route('portal.permits.index') }}"
-                           class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.permits.index', 'portal.permits.request', 'portal.permits.show')
+            <li>
+                <div class="text-xs font-semibold leading-6 text-gray-500 dark:text-gray-400">BEDRIJVEN & VERGUNNINGEN</div>
+                <ul role="list" class="-mx-2 mt-2 space-y-1">
+                    @if(\App\Models\PortalFeature::where('key', 'permits')->where('is_enabled', true)->exists())
+                        <li>
+                            <a href="{{ route('portal.permits.index') }}"
+                               class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.permits.index', 'portal.permits.request', 'portal.permits.show')
                                 ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
                                 : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-indigo-400 dark:hover:bg-gray-800'
                             }}">
-                            <x-heroicon-o-document-text class="h-6 w-6 shrink-0"/>
-                            Mijn vergunningen
-                        </a>
-                    </li>
-                @endif
+                                <x-heroicon-o-document-text class="h-6 w-6 shrink-0"/>
+                                Mijn vergunningen
+                            </a>
+                        </li>
+                    @endif
 
                     @if(\App\Models\PortalFeature::where('key', 'companies')->where('is_enabled', true)->exists())
                         <li>
@@ -116,8 +116,8 @@
                         </li>
                     @endif
 
-            </ul>
-        </li>
+                </ul>
+            </li>
         @endif
 
         @if(
@@ -129,18 +129,18 @@
                 <ul role="list" class="-mx-2 mt-2 space-y-1">
                     <li>
                         <a href="{{ route('portal.companies.requests.index') }}"
-                                @class(['group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6',
-                                    'bg-gray-50 dark:bg-gray-800 text-indigo-600 dark:text-indigo-400' => request()->routeIs('portal.companies.requests.*'),
-                                    'text-gray-700 hover:text-indigo-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-indigo-400 dark:hover:bg-gray-800' => !request()->routeIs('portal.companies.requests.*')])>
+                            @class(['group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6',
+                                'bg-gray-50 dark:bg-gray-800 text-indigo-600 dark:text-indigo-400' => request()->routeIs('portal.companies.requests.*'),
+                                'text-gray-700 hover:text-indigo-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-indigo-400 dark:hover:bg-gray-800' => !request()->routeIs('portal.companies.requests.*')])>
                             <x-heroicon-o-inbox-stack class="h-6 w-6 shrink-0"/>
                             Bedrijfsaanvragen
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('portal.companies.dissolutions.index') }}"
-                                @class(['group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6',
-                                    'bg-gray-50 dark:bg-gray-800 text-indigo-600 dark:text-indigo-400' => request()->routeIs('portal.companies.dissolutions.*'),
-                                    'text-gray-700 hover:text-indigo-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-indigo-400 dark:hover:bg-gray-800' => !request()->routeIs('portal.companies.dissolutions.*')])>
+                            @class(['group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6',
+                                'bg-gray-50 dark:bg-gray-800 text-indigo-600 dark:text-indigo-400' => request()->routeIs('portal.companies.dissolutions.*'),
+                                'text-gray-700 hover:text-indigo-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-indigo-400 dark:hover:bg-gray-800' => !request()->routeIs('portal.companies.dissolutions.*')])>
                             <x-heroicon-o-archive-box-x-mark class="h-6 w-6 shrink-0"/>
                             Opheffingsaanvragen
                         </a>
@@ -173,9 +173,9 @@
                 <ul role="list" class="-mx-2 mt-2 space-y-1">
                     <li>
                         <a href="{{ route('portal.permits.manage.index') }}"
-                                @class(['group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6',
-                                    'bg-gray-50 dark:bg-gray-800 text-indigo-600 dark:text-indigo-400' => request()->routeIs('portal.permits.manage.*'),
-                                    'text-gray-700 hover:text-indigo-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-indigo-400 dark:hover:bg-gray-800' => !request()->routeIs('portal.permits.manage.*')])>
+                            @class(['group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6',
+                                'bg-gray-50 dark:bg-gray-800 text-indigo-600 dark:text-indigo-400' => request()->routeIs('portal.permits.manage.*'),
+                                'text-gray-700 hover:text-indigo-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-indigo-400 dark:hover:bg-gray-800' => !request()->routeIs('portal.permits.manage.*')])>
                             <x-heroicon-o-inbox-stack class="h-6 w-6 shrink-0"/>
                             Alle aanvragen
                         </a>

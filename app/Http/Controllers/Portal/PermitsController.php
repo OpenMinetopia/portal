@@ -7,9 +7,18 @@ use App\Models\PermitType;
 use App\Models\PermitRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Services\Plugin\BankingService;
+use App\Models\PermitSetting;
 
 class PermitsController extends Controller
 {
+    protected BankingService $bankingService;
+
+    public function __construct(BankingService $bankingService)
+    {
+        $this->bankingService = $bankingService;
+    }
+
     public function index()
     {
         // Get all active permit types
@@ -41,43 +50,44 @@ class PermitsController extends Controller
 
         try {
             // Build validation rules based on permit type's form fields
-            $rules = [];
-            $messages = [];
+            $rules = [
+                'bank_account_uuid' => 'required|string'
+            ];
+            $messages = [
+                'bank_account_uuid.required' => 'Selecteer een bankrekening om de vergunning mee te betalen.'
+            ];
 
             foreach ($permitType->form_fields as $field) {
                 $fieldName = 'form_data.' . $field['label'];
-                $rules[$fieldName] = [];
+                $fieldRules = [];
 
                 if ($field['required']) {
-                    $rules[$fieldName][] = 'required';
+                    $fieldRules[] = 'required';
                     $messages[$fieldName.'.required'] = "Het veld '{$field['label']}' is verplicht.";
                 } else {
-                    $rules[$fieldName][] = 'nullable';
+                    $fieldRules[] = 'nullable';
                 }
 
                 switch ($field['type']) {
                     case 'number':
-                        $rules[$fieldName][] = 'numeric';
+                        $fieldRules[] = 'numeric';
                         $messages[$fieldName.'.numeric'] = "Het veld '{$field['label']}' moet een nummer zijn.";
                         break;
                     case 'select':
-                        $rules[$fieldName][] = 'in:' . implode(',', $field['options']);
+                        $fieldRules[] = 'in:' . implode(',', $field['options']);
                         $messages[$fieldName.'.in'] = "De geselecteerde optie voor '{$field['label']}' is ongeldig.";
                         break;
                     case 'checkbox':
-                        $rules[$fieldName][] = 'boolean';
+                        $fieldRules[] = 'boolean';
                         $messages[$fieldName.'.boolean'] = "Het veld '{$field['label']}' moet ja of nee zijn.";
                         break;
                     default:
-                        $rules[$fieldName][] = 'string';
+                        $fieldRules[] = 'string';
                         $messages[$fieldName.'.string'] = "Het veld '{$field['label']}' moet tekst zijn.";
                         break;
                 }
-            }
 
-            // Convert rules arrays to strings
-            foreach ($rules as $field => $fieldRules) {
-                $rules[$field] = implode('|', $fieldRules);
+                $rules[$fieldName] = implode('|', $fieldRules);
             }
 
             // Validate the request
@@ -91,11 +101,47 @@ class PermitsController extends Controller
 
             $validated = $validator->validated();
 
+            // Get settings for payout account
+            $settings = PermitSetting::first();
+            if (!$settings || !$settings->payout_bank_account_uuid) {
+                return back()->with('error', [
+                    'title' => 'Configuratie fout',
+                    'message' => 'Er is geen uitbetalingsrekening geconfigureerd voor vergunningen.'
+                ]);
+            }
+
+            // Withdraw from user's account
+            $withdrawSuccess = $this->bankingService->withdraw(
+                $validated['bank_account_uuid'],
+                $permitType->price
+            );
+
+            if (!$withdrawSuccess) {
+                throw new \Exception('Failed to withdraw money from user account');
+            }
+
+            // Deposit to government account
+            $depositSuccess = $this->bankingService->deposit(
+                $settings->payout_bank_account_uuid,
+                $permitType->price
+            );
+
+            if (!$depositSuccess) {
+                // Rollback withdrawal if deposit fails
+                $this->bankingService->deposit(
+                    $validated['bank_account_uuid'],
+                    $permitType->price
+                );
+                throw new \Exception('Failed to deposit money to government account');
+            }
+
             // Create the permit request
             $permitRequest = PermitRequest::create([
                 'permit_type_id' => $permitType->id,
                 'user_id' => auth()->id(),
                 'form_data' => $validated['form_data'],
+                'bank_account_uuid' => $validated['bank_account_uuid'],
+                'price' => $permitType->price,
                 'status' => 'pending'
             ]);
 
@@ -106,12 +152,17 @@ class PermitsController extends Controller
         } catch (\Exception $e) {
             \Log::error('Error creating permit request', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
+                'user' => auth()->id(),
+                'permit_type' => $permitType->id
             ]);
 
             return back()
                 ->withInput()
-                ->withErrors(['error' => 'Er is een fout opgetreden bij het indienen van je aanvraag.']);
+                ->with('error', [
+                    'title' => 'Betaling mislukt',
+                    'message' => 'Er is een fout opgetreden bij de betaling. Probeer het later opnieuw.'
+                ]);
         }
     }
 

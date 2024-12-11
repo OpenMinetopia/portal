@@ -15,12 +15,17 @@ class CompanyRequest extends Model
         'status',
         'admin_notes',
         'handled_by',
-        'handled_at'
+        'handled_at',
+        'bank_account_uuid',
+        'price',
+        'refunded'
     ];
 
     protected $casts = [
         'form_data' => 'array',
         'handled_at' => 'datetime',
+        'refunded' => 'boolean',
+        'price' => 'decimal:2'
     ];
 
     public function type(): BelongsTo

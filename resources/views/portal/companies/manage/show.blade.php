@@ -183,6 +183,30 @@
                                         </label>
                                     </div>
 
+                                    <!-- Refund Option (shows when denying) -->
+                                    <div x-show="status === 'denied'" x-transition class="mt-4">
+                                        <div class="bg-white dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg p-4">
+                                            <div class="flex items-start">
+                                                <div class="flex h-5 items-center">
+                                                    <input type="checkbox" 
+                                                           name="should_refund" 
+                                                           id="should_refund" 
+                                                           value="1"
+                                                           checked
+                                                           class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800">
+                                                </div>
+                                                <div class="ml-3">
+                                                    <label for="should_refund" class="text-sm font-medium text-gray-900 dark:text-white">
+                                                        Bedrag terugstorten
+                                                    </label>
+                                                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                                                        Stort € {{ number_format($companyRequest->price, 2, ',', '.') }} terug naar de bankrekening van de aanvrager
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <!-- Selected Status Indicator -->
                                     <div class="text-sm" x-show="status !== ''">
                                         <p class="font-medium" :class="{
@@ -253,34 +277,4 @@
             </div>
         </div>
     </div>
-
-    @if(session('success'))
-        <div x-data="{ show: true }"
-             x-show="show"
-             x-transition
-             x-init="setTimeout(() => show = false, 3000)"
-             class="fixed bottom-0 right-0 m-6 w-96 max-w-full">
-            <div class="rounded-lg bg-green-50 p-4 shadow-lg dark:bg-green-500/10">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <x-heroicon-s-check-circle class="h-5 w-5 text-green-400 dark:text-green-500"/>
-                    </div>
-                    <div class="ml-3">
-                        <p class="text-sm font-medium text-green-800 dark:text-green-200">
-                            {{ session('success') }}
-                        </p>
-                    </div>
-                    <div class="ml-auto pl-3">
-                        <div class="-mx-1.5 -my-1.5">
-                            <button @click="show = false" type="button"
-                                    class="inline-flex rounded-md p-1.5 text-green-500 hover:bg-green-100 dark:text-green-400 dark:hover:bg-green-500/20">
-                                <span class="sr-only">Sluiten</span>
-                                <x-heroicon-s-x-mark class="h-5 w-5"/>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
 @endsection 

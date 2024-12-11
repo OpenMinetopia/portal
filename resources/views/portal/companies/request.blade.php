@@ -32,8 +32,8 @@
         </div>
 
         <!-- Request Form -->
-        <form action="{{ route('portal.companies.store', $companyType) }}" 
-              method="POST" 
+        <form action="{{ route('portal.companies.store', $companyType) }}"
+              method="POST"
               x-data="formBuilder"
               class="space-y-6">
             @csrf
@@ -55,14 +55,14 @@
                                 </label>
                                 <div class="mt-1">
                                     <div class="relative">
-                                        <input type="text" 
-                                               name="form_data[Bedrijfsnaam]" 
+                                        <input type="text"
+                                               name="form_data[Bedrijfsnaam]"
                                                id="form_data_Bedrijfsnaam"
                                                x-on:input="checkName($event.target.value)"
                                                value="{{ old('form_data.Bedrijfsnaam') }}"
                                                class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white"
                                                required>
-                                        
+
                                         <!-- Availability Indicator -->
                                         <div class="absolute inset-y-0 right-0 flex items-center pr-3">
                                             <template x-if="nameAvailable">
@@ -76,7 +76,7 @@
                                 </div>
 
                                 <!-- Name Check Messages -->
-                                <div x-show="nameExists" 
+                                <div x-show="nameExists"
                                      x-cloak
                                      class="mt-2 text-sm text-yellow-600 dark:text-yellow-400">
                                     <div class="flex gap-x-2">
@@ -84,7 +84,7 @@
                                         <span x-text="nameMessage"></span>
                                     </div>
                                 </div>
-                                <div x-show="nameAvailable" 
+                                <div x-show="nameAvailable"
                                      x-cloak
                                      class="mt-2 text-sm text-green-600 dark:text-green-400">
                                     <div class="flex gap-x-2">
@@ -100,7 +100,7 @@
                             <!-- Dynamic Form Fields -->
                             @foreach($companyType->form_fields as $field)
                                 <div>
-                                    <label for="form_data[{{ $field['label'] }}]" 
+                                    <label for="form_data[{{ $field['label'] }}]"
                                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                                         {{ $field['label'] }}
                                         @if($field['required'])
@@ -194,11 +194,64 @@
                         </div>
                     </div>
 
+                    <!-- Bank Account Selection -->
+                    <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg">
+                        <div class="px-4 py-5 sm:px-6 border-b border-gray-200 dark:border-gray-700">
+                            <h3 class="text-base font-semibold text-gray-900 dark:text-white">Betaling</h3>
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Selecteer een bankrekening voor de betaling</p>
+                        </div>
+                        <div class="px-4 py-5 sm:p-6 space-y-4">
+                            <div>
+                                <label for="bank_account_uuid" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Betaalrekening <span class="text-red-500">*</span>
+                                </label>
+                                <div class="mt-1">
+                                    <select name="bank_account_uuid" 
+                                            id="bank_account_uuid"
+                                            required
+                                            class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md dark:bg-gray-700 dark:text-white">
+                                        <option value="">Selecteer een bankrekening</option>
+                                        @foreach($bank_accounts as $account)
+                                            <option value="{{ $account['uuid'] }}" 
+                                                    @if($account['balance'] < $companyType->price) disabled @endif>
+                                                {{ $account['name'] }} (€ {{ number_format($account['balance'], 2, ',', '.') }})
+                                                @if($account['balance'] < $companyType->price)
+                                                    - Onvoldoende saldo
+                                                @endif
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                                    Selecteer de bankrekening waarmee je het bedrijf wilt registreren (€ {{ number_format($companyType->price, 2, ',', '.') }})
+                                </p>
+                            </div>
+
+                            @if(collect($bank_accounts)->every(fn($account) => $account['balance'] < $companyType->price))
+                                <div class="bg-red-50 dark:bg-red-500/10 rounded-lg p-4">
+                                    <div class="flex">
+                                        <div class="flex-shrink-0">
+                                            <x-heroicon-s-exclamation-triangle class="h-5 w-5 text-red-400"/>
+                                        </div>
+                                        <div class="ml-3">
+                                            <h3 class="text-sm font-medium text-red-800 dark:text-red-300">
+                                                Onvoldoende saldo
+                                            </h3>
+                                            <div class="mt-2 text-sm text-red-700 dark:text-red-200">
+                                                <p>Je hebt op geen enkele bankrekening voldoende saldo om dit bedrijf te registreren.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
                     <!-- Submit Button -->
                     <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg">
                         <div class="px-4 py-5 sm:p-6">
                             <button type="submit"
-                                    class="w-full inline-flex justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400">
+                                    class="w-full inline-flex justify-center items-center rounded-md bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
                                 <x-heroicon-s-paper-airplane class="h-4 w-4 mr-2"/>
                                 Aanvraag Indienen
                             </button>
@@ -285,9 +338,9 @@
                             try {
                                 const response = await fetch(`{{ route('portal.companies.lookup') }}?name=${encodeURIComponent(name)}`);
                                 const data = await response.json();
-                                
+
                                 console.log('Name check response:', data); // Debug log
-                                
+
                                 this.nameExists = data.exists;
                                 this.nameMessage = data.message;
                                 this.nameAvailable = !data.exists;
@@ -325,4 +378,4 @@
             });
         </script>
     @endpush
-@endsection 
+@endsection

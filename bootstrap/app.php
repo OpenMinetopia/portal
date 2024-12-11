@@ -12,6 +12,7 @@ use App\Http\Middleware\EnsureCompaniesEnabled;
 use App\Http\Middleware\CanManageCompanies;
 use App\Http\Middleware\PoliceAccess;
 use App\Http\Middleware\EnsureBrokerEnabled;
+use App\Http\Middleware\EnsureTransactionsEnabled;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -31,6 +32,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'companies.manage' => CanManageCompanies::class,
             'police.access' => PoliceAccess::class,
             'broker.enabled' => EnsureBrokerEnabled::class,
+            'transactions.enabled' => EnsureTransactionsEnabled::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

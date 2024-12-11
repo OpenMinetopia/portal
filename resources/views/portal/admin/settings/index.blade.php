@@ -85,6 +85,150 @@
                         </dl>
                     </div>
                 </div>
+
+                <!-- Permit Settings -->
+                @if(\App\Models\PortalFeature::where('key', 'permits')->where('is_enabled', true)->exists())
+                    <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg">
+                        <div class="px-4 py-5 sm:px-6 border-b border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-base font-semibold text-gray-900 dark:text-white">Vergunningen Instellingen</h3>
+                                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Configureer de financiële instellingen voor vergunningen</p>
+                                </div>
+                            </div>
+                        </div>
+                        <form action="{{ route('portal.admin.settings.update-permit-settings') }}" method="POST" class="px-4 py-5 sm:p-6">
+                            @csrf
+                            @method('PUT')
+                            
+                            <div class="space-y-4">
+                                <!-- Bank Account Selection -->
+                                <div>
+                                    <label for="payout_bank_account_uuid" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        Uitbetalingsrekening
+                                    </label>
+                                    <div class="mt-1">
+                                        <select name="payout_bank_account_uuid" 
+                                                id="payout_bank_account_uuid"
+                                                class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md dark:bg-gray-700 dark:text-white">
+                                            <option value="">Selecteer een bankrekening</option>
+                                            @foreach(auth()->user()->bank_accounts as $account)
+                                                @if($account['type'] !== 'PRIVATE')
+                                                    <option value="{{ $account['uuid'] }}" 
+                                                            @if($permitSettings->payout_bank_account_uuid === $account['uuid']) selected @endif>
+                                                        {{ $account['name'] }} (€ {{ number_format($account['balance'], 2, ',', '.') }})
+                                                    </option>
+                                                @endif
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                                        Selecteer de overheidsrekening waar alle vergunningsgelden op worden gestort. 
+                                        Let op: alleen overheidsrekeningen worden getoond.
+                                    </p>
+                                </div>
+
+                                <div class="bg-blue-50 dark:bg-blue-500/10 rounded-lg p-4">
+                                    <div class="flex">
+                                        <div class="flex-shrink-0">
+                                            <x-heroicon-s-information-circle class="h-5 w-5 text-blue-400"/>
+                                        </div>
+                                        <div class="ml-3">
+                                            <h3 class="text-sm font-medium text-blue-800 dark:text-blue-300">
+                                                Alleen overheidsrekeningen
+                                            </h3>
+                                            <div class="mt-2 text-sm text-blue-700 dark:text-blue-200">
+                                                <p>Als administrator met OP-rechten op de server zie je alle overheidsrekeningen. 
+                                                Deze rekening wordt gebruikt voor alle financiële transacties rondom vergunningen, 
+                                                zoals betalingen en terugstortingen.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-6 flex justify-end">
+                                <button type="submit" 
+                                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
+                                    <x-heroicon-s-check class="h-4 w-4 mr-2"/>
+                                    Instellingen Opslaan
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                @endif
+
+                <!-- After Permit Settings -->
+                @if(\App\Models\PortalFeature::where('key', 'companies')->where('is_enabled', true)->exists())
+                    <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg">
+                        <div class="px-4 py-5 sm:px-6 border-b border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-base font-semibold text-gray-900 dark:text-white">Bedrijven Instellingen</h3>
+                                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Configureer de financiële instellingen voor bedrijfsaanvragen</p>
+                                </div>
+                            </div>
+                        </div>
+                        <form action="{{ route('portal.admin.settings.update-company-settings') }}" method="POST" class="px-4 py-5 sm:p-6">
+                            @csrf
+                            @method('PUT')
+                            
+                            <div class="space-y-4">
+                                <!-- Bank Account Selection -->
+                                <div>
+                                    <label for="company_payout_bank_account_uuid" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        Uitbetalingsrekening
+                                    </label>
+                                    <div class="mt-1">
+                                        <select name="payout_bank_account_uuid" 
+                                                id="company_payout_bank_account_uuid"
+                                                class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md dark:bg-gray-700 dark:text-white">
+                                            <option value="">Selecteer een bankrekening</option>
+                                            @foreach(auth()->user()->bank_accounts as $account)
+                                                @if($account['type'] !== 'PRIVATE')
+                                                    <option value="{{ $account['uuid'] }}" 
+                                                            @if($companySettings->payout_bank_account_uuid === $account['uuid']) selected @endif>
+                                                        {{ $account['name'] }} (€ {{ number_format($account['balance'], 2, ',', '.') }})
+                                                    </option>
+                                                @endif
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                                        Selecteer de overheidsrekening waar alle bedrijfsaanvraag gelden op worden gestort. 
+                                        Let op: alleen overheidsrekeningen worden getoond.
+                                    </p>
+                                </div>
+
+                                <div class="bg-blue-50 dark:bg-blue-500/10 rounded-lg p-4">
+                                    <div class="flex">
+                                        <div class="flex-shrink-0">
+                                            <x-heroicon-s-information-circle class="h-5 w-5 text-blue-400"/>
+                                        </div>
+                                        <div class="ml-3">
+                                            <h3 class="text-sm font-medium text-blue-800 dark:text-blue-300">
+                                                Alleen overheidsrekeningen
+                                            </h3>
+                                            <div class="mt-2 text-sm text-blue-700 dark:text-blue-200">
+                                                <p>Als administrator met OP-rechten op de server zie je alle overheidsrekeningen. 
+                                                Deze rekening wordt gebruikt voor alle financiële transacties rondom bedrijfsaanvragen, 
+                                                zoals registratiekosten en terugstortingen.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-6 flex justify-end">
+                                <button type="submit" 
+                                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
+                                    <x-heroicon-s-check class="h-4 w-4 mr-2"/>
+                                    Instellingen Opslaan
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                @endif
             </div>
 
             <!-- Right Column -->
@@ -144,35 +288,4 @@
             </div>
         </div>
     </div>
-
-    <!-- Success Notification -->
-    @if(session('success'))
-        <div x-data="{ show: true }"
-             x-show="show"
-             x-transition
-             x-init="setTimeout(() => show = false, 3000)"
-             class="fixed bottom-0 right-0 m-6 w-96 max-w-full">
-            <div class="rounded-lg bg-green-50 p-4 shadow-lg dark:bg-green-500/10">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <x-heroicon-s-check-circle class="h-5 w-5 text-green-400 dark:text-green-500"/>
-                    </div>
-                    <div class="ml-3">
-                        <p class="text-sm font-medium text-green-800 dark:text-green-200">
-                            {{ session('success') }}
-                        </p>
-                    </div>
-                    <div class="ml-auto pl-3">
-                        <div class="-mx-1.5 -my-1.5">
-                            <button @click="show = false" type="button"
-                                    class="inline-flex rounded-md p-1.5 text-green-500 hover:bg-green-100 dark:text-green-400 dark:hover:bg-green-500/20">
-                                <span class="sr-only">Sluiten</span>
-                                <x-heroicon-s-x-mark class="h-5 w-5"/>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
 @endsection 

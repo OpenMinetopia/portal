@@ -14,12 +14,17 @@ class PermitRequest extends Model
         'status',
         'form_data',
         'admin_notes',
-        'handled_at'
+        'handled_at',
+        'refunded',
+        'bank_account_uuid',
+        'price'
     ];
 
     protected $casts = [
         'form_data' => 'array',
-        'handled_at' => 'datetime'
+        'handled_at' => 'datetime',
+        'refunded' => 'boolean',
+        'price' => 'decimal:2'
     ];
 
     public function type(): BelongsTo
