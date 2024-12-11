@@ -56,12 +56,12 @@ Route::middleware('auth')->group(function () {
         Route::middleware('broker.enabled')->group(function () {
             Route::get('/plots/te-koop', [PlotListingController::class, 'index'])
                 ->name('portal.plots.listings.index');
-            
+
             Route::get('/plots/te-koop/{listing}/kopen', [PlotListingController::class, 'showBuyForm'])
                 ->name('portal.plots.listings.buy.show');
             Route::post('/plots/te-koop/{listing}/kopen', [PlotListingController::class, 'buy'])
                 ->name('portal.plots.listings.buy');
-            
+
             Route::get('/plots/{plot}/verkopen', [PlotListingController::class, 'create'])
                 ->name('portal.plots.listings.create');
             Route::post('/plots/{plot}/verkopen', [PlotListingController::class, 'store'])
@@ -168,10 +168,6 @@ Route::middleware('auth')->group(function () {
             });
 
             Route::prefix('bank-accounts')->name('bank-accounts.')->group(function () {
-                Route::get('/', [BankAccountController::class, 'index'])->name('index');
-                Route::get('/{accountUuid}', [BankAccountController::class, 'show'])->name('show');
-
-                // Transaction routes (protected by transactions.enabled middleware)
                 Route::middleware('transactions.enabled')->group(function () {
                     Route::get('/{accountUuid}/transfer', [BankTransactionController::class, 'create'])->name('transactions.create');
                     Route::post('/{accountUuid}/transfer', [BankTransactionController::class, 'store'])->name('transactions.store');
