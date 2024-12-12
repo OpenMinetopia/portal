@@ -34,10 +34,10 @@ class PluginApiService
      * Make a POST request to the plugin API.
      *
      * @param string $endpoint
-     * @param array $data
+     * @param array|string $data
      * @return mixed
      */
-    public function post(string $endpoint, array $data = []): mixed
+    public function post(string $endpoint, array|string $data = []): mixed
     {
         $url = $this->baseUrl . $endpoint;
         return $this->makeRequest('POST', $url, $data);
@@ -48,10 +48,10 @@ class PluginApiService
      *
      * @param string $method
      * @param string $url
-     * @param array $data
+     * @param array|string $data
      * @return mixed
      */
-    private function makeRequest(string $method, string $url, array $data = []): mixed
+    private function makeRequest(string $method, string $url, array|string $data = []): mixed
     {
         try {
             $request = Http::withHeaders([
@@ -60,7 +60,8 @@ class PluginApiService
 
             $response = match ($method) {
                 'GET' => $request->get($url, $data),
-                'POST' => $request->post($url, $data),
+                'POST' => is_string($data) ? $request->withBody($data, 'text/plain')->post($url) 
+                                         : $request->post($url, $data),
                 default => throw new \InvalidArgumentException("Unsupported HTTP method: {$method}")
             };
 
@@ -74,6 +75,12 @@ class PluginApiService
                 return $json;
             }
         } catch (\Exception $e) {
+            \Log::error('API request failed', [
+                'method' => $method,
+                'url' => $url,
+                'data' => $data,
+                'error' => $e->getMessage()
+            ]);
             return null;
         }
 

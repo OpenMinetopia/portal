@@ -27,13 +27,60 @@ class BankTransactionController extends Controller
         }
 
         // Get all users except current user
-        $users = User::where('id', '!=', auth()->id())->get();
+        $users = User::where('id', '!=', auth()->id())
+            ->where('minecraft_verified', true)
+            ->get();
+
+        // Get all accounts for the current user
+        $ownAccounts = collect(auth()->user()->bank_accounts)
+            ->filter(function($acc) use ($accountUuid) {
+                return $acc['uuid'] !== $accountUuid;
+            })
+            ->values()
+            ->toArray();
 
         return view('portal.bank-accounts.transactions.create', [
             'account' => $account,
             'users' => $users,
-            'allAccounts' => auth()->user()->bank_accounts
+            'allAccounts' => $ownAccounts
         ]);
+    }
+
+    public function getUserAccounts(string $userId)
+    {
+        try {
+            $user = User::findOrFail($userId);
+            
+            \Log::info('Fetching bank accounts for user', [
+                'userId' => $userId,
+                'minecraft_uuid' => $user->minecraft_plain_uuid
+            ]);
+            
+            $accounts = $this->bankingService->getPlayerBankAccounts($user->minecraft_plain_uuid);
+            
+            // Only return PRIVATE accounts without balance
+            $privateAccounts = collect($accounts)
+                ->filter(function($account) {
+                    return $account['type'] === 'PRIVATE';
+                })
+                ->map(function($account) {
+                    return [
+                        'uuid' => $account['uuid'],
+                        'name' => $account['name'],
+                        'type' => $account['type']
+                    ];
+                })
+                ->values()
+                ->toArray();
+
+            return response()->json($privateAccounts);
+        } catch (\Exception $e) {
+            \Log::error('Failed to fetch user accounts', [
+                'userId' => $userId,
+                'error' => $e->getMessage()
+            ]);
+            return response()->json(['error' => 'Failed to fetch accounts'], 500);
+        }
     }
 
     public function store(Request $request, string $accountUuid)
@@ -45,16 +92,6 @@ class BankTransactionController extends Controller
             'to_account_uuid' => 'required|string',
             'amount' => 'required|numeric|min:0.01',
             'description' => 'required|string|max:255'
-        ], [
-            'transferType.required' => 'Selecteer een type overboeking.',
-            'to_user_id.required_if' => 'Selecteer een ontvanger.',
-            'to_user_id.exists' => 'Deze gebruiker bestaat niet.',
-            'to_account_uuid.required' => 'Selecteer een rekening van de ontvanger.',
-            'amount.required' => 'Vul een bedrag in.',
-            'amount.numeric' => 'Het bedrag moet een getal zijn.',
-            'amount.min' => 'Het bedrag moet minimaal €0,01 zijn.',
-            'description.required' => 'Vul een omschrijving in.',
-            'description.max' => 'De omschrijving mag maximaal 255 karakters bevatten.'
         ]);
 
         // Check if user has access to source account
@@ -130,6 +167,7 @@ class BankTransactionController extends Controller
         
         return User::where('minecraft_username', 'LIKE', "%{$query}%")
             ->where('id', '!=', auth()->id())
+            ->where('minecraft_verified', true)
             ->select('id', 'minecraft_username', 'minecraft_uuid')
             ->limit(5)
             ->get()

@@ -1,75 +1,77 @@
 <?php
 
-namespace App\Http\Controllers\Portal;
+namespace App\Http\Controllers\Portal\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\Plugin\PlotService;
+use App\Services\MojangApiService;
 use Illuminate\Http\Request;
 
-class PlotController extends Controller
+class AdminPlotController extends Controller
 {
     protected PlotService $plotService;
+    protected MojangApiService $mojangApi;
 
-    public function __construct(PlotService $plotService)
+    public function __construct(PlotService $plotService, MojangApiService $mojangApi)
     {
         $this->plotService = $plotService;
+        $this->mojangApi = $mojangApi;
     }
 
     public function index()
     {
-        $plots = auth()->user()->plots;
+        $plots = $this->plotService->getAllPlots();
 
-        return view('portal.plots.index', [
+        return view('portal.admin.plots.index', [
             'plots' => $plots
         ]);
     }
 
     public function show(string $name)
     {
-        $plots = auth()->user()->plots;
-        $plot = collect($plots)->firstWhere('name', $name);
-
+        \Log::info('Fetching plot details', ['name' => $name]);
+        
+        $plot = $this->plotService->getPlot($name);
+        
         if (!$plot) {
+            \Log::error('Plot not found', ['name' => $name]);
             abort(404);
         }
 
-        // Only get users list if the current user is an owner
-        $users = $plot['permission'] === 'OWNER' 
-            ? User::where('minecraft_verified', true)
-                ->where('id', '!=', auth()->id()) // Exclude current user
-                ->get()
-            : collect();
+        \Log::info('Plot details retrieved', ['plot' => $plot]);
 
-        return view('portal.plots.show', [
+        // Get all verified users for the selection dropdowns
+        $users = User::where('minecraft_verified', true)->get();
+
+        return view('portal.admin.plots.show', [
             'plot' => $plot,
-            'users' => $users,
-            'isOwner' => $plot['permission'] === 'OWNER'
+            'users' => $users
         ]);
     }
 
     public function addOwner(Request $request, string $name)
     {
-        $plots = auth()->user()->plots;
-        $plot = collect($plots)->firstWhere('name', $name);
-
-        if (!$plot || $plot['permission'] !== 'OWNER') {
-            return back()->with('error', [
-                'title' => 'Actie niet mogelijk',
-                'message' => 'Je hebt geen rechten om eigenaren toe te voegen aan dit plot.'
-            ]);
-        }
-
         $validated = $request->validate([
             'user_uuid' => 'required|string'
+        ]);
+
+        \Log::info('Attempting to add owner to plot', [
+            'plot' => $name,
+            'user_uuid' => $validated['user_uuid']
         ]);
 
         $success = $this->plotService->addOwner($name, $validated['user_uuid']);
 
         if (!$success) {
+            \Log::error('Failed to add owner to plot', [
+                'plot' => $name,
+                'user_uuid' => $validated['user_uuid']
+            ]);
+
             return back()->with('error', [
                 'title' => 'Actie mislukt',
-                'message' => 'Het toevoegen van de eigenaar is mislukt.'
+                'message' => 'Het toevoegen van de eigenaar is mislukt. Controleer of de speler al eigenaar is.'
             ]);
         }
 
@@ -81,27 +83,9 @@ class PlotController extends Controller
 
     public function removeOwner(Request $request, string $name)
     {
-        $plots = auth()->user()->plots;
-        $plot = collect($plots)->firstWhere('name', $name);
-
-        if (!$plot || $plot['permission'] !== 'OWNER') {
-            return back()->with('error', [
-                'title' => 'Actie niet mogelijk',
-                'message' => 'Je hebt geen rechten om eigenaren te verwijderen van dit plot.'
-            ]);
-        }
-
         $validated = $request->validate([
             'user_uuid' => 'required|string'
         ]);
-
-        // Prevent removing yourself as owner
-        if ($validated['user_uuid'] === auth()->user()->minecraft_plain_uuid) {
-            return back()->with('error', [
-                'title' => 'Actie niet mogelijk',
-                'message' => 'Je kunt jezelf niet verwijderen als eigenaar.'
-            ]);
-        }
 
         $success = $this->plotService->removeOwner($name, $validated['user_uuid']);
 
@@ -120,26 +104,26 @@ class PlotController extends Controller
 
     public function addMember(Request $request, string $name)
     {
-        $plots = auth()->user()->plots;
-        $plot = collect($plots)->firstWhere('name', $name);
-
-        if (!$plot || $plot['permission'] !== 'OWNER') {
-            return back()->with('error', [
-                'title' => 'Actie niet mogelijk',
-                'message' => 'Je hebt geen rechten om leden toe te voegen aan dit plot.'
-            ]);
-        }
-
         $validated = $request->validate([
             'user_uuid' => 'required|string'
+        ]);
+
+        \Log::info('Attempting to add member to plot', [
+            'plot' => $name,
+            'user_uuid' => $validated['user_uuid']
         ]);
 
         $success = $this->plotService->addMember($name, $validated['user_uuid']);
 
         if (!$success) {
+            \Log::error('Failed to add member to plot', [
+                'plot' => $name,
+                'user_uuid' => $validated['user_uuid']
+            ]);
+
             return back()->with('error', [
                 'title' => 'Actie mislukt',
-                'message' => 'Het toevoegen van het lid is mislukt.'
+                'message' => 'Het toevoegen van het lid is mislukt. Controleer of de speler al lid is.'
             ]);
         }
 
@@ -151,16 +135,6 @@ class PlotController extends Controller
 
     public function removeMember(Request $request, string $name)
     {
-        $plots = auth()->user()->plots;
-        $plot = collect($plots)->firstWhere('name', $name);
-
-        if (!$plot || $plot['permission'] !== 'OWNER') {
-            return back()->with('error', [
-                'title' => 'Actie niet mogelijk',
-                'message' => 'Je hebt geen rechten om leden te verwijderen van dit plot.'
-            ]);
-        }
-
         $validated = $request->validate([
             'user_uuid' => 'required|string'
         ]);

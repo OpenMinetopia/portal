@@ -1,25 +1,24 @@
 @extends('portal.layouts.app')
 
 @section('title', 'Geld Overmaken')
-@section('header', 'Geld Overmaken')
+@section('header')
+    <div class="flex items-center gap-4">
+        <a href="{{ route('portal.bank-accounts.show', $account['uuid']) }}"
+           class="group flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
+            <x-heroicon-s-arrow-left class="w-5 h-5"/>
+            Terug naar rekening
+        </a>
+    </div>
+@endsection
 
 @section('content')
     <div class="max-w-5xl mx-auto space-y-6">
-        <!-- Back Button -->
-        <div>
-            <a href="{{ route('portal.bank-accounts.show', $account['uuid']) }}"
-               class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
-                <x-heroicon-s-arrow-left class="w-5 h-5 mr-1"/>
-                Terug naar rekening
-            </a>
-        </div>
-
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
             <!-- Left Column - Form -->
             <div class="lg:col-span-2">
                 <form action="{{ route('portal.bank-accounts.transactions.store', $account['uuid']) }}" 
                       method="POST" 
-                      x-data="transferForm"
+                      x-data="transferForm()"
                       class="space-y-6">
                     @csrf
                     <input type="hidden" name="transferType" x-model="transferType">
@@ -83,6 +82,7 @@
                                 <div class="relative">
                                     <select name="to_user_id"
                                             x-model="selectedUser"
+                                            @change="loadUserAccounts()"
                                             :required="transferType === 'player'"
                                             :disabled="transferType !== 'player'"
                                             class="block w-full px-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white">
@@ -97,51 +97,29 @@
                                 </div>
                             </div>
 
-                            <!-- Player's Bank Account Selection -->
-                            <div x-show="transferType === 'player' && selectedUser" x-transition>
+                            <!-- Target Account Selection -->
+                            <div x-show="selectedUser || transferType === 'own'" x-transition>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Rekening van ontvanger <span class="text-red-500">*</span>
+                                    <span x-text="transferType === 'own' ? 'Doelrekening' : 'Rekening van ontvanger'"></span>
+                                    <span class="text-red-500">*</span>
                                 </label>
                                 <div class="relative">
                                     <select name="to_account_uuid" 
+                                            id="target_account_uuid"
                                             required
                                             class="block w-full px-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white">
                                         <option value="">Selecteer een rekening</option>
-                                        @foreach($users as $user)
-                                            <template x-if="selectedUser == {{ $user->id }}">
-                                                @foreach($user->bank_accounts as $acc)
-                                                    <option value="{{ $acc['uuid'] }}">{{ $acc['name'] }}</option>
-                                                @endforeach
-                                            </template>
-                                        @endforeach
+                                        <template x-if="transferType === 'own'">
+                                            @foreach($allAccounts as $acc)
+                                                @if($acc['uuid'] !== $account['uuid'])
+                                                    <option value="{{ $acc['uuid'] }}">
+                                                        {{ $acc['name'] }} (€ {{ number_format($acc['balance'], 2, ',', '.') }})
+                                                    </option>
+                                                @endif
+                                            @endforeach
+                                        </template>
                                     </select>
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                        <x-heroicon-s-credit-card class="h-5 w-5 text-gray-400"/>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Account Selection -->
-                            <div x-show="transferType === 'own'" x-transition>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Doelrekening <span class="text-red-500">*</span>
-                                </label>
-                                <div class="relative">
-                                    <select name="to_account_uuid" 
-                                            id="own_account_uuid"
-                                            required
-                                            x-bind:required="transferType === 'own'"
-                                            class="block w-full px-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white">
-                                        <option value="">Selecteer een rekening</option>
-                                        @foreach($allAccounts as $acc)
-                                            @if($acc['uuid'] !== $account['uuid'])
-                                                <option value="{{ $acc['uuid'] }}">
-                                                    {{ $acc['name'] }} (€ {{ number_format($acc['balance'], 2, ',', '.') }})
-                                                </option>
-                                            @endif
-                                        @endforeach
-                                    </select>
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3">
                                         <x-heroicon-s-credit-card class="h-5 w-5 text-gray-400"/>
                                     </div>
                                 </div>
@@ -162,7 +140,7 @@
                                            required
                                            class="px-4 py-3 block w-full border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-base dark:bg-gray-700 dark:text-white"
                                            placeholder="Voer een bedrag in">
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3">
                                         <x-heroicon-s-banknotes class="h-5 w-5 text-gray-400"/>
                                     </div>
                                 </div>
@@ -194,10 +172,6 @@
 
                     <!-- Submit Button -->
                     <div class="flex justify-end gap-4">
-                        <a href="{{ route('portal.bank-accounts.show', $account['uuid']) }}"
-                           class="inline-flex justify-center rounded-md bg-white dark:bg-gray-700 px-4 py-2.5 text-sm font-semibold text-gray-900 dark:text-gray-300 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600">
-                            Annuleren
-                        </a>
                         <button type="submit"
                                 class="inline-flex justify-center rounded-md bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400">
                             <x-heroicon-s-paper-airplane class="h-4 w-4 mr-2"/>
@@ -240,15 +214,65 @@
             </div>
         </div>
     </div>
-
-    @push('scripts')
-        <script>
-            document.addEventListener('alpine:init', () => {
-                Alpine.data('transferForm', () => ({
-                    transferType: 'player',
-                    selectedUser: '',
-                }));
-            });
-        </script>
-    @endpush
 @endsection 
+
+@push('scripts')
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('transferForm', () => ({
+            transferType: 'player',
+            selectedUser: '',
+            init() {
+                // Watch for changes in transferType
+                this.$watch('transferType', value => {
+                    const dropdown = document.getElementById('target_account_uuid');
+                    dropdown.innerHTML = '<option value="">Selecteer een rekening</option>';
+                    
+                    if (value === 'own') {
+                        // Show own accounts
+                        @foreach($allAccounts as $acc)
+                            dropdown.innerHTML += `
+                                <option value="{{ $acc['uuid'] }}">
+                                    {{ $acc['name'] }} (€ {{ number_format($acc['balance'], 2, ',', '.') }})
+                                </option>
+                            `;
+                        @endforeach
+                    } else {
+                        // Clear selection when switching to player
+                        this.selectedUser = '';
+                    }
+                });
+            },
+            async loadUserAccounts() {
+                const dropdown = document.getElementById('target_account_uuid');
+                dropdown.innerHTML = '<option value="">Selecteer een rekening</option>';
+                
+                if (!this.selectedUser) return;
+                
+                try {
+                    const response = await fetch(`/portal/bank-accounts/accounts/${this.selectedUser}`);
+                    if (!response.ok) throw new Error('Failed to fetch accounts');
+                    
+                    const accounts = await response.json();
+                    console.log('Received accounts:', accounts);
+                    
+                    if (Array.isArray(accounts) && accounts.length > 0) {
+                        accounts.forEach(account => {
+                            dropdown.innerHTML += `
+                                <option value="${account.uuid}">
+                                    ${account.name}
+                                </option>
+                            `;
+                        });
+                    } else {
+                        dropdown.innerHTML = '<option value="">Geen rekeningen gevonden</option>';
+                    }
+                } catch (error) {
+                    console.error('Error loading accounts:', error);
+                    dropdown.innerHTML = '<option value="">Error: Kon rekeningen niet laden</option>';
+                }
+            }
+        }))
+    });
+</script>
+@endpush 

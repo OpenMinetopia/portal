@@ -136,7 +136,6 @@ class PlotService
             // Remove all current owners
             if (!empty($plot['owners'])) {
                 foreach ($plot['owners'] as $ownerUuid) {
-
                     if (!$this->removeOwner($plotName, $ownerUuid)) {
                         \Log::error("Failed to remove owner during transfer", [
                             'plot' => $plotName,
@@ -206,5 +205,63 @@ class PlotService
                 'priority' => $plot['priority'] ?? 0,
             ];
         })->values()->toArray();
+    }
+
+    /**
+     * Get all plots.
+     *
+     * @return array
+     */
+    public function getAllPlots(): array
+    {
+        $data = $this->apiService->get("/api/plots");
+        
+        if (!isset($data['plots']) || !is_array($data['plots'])) {
+            return [];
+        }
+
+        return collect($data['plots'])->map(function ($plot, $plotName) {
+            return [
+                'name' => $plotName,
+                'owners' => $plot['owners'] ?? [],
+                'members' => $plot['members'] ?? [],
+                'description' => $plot['description'] ?? null,
+                'location' => [
+                    'min' => $plot['location']['min'] ?? [],
+                    'max' => $plot['location']['max'] ?? [],
+                ],
+                'flags' => $plot['flags'] ?? [],
+                'priority' => $plot['priority'] ?? 0,
+            ];
+        })->values()->toArray();
+    }
+
+    /**
+     * Get a single plot.
+     *
+     * @param string $name
+     * @return array|null
+     */
+    public function getPlot(string $name): ?array
+    {
+        $data = $this->apiService->get("/api/plots/{$name}");
+        
+        if (!isset($data['plot'])) {
+            return null;
+        }
+
+        $plot = $data['plot'];
+        return [
+            'name' => $name,
+            'owners' => $plot['owners'] ?? [],
+            'members' => $plot['members'] ?? [],
+            'description' => $plot['description'] ?? null,
+            'location' => [
+                'min' => $plot['location']['min'] ?? [],
+                'max' => $plot['location']['max'] ?? [],
+            ],
+            'flags' => $plot['flags'] ?? [],
+            'priority' => $plot['priority'] ?? 0,
+        ];
     }
 }

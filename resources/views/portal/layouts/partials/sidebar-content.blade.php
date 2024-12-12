@@ -15,10 +15,12 @@
                 <li>
                     <a href="{{ route('dashboard') }}"
                        class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('dashboard')
-                            ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
-                            : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-indigo-400 dark:hover:bg-gray-800'
+                            ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 translate-x-1'
+                            : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-indigo-400 dark:hover:bg-gray-800 hover:translate-x-1'
                         }}">
-                        <x-heroicon-o-home class="h-6 w-6 shrink-0"/>
+                        <x-heroicon-o-home class="h-6 w-6 shrink-0 transition-transform duration-150 {{ request()->routeIs('dashboard')
+                            ? 'transform scale-110'
+                            : 'group-hover:scale-110' }}"/>
                         Dashboard
                     </a>
                 </li>
@@ -234,6 +236,17 @@
                     </li>
 
                     <li>
+                        <a href="{{ route('portal.admin.plots.index') }}"
+                           class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.admin.plots.*')
+                                ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
+                                : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-indigo-400 dark:hover:bg-gray-800'
+                            }}">
+                            <x-heroicon-o-map class="h-6 w-6 shrink-0"/>
+                            Plots
+                        </a>
+                    </li>
+
+                    <li>
                         <a href="{{ route('portal.admin.roles.index') }}"
                            class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold transition-all duration-150 {{ request()->routeIs('portal.admin.roles.*')
                                 ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
@@ -258,30 +271,5 @@
             </li>
         @endif
 
-        <!-- User Profile Section -->
-        <li class="mt-auto">
-            <div class="border-t border-gray-100 dark:border-gray-800 pt-4">
-                <div class="flex items-center gap-x-4 px-2 py-3 text-sm">
-                    <img src="https://crafatar.com/avatars/{{ auth()->user()->minecraft_uuid }}?overlay=true&size=128"
-                         alt="{{ auth()->user()->minecraft_username }}"
-                         class="h-10 w-10 rounded-full bg-gray-50 dark:bg-gray-800 ring-2 ring-white dark:ring-gray-900">
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-semibold text-gray-900 dark:text-white truncate">
-                            {{ auth()->user()->minecraft_username }} ({{ auth()->user()->getLevelAttribute() }})
-                        </p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
-                            {{ auth()->user()->getPrefixAttribute() }}
-                        </p>
-                    </div>
-
-                    <!-- Dark Mode Toggle -->
-                    <button @click="toggleDarkMode()"
-                            class="rounded-lg p-2 text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-100 hover:bg-gray-50/90 dark:hover:bg-gray-800/90 transition-all duration-150">
-                        <x-heroicon-o-moon x-show="!darkMode" class="h-5 w-5"/>
-                        <x-heroicon-o-sun x-show="darkMode" class="h-5 w-5"/>
-                    </button>
-                </div>
-            </div>
-        </li>
     </ul>
 </nav>

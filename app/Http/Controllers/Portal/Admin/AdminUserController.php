@@ -7,14 +7,23 @@ use App\Models\User;
 use App\Models\Role;
 use Illuminate\Http\Request;
 use App\Services\Plugin\PlayerService;
+use App\Services\Plugin\PlotService;
+use App\Services\Plugin\BankingService;
+use App\Services\Plugin\CriminalRecordService;
 
 class AdminUserController extends Controller
 {
     protected PlayerService $playerService;
+    protected PlotService $plotService;
+    protected BankingService $bankingService;
+    protected CriminalRecordService $criminalRecordService;
 
-    public function __construct(PlayerService $playerService)
+    public function __construct(PlayerService $playerService, PlotService $plotService, BankingService $bankingService, CriminalRecordService $criminalRecordService)
     {
         $this->playerService = $playerService;
+        $this->plotService = $plotService;
+        $this->bankingService = $bankingService;
+        $this->criminalRecordService = $criminalRecordService;
     }
 
     public function index()
@@ -33,9 +42,19 @@ class AdminUserController extends Controller
 
     public function show(User $user)
     {
+        // Get additional player data from the server
+        $playerData = $this->playerService->getPlayerData($user->minecraft_username);
+        $plots = $this->plotService->getPlayerPlots($user->minecraft_uuid);
+        $bankAccounts = $this->bankingService->getPlayerBankAccounts($user->minecraft_uuid);
+        $criminalRecords = $this->criminalRecordService->getPlayerRecords($user->minecraft_uuid);
+
         return view('portal.admin.users.show', [
             'user' => $user->load(['roles']),
-            'roles' => Role::all()
+            'roles' => Role::all(),
+            'playerData' => $playerData,
+            'plots' => $plots,
+            'bankAccounts' => $bankAccounts,
+            'criminalRecords' => $criminalRecords
         ]);
     }
 

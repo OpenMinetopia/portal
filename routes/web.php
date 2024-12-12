@@ -22,6 +22,7 @@ use App\Http\Controllers\Portal\BankAccountController;
 use App\Http\Controllers\Portal\PlotController;
 use App\Http\Controllers\Portal\PlotListingController;
 use App\Http\Controllers\Portal\BankTransactionController;
+use App\Http\Controllers\Portal\Admin\AdminPlotController;
 
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisterController::class, 'create'])->name('register');
@@ -48,10 +49,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/portal/bank-accounts/{uuid}', [BankAccountController::class, 'show'])
             ->name('portal.bank-accounts.show');
 
-        Route::get('/portal/plots', [PlotController::class, 'index'])
-            ->name('portal.plots.index');
-        Route::get('/portal/plots/{name}', [PlotController::class, 'show'])
-            ->name('portal.plots.show');
+        Route::get('/portal/plots', [PlotController::class, 'index'])->name('portal.plots.index');
+        Route::get('/portal/plots/{name}', [PlotController::class, 'show'])->name('portal.plots.show');
+        Route::post('/portal/plots/{name}/owners', [PlotController::class, 'addOwner'])->name('portal.plots.owners.add');
+        Route::delete('/portal/plots/{name}/owners', [PlotController::class, 'removeOwner'])->name('portal.plots.owners.remove');
+        Route::post('/portal/plots/{name}/members', [PlotController::class, 'addMember'])->name('portal.plots.members.add');
+        Route::delete('/portal/plots/{name}/members', [PlotController::class, 'removeMember'])->name('portal.plots.members.remove');
 
         Route::middleware('broker.enabled')->group(function () {
             Route::get('/plots/te-koop', [PlotListingController::class, 'index'])
@@ -92,6 +95,14 @@ Route::middleware('auth')->group(function () {
                     Route::put('/types/{permitType}', [PermitTypeController::class, 'update'])->name('types.update');
                     Route::delete('/types/{permitType}', [PermitTypeController::class, 'destroy'])->name('types.destroy');
                 });
+
+                // Admin overview routes
+                Route::get('/plots', [AdminPlotController::class, 'index'])->name('plots.index');
+                Route::get('/plots/{name}', [AdminPlotController::class, 'show'])->name('plots.show');
+                Route::post('/plots/{name}/owners', [AdminPlotController::class, 'addOwner'])->name('plots.owners.add');
+                Route::delete('/plots/{name}/owners', [AdminPlotController::class, 'removeOwner'])->name('plots.owners.remove');
+                Route::post('/plots/{name}/members', [AdminPlotController::class, 'addMember'])->name('plots.members.add');
+                Route::delete('/plots/{name}/members', [AdminPlotController::class, 'removeMember'])->name('plots.members.remove');
             });
 
             // Company Management Routes
@@ -172,6 +183,8 @@ Route::middleware('auth')->group(function () {
                     Route::get('/{accountUuid}/transfer', [BankTransactionController::class, 'create'])->name('transactions.create');
                     Route::post('/{accountUuid}/transfer', [BankTransactionController::class, 'store'])->name('transactions.store');
                     Route::get('/search/users', [BankTransactionController::class, 'search'])->name('transactions.search-users');
+                    Route::get('/accounts/{userId}', [BankTransactionController::class, 'getUserAccounts'])
+                        ->name('transactions.get-accounts');
                 });
             });
 

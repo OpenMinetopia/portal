@@ -24,8 +24,11 @@
             </div>
 
             <!-- Mobile sidebar content -->
-            <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-white dark:bg-gray-900 px-6 pb-4 ring-1 ring-gray-200/10 dark:ring-white/5">
-                @include('portal.layouts.partials.sidebar-content')
+            <div class="flex h-full w-full flex-col bg-white dark:bg-gray-900 px-6 ring-1 ring-gray-200/10 dark:ring-white/5">
+                <div class="flex-1 overflow-y-auto">
+                    @include('portal.layouts.partials.sidebar-content')
+                </div>
+                @include('portal.layouts.partials.user-profile')
             </div>
         </div>
     </div>
@@ -33,7 +36,10 @@
 
 <!-- Static sidebar for desktop -->
 <div class="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-    <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-white dark:bg-gray-900 px-6 pb-4 border-r border-gray-200 dark:border-gray-800">
-        @include('portal.layouts.partials.sidebar-content')
+    <div class="flex h-full flex-col bg-white dark:bg-gray-900 px-6 border-r border-gray-200 dark:border-gray-800">
+        <div class="flex-1 overflow-y-auto">
+            @include('portal.layouts.partials.sidebar-content')
+        </div>
+        @include('portal.layouts.partials.user-profile')
     </div>
 </div>

@@ -58,14 +58,31 @@ class BankingService
     }
 
     /**
-     * Get all bank accounts.
+     * Get all bank accounts by collecting from all registered users.
      *
      * @return array
      */
     public function getAllBankAccounts(): array
     {
-        $data = $this->apiService->get("/api/bankaccounts");
-        return $data['accounts'] ?? [];
+        // Cache for 5 minutes to prevent excessive API calls
+        return \Cache::remember('all_bank_accounts', 300, function () {
+            $users = \App\Models\User::where('minecraft_verified', true)->get();
+            
+            $allAccounts = collect();
+            
+            foreach ($users as $user) {
+                $accounts = $this->getPlayerBankAccounts($user->minecraft_uuid);
+                $allAccounts = $allAccounts->concat($accounts);
+            }
+            
+            return $allAccounts
+                ->unique('uuid')
+                ->sortBy(function ($account) {
+                    return $account['type'] === 'PRIVATE' ? 0 : 1;
+                })
+                ->values()
+                ->toArray();
+        });
     }
 
     /**
@@ -77,18 +94,17 @@ class BankingService
     public function getPlayerBankAccounts(string $uuid): array
     {
         $data = $this->apiService->get("/api/player/{$uuid}/bankaccounts");
-        $accounts = $data['accounts'] ?? [];
+        
+        if (!isset($data['accounts'])) {
+            return [];
+        }
 
         // Transform accounts from object to array with uuid as key
-        return collect($accounts)
+        return collect($data['accounts'])
             ->map(function ($account, $uuid) {
                 return array_merge($account, [
                     'uuid' => $uuid,
                 ]);
-            })
-            ->sortBy(function ($account) {
-                // PRIVATE accounts should come first
-                return $account['type'] === 'PRIVATE' ? 0 : 1;
             })
             ->values()
             ->toArray();
