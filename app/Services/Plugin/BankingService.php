@@ -36,7 +36,7 @@ class BankingService
     public function getBankAccountUsers(string $uuid): array
     {
         $data = $this->apiService->get("/api/bankaccount/{$uuid}/users");
-        
+
         if (!isset($data['users'])) {
             return [];
         }
@@ -64,25 +64,22 @@ class BankingService
      */
     public function getAllBankAccounts(): array
     {
-        // Cache for 5 minutes to prevent excessive API calls
-        return \Cache::remember('all_bank_accounts', 300, function () {
-            $users = \App\Models\User::where('minecraft_verified', true)->get();
-            
-            $allAccounts = collect();
-            
-            foreach ($users as $user) {
-                $accounts = $this->getPlayerBankAccounts($user->minecraft_uuid);
-                $allAccounts = $allAccounts->concat($accounts);
-            }
-            
-            return $allAccounts
-                ->unique('uuid')
-                ->sortBy(function ($account) {
-                    return $account['type'] === 'PRIVATE' ? 0 : 1;
-                })
-                ->values()
-                ->toArray();
-        });
+        $users = \App\Models\User::where('minecraft_verified', true)->get();
+
+        $allAccounts = collect();
+
+        foreach ($users as $user) {
+            $accounts = $this->getPlayerBankAccounts($user->minecraft_uuid);
+            $allAccounts = $allAccounts->concat($accounts);
+        }
+
+        return $allAccounts
+            ->unique('uuid')
+            ->sortBy(function ($account) {
+                return $account['type'] === 'PRIVATE' ? 0 : 1;
+            })
+            ->values()
+            ->toArray();
     }
 
     /**
@@ -94,7 +91,7 @@ class BankingService
     public function getPlayerBankAccounts(string $uuid): array
     {
         $data = $this->apiService->get("/api/player/{$uuid}/bankaccounts");
-        
+
         if (!isset($data['accounts'])) {
             return [];
         }

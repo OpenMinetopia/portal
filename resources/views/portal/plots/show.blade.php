@@ -14,9 +14,16 @@
                         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $plot['name'] }}</p>
                     </div>
                     @if($isOwner)
-                        <span class="inline-flex items-center rounded-md bg-green-50 dark:bg-green-500/10 px-2 py-1 text-xs font-medium text-green-700 dark:text-green-400 ring-1 ring-inset ring-green-600/20 dark:ring-green-500/20">
-                            Eigenaar
-                        </span>
+                        <div class="flex items-center gap-2">
+                            <span class="inline-flex items-center rounded-md bg-green-50 dark:bg-green-500/10 px-2 py-1 text-xs font-medium text-green-700 dark:text-green-400 ring-1 ring-inset ring-green-600/20 dark:ring-green-500/20">
+                                Eigenaar
+                            </span>
+                            <a href="{{ route('portal.plots.listings.create', $plot['name']) }}"
+                               class="inline-flex items-center gap-x-1.5 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                                <x-heroicon-m-currency-euro class="h-4 w-4"/>
+                                Plot Verkopen
+                            </a>
+                        </div>
                     @endif
                 </div>
             </div>
@@ -44,7 +51,7 @@
                             <h3 class="text-base font-semibold text-gray-900 dark:text-white">Eigenaren</h3>
                         </div>
                         @if($isOwner)
-                            <button type="button" 
+                            <button type="button"
                                     onclick="document.getElementById('add-owner-modal').classList.remove('hidden')"
                                     class="inline-flex items-center gap-x-1.5 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
                                 <x-heroicon-m-plus class="h-4 w-4"/>
@@ -71,7 +78,7 @@
                                     @csrf
                                     @method('DELETE')
                                     <input type="hidden" name="user_uuid" value="{{ $owner }}">
-                                    <button type="submit" 
+                                    <button type="submit"
                                             class="rounded-md bg-red-50 dark:bg-red-500/10 p-2 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/20">
                                         <x-heroicon-m-trash class="h-5 w-5"/>
                                     </button>
@@ -220,6 +227,43 @@
                                 </button>
                                 <button type="button"
                                         onclick="document.getElementById('add-member-modal').classList.add('hidden')"
+                                        class="mt-3 inline-flex w-full justify-center rounded-md bg-white dark:bg-gray-700 px-3 py-2 text-sm font-semibold text-gray-900 dark:text-white shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 sm:mt-0 sm:w-auto">
+                                    Annuleren
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sell Plot Modal -->
+        <div id="sell-plot-modal" class="hidden relative z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+            <div class="fixed inset-0 bg-gray-500 dark:bg-gray-900 bg-opacity-75 dark:bg-opacity-75 transition-opacity"></div>
+            <div class="fixed inset-0 z-10 overflow-y-auto">
+                <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                    <div class="relative transform overflow-hidden rounded-lg bg-white dark:bg-gray-800 px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
+                        <form action="{{ route('portal.plots.listings.create', $plot['name']) }}" method="POST">
+                            @csrf
+                            @method('DELETE')
+                            <div>
+                                <div class="mt-3 text-center sm:mt-0 sm:text-left">
+                                    <h3 class="text-base font-semibold leading-6 text-gray-900 dark:text-white" id="modal-title">Plot Verkopen</h3>
+                                    <div class="mt-2">
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                                            Weet je zeker dat je dit plot wilt verkopen? Deze actie kan niet ongedaan worden gemaakt.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+                                <button type="submit"
+                                        class="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto">
+                                    Verkopen
+                                </button>
+                                <button type="button"
+                                        onclick="document.getElementById('sell-plot-modal').classList.add('hidden')"
                                         class="mt-3 inline-flex w-full justify-center rounded-md bg-white dark:bg-gray-700 px-3 py-2 text-sm font-semibold text-gray-900 dark:text-white shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 sm:mt-0 sm:w-auto">
                                     Annuleren
                                 </button>
