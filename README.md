@@ -1,6 +1,6 @@
 # ✨ OpenMinetopia Portal ✨
 
-[![Discord]((https://dcbadge.limes.pink/api/server/Tz6MebCjrw)](https://discord.gg/openminetopia) 
+[![Discord](https://dcbadge.limes.pink/api/server/Tz6MebCjrw)](https://discord.gg/openminetopia)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Wiki](https://img.shields.io/badge/docs-wiki-blue.svg)](https://github.com/OpenMinetopia/portal/wiki)
 
