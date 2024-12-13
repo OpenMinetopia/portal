@@ -94,7 +94,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the player's prefix.
+     * Get the player's active prefix.
      *
      * @return string
      */
@@ -103,7 +103,18 @@ class User extends Authenticatable
         $service = app(PlayerService::class);
         $data = $service->getPlayerData($this->minecraft_plain_uuid);
 
-        return $data['prefix'] ?? 'N/A';
+        // First try to get the active prefix from player data
+        if (isset($data['active_prefix'])) {
+            return $data['active_prefix'];
+        }
+
+        // Fallback to first available prefix if no active prefix is set
+        $prefixes = $this->available_prefixes;
+        if (!empty($prefixes)) {
+            return $prefixes[0]['prefix'];
+        }
+
+        return 'N/A';
     }
 
     /**
@@ -172,14 +183,32 @@ class User extends Authenticatable
     }
 
     /**
-     * Get available prefixes.
+     * Get all available prefixes with their details.
      *
      * @return array
      */
     public function getAvailablePrefixesAttribute(): array
     {
         $service = app(PlayerService::class);
-        return $service->getPlayerPrefixes($this->minecraft_plain_uuid) ?? [];
+        $response = $service->getPlayerPrefixes($this->minecraft_plain_uuid);
+
+        if (!isset($response['prefixes']) || !is_array($response['prefixes'])) {
+            return [];
+        }
+
+        // Transform the prefixes object into an array
+        $prefixes = collect($response['prefixes'])
+            ->map(function ($prefix, $id) {
+                return [
+                    'id' => $id,
+                    'prefix' => $prefix['prefix'],
+                    'expires_at' => $prefix['expires_at']
+                ];
+            })
+            ->values()
+            ->toArray();
+
+        return $prefixes;
     }
 
     /**

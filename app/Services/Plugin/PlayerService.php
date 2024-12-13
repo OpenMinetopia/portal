@@ -52,10 +52,10 @@ class PlayerService
      * @param string $uuid
      * @return array
      */
-    public function getPlayerPrefixes(string $uuid): array
+    public function getPlayerPrefixes(string $uuid): ?array
     {
-        $data = $this->apiService->get("/api/player/{$uuid}/prefixes");
-        return $data['prefixes'] ?? [];
+        $response = $this->apiService->get("/api/player/{$uuid}/prefixes");
+        return $response;
     }
 
     /**

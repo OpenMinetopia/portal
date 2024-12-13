@@ -85,6 +85,32 @@
                                 <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Bank Saldo</dt>
                                 <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $user->formatted_balance_with_currency }}</dd>
                             </div>
+                            <div class="sm:col-span-2">
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Beschikbare Prefixes</dt>
+                                <dd class="mt-2">
+                                    <div class="flex flex-wrap gap-2">
+                                        @forelse($user->available_prefixes as $prefix)
+                                            <span @class([
+                                                'inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset',
+                                                'bg-indigo-50 text-indigo-700 ring-indigo-600/20 dark:bg-indigo-500/10 dark:text-indigo-400 dark:ring-indigo-500/20' => $prefix['prefix'] === $user->prefix,
+                                                'bg-gray-50 text-gray-700 ring-gray-600/20 dark:bg-gray-500/10 dark:text-gray-400 dark:ring-gray-500/20' => $prefix['prefix'] !== $user->prefix,
+                                            ])>
+                                                {{ $prefix['prefix'] }}
+                                                @if($prefix['prefix'] === $user->prefix)
+                                                    <span class="ml-1 text-xs text-indigo-500 dark:text-indigo-400">(Actief)</span>
+                                                @endif
+                                                @if($prefix['expires_at'] !== -1)
+                                                    <span class="ml-1 text-xs text-gray-500">
+                                                        (Verloopt: {{ \Carbon\Carbon::createFromTimestamp($prefix['expires_at'])->format('d-m-Y') }})
+                                                    </span>
+                                                @endif
+                                            </span>
+                                        @empty
+                                            <span class="text-sm text-gray-500 dark:text-gray-400">Geen prefixes beschikbaar</span>
+                                        @endforelse
+                                    </div>
+                                </dd>
+                            </div>
                         </dl>
                     </div>
                 </div>
