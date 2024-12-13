@@ -1,99 +1,60 @@
+# ✨ OpenMinetopia Portal ✨
 
-# Open Minetopia Panel
+[![Discord](https://dcbadge.limes.pink/api/server/openminetopia)](https://discord.gg/openminetopia) 
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Wiki](https://img.shields.io/badge/docs-wiki-blue.svg)](https://github.com/OpenMinetopia/portal/wiki)
 
-A web panel for Minecraft players to manage their Minetopia account, plots, balance, and companies. This panel provides a seamless connection between your Minecraft server and web interface.
+OpenMinetopia Portal is een geavanceerd beheersysteem voor Minecraft Minetopia servers. Het biedt een complete oplossing voor het beheren van plots, bankrekeningen, bedrijven, vergunningen en meer.
 
-## Features
-- 🔐 Secure authentication system
-- 🎮 Minecraft account verification
-- 🌓 Dark/Light mode support
-- 📱 Responsive design
-- 🔄 Real-time balance updates
-- 🏠 Plot management
-- 🏢 Company management
+## 🚀 Hosted Versie
 
-## Requirements
-- PHP 8.2 or higher
-- Composer
-- Node.js & NPM
-- MySQL/PostgreSQL
-- Minecraft server with the Open Minetopia plugin
+Wil je direct beginnen zonder technische setup? Probeer onze hosted versie:
+- ☁️ Volledig beheerd platform
+- 🔄 Automatische updates
+- 🛡️ 24/7 monitoring
+- 💻 Directe setup
 
-## Installation
-1. Clone the repository
-```bash
-git clone https://github.com/OpenMinetopia/portal
-cd minetopia-panel
-```
-2. Install PHP dependecies
-```bash
-composer Install
-```
-3. Install and compile frontend dependecies
-```bash
-npm install
-npm run build (or npm run dev when testing)
-```
-4. Environment setup
-```bash
-cp .env.example .env
-```
-5. Generate application key
-```bash
-php artisan key:generate 
-```
-6. Generate Minecraft API key (add this to your .env file)
-```bash
-php artisan tinker
-echo bin2hex(random_bytes(32));
-```
-7. Configure your .env file:
-`APP_NAME=`
+**[Start je 7-dagen gratis proefperiode](https://openminetopia.nl/portal)**
 
-`APP_URL=`
+Slechts €7,50 per maand na je proefperiode. Wij regelen alles, jij focust op je server!
 
-`DB_CONNECTION=`
+## ✨ Features
 
-`DB_HOST=`
+- 🏦 Bankrekeningen beheer
+- 🏘️ Plot management
+- 🏢 Bedrijven systeem
+- 📜 Vergunningen systeem
+- 🏠 Makelaar functionaliteit
+- 👮 Politie systeem
+- 👥 Gebruikersbeheer
+- ⚙️ Uitgebreide admin functies
 
-`DB_PORT=`
+## 📚 Documentatie
 
-`DB_DATABASE`
+Bekijk onze [Wiki](https://github.com/OpenMinetopia/portal/wiki) voor:
+- 📝 Installatie handleiding
+- ⚙️ Configuratie opties
+- 🔧 Troubleshooting
+- 🎮 Minecraft integratie
 
-`DB_USERNAME=`
+## 🐛 Bugs & Suggesties
 
-`DB_PASSWORD=`
+- [Open een issue](https://github.com/OpenMinetopia/portal/issues) voor bugs
+- [Start een discussie](https://github.com/OpenMinetopia/portal/discussions) voor suggesties
+- [Join onze Discord](https://discord.gg/openminetopia) voor support
 
+## ⚠️ Development Status
 
-8. Add the generated API key
+> **Let op** - Dit project is in actieve ontwikkeling.  
+> De code kan significante wijzigingen ondergaan tijdens updates.
 
-`MINECRAFT_API_KEY=your-generated-key`
+## 📄 Licentie
 
-9. Run your migrations
-```bash
-php artisan migrate
-```
-10. Set up storage link
-```bash
-php artisan storage:link
-```
+OpenMinetopia Portal is open-source software onder de [MIT licentie](LICENSE).
 
-## Minecraft Plugin Configuration
-1.  Add the API key to your Minecraft plugin configuration
-2. Configure the API endpoint in your plugin:
+## 💖 Support
 
-## Contributing
-1. Fork the repository
-2.  Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4.  Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-TO DO
-
-## Support
-TO DO
-
-## Credits
-TO DO
+- ⭐ Geef een ster aan dit project
+- 🐛 Meld bugs
+- 💡 Deel suggesties
+- 🤝 Draag bij aan de code

@@ -105,7 +105,7 @@
                             </div>
 
                             <!-- Status Toggle -->
-                            <div x-data="{ enabled: {{ json_encode(old('is_active', $permitType->is_active) ? true : false) }} }">
+                            <div x-data="{ enabled: {{ json_encode(old('is_active', $permitType->is_active)) === true ? 'true' : 'false' }}">
                                 <div class="flex items-center justify-between">
                                     <div class="flex-grow flex flex-col">
                                         <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Status</span>
@@ -114,20 +114,20 @@
                                         </span>
                                     </div>
                                     <button type="button"
-                                            x-on:click="enabled = !enabled"
-                                            :class="enabled ? 'bg-indigo-600' : 'bg-gray-200 dark:bg-gray-700'"
+                                            x-on:click="enabled = enabled === 'true' ? 'false' : 'true'"
+                                            :class="enabled === 'true' ? 'bg-indigo-600' : 'bg-gray-200 dark:bg-gray-700'"
                                             class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
                                             role="switch">
                                         <span
-                                            :class="enabled ? 'translate-x-5' : 'translate-x-0'"
+                                            :class="enabled === 'true' ? 'translate-x-5' : 'translate-x-0'"
                                             class="pointer-events-none relative inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out">
                                             <span
-                                                :class="enabled ? 'opacity-0 duration-100 ease-out' : 'opacity-100 duration-200 ease-in'"
+                                                :class="enabled === 'true' ? 'opacity-0 duration-100 ease-out' : 'opacity-100 duration-200 ease-in'"
                                                 class="absolute inset-0 flex h-full w-full items-center justify-center transition-opacity">
                                                 <x-heroicon-s-x-mark class="h-3 w-3 text-gray-400"/>
                                             </span>
                                             <span
-                                                :class="enabled ? 'opacity-100 duration-200 ease-in' : 'opacity-0 duration-100 ease-out'"
+                                                :class="enabled === 'true' ? 'opacity-100 duration-200 ease-in' : 'opacity-0 duration-100 ease-out'"
                                                 class="absolute inset-0 flex h-full w-full items-center justify-center transition-opacity">
                                                 <x-heroicon-s-check class="h-3 w-3 text-indigo-600"/>
                                             </span>
