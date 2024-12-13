@@ -77,7 +77,7 @@ class User extends Authenticatable
         $service = app(PlayerService::class);
         $data = $service->getPlayerData($this->minecraft_plain_uuid);
 
-        return $data['level'];
+        return $data['level'] ?? 0;
     }
 
     /**
@@ -90,7 +90,7 @@ class User extends Authenticatable
         $service = app(PlayerService::class);
         $data = $service->getPlayerData($this->minecraft_plain_uuid);
 
-        return $data['fitness'];
+        return $data['fitness'] ?? 0;
     }
 
     /**
@@ -103,7 +103,72 @@ class User extends Authenticatable
         $service = app(PlayerService::class);
         $data = $service->getPlayerData($this->minecraft_plain_uuid);
 
-        return $data['active_prefix'];
+        return $data['prefix'] ?? '';
+    }
+
+    /**
+     * Get the player's default prefix.
+     *
+     * @return string
+     */
+    public function getDefaultPrefixAttribute(): string
+    {
+        $service = app(PlayerService::class);
+        $data = $service->getPlayerData($this->minecraft_plain_uuid);
+
+        return $data['default_prefix'] ?? '';
+    }
+
+    /**
+     * Get the player's prefix color.
+     *
+     * @return string
+     */
+    public function getPrefixColorAttribute(): string
+    {
+        $service = app(PlayerService::class);
+        $data = $service->getPlayerData($this->minecraft_plain_uuid);
+
+        return $data['prefix_color'] ?? '';
+    }
+
+    /**
+     * Get the player's level color.
+     *
+     * @return string
+     */
+    public function getLevelColorAttribute(): string
+    {
+        $service = app(PlayerService::class);
+        $data = $service->getPlayerData($this->minecraft_plain_uuid);
+
+        return $data['level_color'] ?? '';
+    }
+
+    /**
+     * Get the player's name color.
+     *
+     * @return string
+     */
+    public function getNameColorAttribute(): string
+    {
+        $service = app(PlayerService::class);
+        $data = $service->getPlayerData($this->minecraft_plain_uuid);
+
+        return $data['name_color'] ?? '';
+    }
+
+    /**
+     * Get the player's chat color.
+     *
+     * @return string
+     */
+    public function getChatColorAttribute(): string
+    {
+        $service = app(PlayerService::class);
+        $data = $service->getPlayerData($this->minecraft_plain_uuid);
+
+        return $data['chat_color'] ?? '';
     }
 
     /**
