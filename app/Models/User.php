@@ -70,27 +70,27 @@ class User extends Authenticatable
     /**
      * Get the player's level.
      *
-     * @return int
+     * @return string
      */
-    public function getLevelAttribute(): int
+    public function getLevelAttribute(): string
     {
         $service = app(PlayerService::class);
         $data = $service->getPlayerData($this->minecraft_plain_uuid);
 
-        return $data['level'] ?? 0;
+        return $data['level'] ?? 'N/A';
     }
 
     /**
      * Get the player's fitness.
      *
-     * @return int
+     * @return string
      */
-    public function getFitnessAttribute(): int
+    public function getFitnessAttribute(): string
     {
         $service = app(PlayerService::class);
         $data = $service->getPlayerData($this->minecraft_plain_uuid);
 
-        return $data['fitness'] ?? 0;
+        return $data['fitness'] ?? 'N/A';
     }
 
     /**
@@ -103,7 +103,7 @@ class User extends Authenticatable
         $service = app(PlayerService::class);
         $data = $service->getPlayerData($this->minecraft_plain_uuid);
 
-        return $data['prefix'] ?? '';
+        return $data['prefix'] ?? 'N/A';
     }
 
     /**
@@ -116,7 +116,7 @@ class User extends Authenticatable
         $service = app(PlayerService::class);
         $data = $service->getPlayerData($this->minecraft_plain_uuid);
 
-        return $data['default_prefix'] ?? '';
+        return $data['default_prefix'] ?? 'N/A';
     }
 
     /**
@@ -129,7 +129,7 @@ class User extends Authenticatable
         $service = app(PlayerService::class);
         $data = $service->getPlayerData($this->minecraft_plain_uuid);
 
-        return $data['prefix_color'] ?? '';
+        return $data['prefix_color'] ?? 'N/A';
     }
 
     /**
@@ -142,7 +142,7 @@ class User extends Authenticatable
         $service = app(PlayerService::class);
         $data = $service->getPlayerData($this->minecraft_plain_uuid);
 
-        return $data['level_color'] ?? '';
+        return $data['level_color'] ?? 'N/A';
     }
 
     /**
@@ -155,7 +155,7 @@ class User extends Authenticatable
         $service = app(PlayerService::class);
         $data = $service->getPlayerData($this->minecraft_plain_uuid);
 
-        return $data['name_color'] ?? '';
+        return $data['name_color'] ?? 'N/A';
     }
 
     /**
@@ -168,7 +168,7 @@ class User extends Authenticatable
         $service = app(PlayerService::class);
         $data = $service->getPlayerData($this->minecraft_plain_uuid);
 
-        return $data['chat_color'] ?? '';
+        return $data['chat_color'] ?? 'N/A';
     }
 
     /**
@@ -179,7 +179,7 @@ class User extends Authenticatable
     public function getAvailablePrefixesAttribute(): array
     {
         $service = app(PlayerService::class);
-        return $service->getPlayerPrefixes($this->minecraft_plain_uuid);
+        return $service->getPlayerPrefixes($this->minecraft_plain_uuid) ?? [];
     }
 
     /**
@@ -190,17 +190,17 @@ class User extends Authenticatable
     public function getBankAccountAttribute(): array
     {
         $service = app(BankingService::class);
-        return $service->getBankAccount($this->minecraft_plain_uuid);
+        return $service->getBankAccount($this->minecraft_plain_uuid) ?? [];
     }
 
     /**
      * Get the user's bank balance.
      *
-     * @return float
+     * @return string
      */
-    public function getBalanceAttribute(): float
+    public function getBalanceAttribute(): string
     {
-        return $this->bank_account['balance'] ?? 0;
+        return $this->bank_account['balance'] ?? 'N/A';
     }
 
     /**
@@ -210,7 +210,8 @@ class User extends Authenticatable
      */
     public function getFormattedBalanceAttribute(): string
     {
-        return number_format($this->balance, 2, ',', '.');
+        $balance = $this->bank_account['balance'] ?? null;
+        return $balance !== null ? number_format($balance, 2, ',', '.') : 'N/A';
     }
 
     /**
@@ -220,7 +221,7 @@ class User extends Authenticatable
      */
     public function getFormattedBalanceWithCurrencyAttribute(): string
     {
-        return '€ ' . $this->formatted_balance;
+        return $this->formatted_balance !== 'N/A' ? '€ ' . $this->formatted_balance : 'N/A';
     }
 
     /**
@@ -231,7 +232,7 @@ class User extends Authenticatable
     public function getCriminalRecordsAttribute(): array
     {
         $service = app(CriminalRecordService::class);
-        return $service->getPlayerRecords($this->minecraft_plain_uuid);
+        return $service->getPlayerRecords($this->minecraft_plain_uuid) ?? [];
     }
 
     /**
@@ -250,7 +251,7 @@ class User extends Authenticatable
     public function getColorsAttribute(): array
     {
         $service = app(PlayerService::class);
-        return $service->getPlayerColors($this->minecraft_plain_uuid);
+        return $service->getPlayerColors($this->minecraft_plain_uuid) ?? [];
     }
 
     /**
@@ -262,7 +263,7 @@ class User extends Authenticatable
     {
         $service = app(PlayerService::class);
         $data = $service->getPlayerData($this->minecraft_plain_uuid);
-        return $service->formatPlaytime($data['playtime_seconds'] ?? 0);
+        return $service->formatPlaytime($data['playtime_seconds'] ?? 0) ?? 'N/A';
     }
 
     /**
@@ -285,7 +286,7 @@ class User extends Authenticatable
     public function getBankAccountsAttribute(): array
     {
         $service = app(BankingService::class);
-        return $service->getPlayerBankAccounts($this->minecraft_plain_uuid);
+        return $service->getPlayerBankAccounts($this->minecraft_plain_uuid) ?? [];
     }
 
     /**
@@ -296,7 +297,7 @@ class User extends Authenticatable
     public function getPlotsAttribute(): array
     {
         $service = app(PlotService::class);
-        return $service->getPlayerPlots($this->minecraft_plain_uuid);
+        return $service->getPlayerPlots($this->minecraft_plain_uuid) ?? [];
     }
 
 }
