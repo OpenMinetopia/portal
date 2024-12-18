@@ -36,32 +36,21 @@
         }
     }
 }">
-    <!-- Mobile sidebar backdrop -->
-    <div x-show="sidebarOpen"
-        class="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 lg:hidden"
-        x-transition:enter="transition-opacity ease-linear duration-300"
-        x-transition:enter-start="opacity-0"
-        x-transition:enter-end="opacity-100"
-        x-transition:leave="transition-opacity ease-linear duration-300"
-        x-transition:leave-start="opacity-100"
-        x-transition:leave-end="opacity-0"
-        @click="sidebarOpen = false"></div>
+    <div class="min-h-full bg-gray-50 dark:bg-gray-900">
+        @include('portal.layouts.partials.sidebar')
 
-    @include('portal.layouts.partials.sidebar')
+        <div class="lg:pl-72 min-h-screen bg-gray-50 dark:bg-gray-700">
+            @include('portal.layouts.partials.header')
 
-    <div class="lg:pl-72">
-        @include('portal.layouts.partials.header')
-
-        <main class="py-10">
-            <div class="px-4 sm:px-6 lg:px-8">
-                @yield('content')
-            </div>
-        </main>
+            <main class="py-10 bg-gray-50 dark:bg-gray-700">
+                <div class="px-4 sm:px-6 lg:px-8">
+                    @yield('content')
+                </div>
+            </main>
+        </div>
     </div>
-
+    
     @stack('scripts')
-
     <x-notification/>
-
 </body>
 </html>
