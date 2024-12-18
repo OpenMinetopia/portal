@@ -45,10 +45,19 @@ class RegisterController extends Controller
             'token' => Str::random(32),
         ]);
 
-        // Assign default player role
-        $playerRole = Role::where('slug', 'player')->first();
-        if ($playerRole) {
-            $user->roles()->attach($playerRole);
+        // Check if this is the first user
+        if (User::count() === 1) {
+            // Assign admin role (assuming role with ID 1 is admin)
+            $adminRole = Role::where('is_admin', true)->first();
+            if ($adminRole) {
+                $user->roles()->attach($adminRole->id);
+            }
+        } else {
+            // Assign default player role for subsequent users
+            $playerRole = Role::where('slug', 'player')->first();
+            if ($playerRole) {
+                $user->roles()->attach($playerRole);
+            }
         }
 
         auth()->login($user);
