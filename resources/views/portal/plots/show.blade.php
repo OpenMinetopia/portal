@@ -40,6 +40,85 @@
             </div>
         </div>
 
+        @if($plot['permission'] === 'OWNER')
+            @php
+                $activeListing = \App\Models\PlotListing::where('plot_name', $plot['name'])
+                    ->where('status', 'active')
+                    ->first();
+            @endphp
+
+            @if($activeListing)
+                <!-- Active Listing Card -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+                    <div class="px-4 py-5 sm:px-6 border-b border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <x-heroicon-s-currency-euro class="h-5 w-5 text-gray-400 dark:text-gray-500"/>
+                                <h3 class="text-base font-semibold text-gray-900 dark:text-white">Te Koop</h3>
+                            </div>
+                            <form action="{{ route('portal.plots.listings.destroy', $activeListing) }}" method="POST">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit"
+                                        class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-50 hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-offset-gray-800">
+                                    <x-heroicon-s-x-mark class="w-4 h-4 mr-1.5"/>
+                                    Van de markt halen
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="px-4 py-5 sm:p-6">
+                        <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Vraagprijs</dt>
+                                <dd class="mt-1 text-lg font-semibold text-gray-900 dark:text-white">
+                                    {{ $activeListing->formatted_price }}
+                                </dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Status</dt>
+                                <dd class="mt-1">
+                                    <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium bg-green-50 text-green-700 ring-1 ring-inset ring-green-600/20 dark:bg-green-500/10 dark:text-green-400 dark:ring-green-500/20">
+                                        Te koop
+                                    </span>
+                                </dd>
+                            </div>
+                            <div class="sm:col-span-2">
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Beschrijving</dt>
+                                <dd class="mt-1 text-sm text-gray-900 dark:text-white">
+                                    {{ $activeListing->description }}
+                                </dd>
+                            </div>
+                            @if($activeListing->image_path)
+                                <div class="sm:col-span-2">
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Afbeelding</dt>
+                                    <dd class="mt-2">
+                                        <img src="{{ Storage::url($activeListing->image_path) }}"
+                                             alt="Afbeelding van {{ $plot['name'] }}"
+                                             class="rounded-lg max-h-64 object-cover">
+                                    </dd>
+                                </div>
+                            @endif
+                            <div class="sm:col-span-2">
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Instellingen</dt>
+                                <dd class="mt-2">
+                                    <div class="flex items-center gap-2">
+                                        <span @class([
+                                            'inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset',
+                                            'bg-blue-50 text-blue-700 ring-blue-600/20 dark:bg-blue-500/10 dark:text-blue-400 dark:ring-blue-500/20' => $activeListing->instant_buy,
+                                            'bg-gray-50 text-gray-700 ring-gray-600/20 dark:bg-gray-500/10 dark:text-gray-400 dark:ring-gray-500/20' => !$activeListing->instant_buy,
+                                        ])>
+                                            {{ $activeListing->instant_buy ? 'Direct kopen mogelijk' : 'Contact verkoper' }}
+                                        </span>
+                                    </div>
+                                </dd>
+                            </div>
+                        </dl>
+                    </div>
+                </div>
+            @endif
+        @endif
+
         <!-- Users Grid -->
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <!-- Owners Card -->
