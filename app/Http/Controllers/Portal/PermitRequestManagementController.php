@@ -55,7 +55,14 @@ class PermitRequestManagementController extends Controller
                 })->count(),
         ];
 
-        return view('portal.permits.manage.index', compact('requests', 'stats'));
+        // Determine layout version
+        $layout = request()->get('layout', 'v2'); // Default to v2, fallback to v1
+
+        if ($layout === 'v1') {
+            return view('portal.permits.manage.index', compact('requests', 'stats'));
+        }
+
+        return view('portal.v2.permits.manage.index', compact('requests', 'stats'));
     }
 
     public function show(PermitRequest $permitRequest)
@@ -65,7 +72,14 @@ class PermitRequestManagementController extends Controller
             abort(403, 'Je hebt geen toegang tot deze vergunning aanvraag.');
         }
 
-        return view('portal.permits.manage.show', compact('permitRequest'));
+        // Determine layout version
+        $layout = request()->get('layout', 'v2'); // Default to v2, fallback to v1
+
+        if ($layout === 'v1') {
+            return view('portal.permits.manage.show', compact('permitRequest'));
+        }
+
+        return view('portal.v2.permits.manage.show', compact('permitRequest'));
     }
 
     public function handle(Request $request, PermitRequest $permitRequest)

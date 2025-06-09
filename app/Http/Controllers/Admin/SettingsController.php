@@ -12,7 +12,18 @@ class SettingsController extends Controller
 {
     public function index()
     {
-        return view('portal.admin.settings.index', [
+        // Determine layout version
+        $layout = request()->get('layout', 'v2'); // Default to v2, fallback to v1
+
+        if ($layout === 'v1') {
+            return view('portal.admin.settings.index', [
+                'features' => PortalFeature::all(),
+                'permitSettings' => PermitSetting::first() ?? PermitSetting::create([]),
+                'companySettings' => CompanySetting::first() ?? CompanySetting::create([])
+            ]);
+        }
+
+        return view('portal.v2.admin.settings.index', [
             'features' => PortalFeature::all(),
             'permitSettings' => PermitSetting::first() ?? PermitSetting::create([]),
             'companySettings' => CompanySetting::first() ?? CompanySetting::create([])

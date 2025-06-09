@@ -50,6 +50,19 @@
         </div>
     </div>
     
+    <!-- Version Switcher -->
+    <div class="fixed bottom-4 right-4 z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-3">
+            <div class="flex items-center space-x-2">
+                <span class="text-xs font-medium text-gray-600 dark:text-gray-400">V1</span>
+                <a href="{{ request()->fullUrlWithQuery(['layout' => 'v2']) }}" 
+                   class="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium underline">
+                    Switch to V2
+                </a>
+            </div>
+        </div>
+    </div>
+    
     @stack('scripts')
     <x-notification/>
 </body>

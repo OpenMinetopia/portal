@@ -32,7 +32,19 @@ class AdminUserController extends Controller
             ->latest()
             ->paginate(10);
 
-        return view('portal.admin.users.index', [
+        // Determine layout version
+        $layout = request()->get('layout', 'v2'); // Default to v2, fallback to v1
+
+        if ($layout === 'v1') {
+            return view('portal.admin.users.index', [
+                'users' => $users,
+                'stats' => [
+                    'total' => User::count(),
+                    'verified' => User::where('minecraft_verified', true)->count()]
+            ]);
+        }
+
+        return view('portal.v2.admin.users.index', [
             'users' => $users,
             'stats' => [
                 'total' => User::count(),
@@ -48,7 +60,21 @@ class AdminUserController extends Controller
         $bankAccounts = $this->bankingService->getPlayerBankAccounts($user->minecraft_uuid);
         $criminalRecords = $this->criminalRecordService->getPlayerRecords($user->minecraft_uuid);
 
-        return view('portal.admin.users.show', [
+        // Determine layout version
+        $layout = request()->get('layout', 'v2'); // Default to v2, fallback to v1
+
+        if ($layout === 'v1') {
+            return view('portal.admin.users.show', [
+                'user' => $user->load(['roles']),
+                'roles' => Role::all(),
+                'playerData' => $playerData,
+                'plots' => $plots,
+                'bankAccounts' => $bankAccounts,
+                'criminalRecords' => $criminalRecords
+            ]);
+        }
+
+        return view('portal.v2.admin.users.show', [
             'user' => $user->load(['roles']),
             'roles' => Role::all(),
             'playerData' => $playerData,

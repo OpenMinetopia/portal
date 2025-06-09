@@ -7,51 +7,55 @@ use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
-
-        return view('portal.dashboard');
+        
+        // Check if user wants V2 layout
+        $layout = $request->get('layout', 'v2'); // Default to V2
+        
+        if ($layout === 'v1') {
+            return view('portal.dashboard');
+        }
+        
+        // Get recent activity for V2
+        $recentActivity = $this->getRecentActivity($user);
+        
+        return view('portal.v2.dashboard', compact('recentActivity'));
     }
 
     private function getRecentActivity($user)
     {
         $activity = collect();
 
-        // Add recent transactions
-        if ($user->bankAccount) {
-            $activity = $activity->merge(
-                $user->bankAccount->transactions()
-                    ->latest()
-                    ->take(5)
-                    ->get()
-                    ->map(function ($transaction) {
-                        return [
-                            'type' => 'transaction',
-                            'title' => $transaction->isDeposit() ? 'Payment Received' : 'Payment Sent',
-                            'description' => $transaction->description,
-                            'amount' => $transaction->getFormattedAmount(),
-                            'time' => $transaction->created_at
-                        ];
-                    })
-            );
+        // Add portal login activity
+        $activity->push([
+            'type' => 'login',
+            'title' => 'Portal Login',
+            'description' => 'Je bent ingelogd in het portaal',
+            'time' => now()->subMinutes(5),
+            'icon' => '🔐'
+        ]);
+
+        // Add bank account view activity
+        if (count($user->bank_accounts) > 0) {
+            $activity->push([
+                'type' => 'bank',
+                'title' => 'Bankrekeningen Bekeken',
+                'description' => 'Je hebt je bankrekeningen bekeken',
+                'time' => now()->subMinutes(15),
+                'icon' => '🏦'
+            ]);
         }
 
-        // Add recent plot activities
-        $activity = $activity->merge(
-            $user->plots()
-                ->latest()
-                ->take(3)
-                ->get()
-                ->map(function ($plot) {
-                    return [
-                        'type' => 'plot',
-                        'title' => 'Plot Updated',
-                        'description' => "Plot {$plot->name} was updated",
-                        'time' => $plot->updated_at
-                    ];
-                })
-        );
+        // Add dashboard activity
+        $activity->push([
+            'type' => 'dashboard',
+            'title' => 'Dashboard Bekeken',
+            'description' => 'Je hebt het dashboard bekeken',
+            'time' => now()->subMinutes(30),
+            'icon' => '📊'
+        ]);
 
         return $activity->sortByDesc('time')->take(5);
     }

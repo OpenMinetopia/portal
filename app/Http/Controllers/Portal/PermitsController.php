@@ -30,7 +30,14 @@ class PermitsController extends Controller
             ->latest()
             ->get();
 
-        return view('portal.permits.index', compact('permitTypes', 'requests'));
+        // Determine layout version
+        $layout = request()->get('layout', 'v2'); // Default to v2, fallback to v1
+
+        if ($layout === 'v1') {
+            return view('portal.permits.index', compact('permitTypes', 'requests'));
+        }
+
+        return view('portal.v2.permits.index', compact('permitTypes', 'requests'));
     }
 
     public function request(PermitType $permitType)
@@ -39,7 +46,14 @@ class PermitsController extends Controller
             return back()->with('error', 'Deze vergunning is momenteel niet beschikbaar.');
         }
 
-        return view('portal.permits.request', compact('permitType'));
+        // Determine layout version
+        $layout = request()->get('layout', 'v2'); // Default to v2, fallback to v1
+
+        if ($layout === 'v1') {
+            return view('portal.permits.request', compact('permitType'));
+        }
+
+        return view('portal.v2.permits.request', compact('permitType'));
     }
 
     public function store(Request $request, PermitType $permitType)
@@ -172,6 +186,13 @@ class PermitsController extends Controller
             abort(403);
         }
 
-        return view('portal.permits.show', compact('permitRequest'));
+        // Determine layout version
+        $layout = request()->get('layout', 'v2'); // Default to v2, fallback to v1
+
+        if ($layout === 'v1') {
+            return view('portal.permits.show', compact('permitRequest'));
+        }
+
+        return view('portal.v2.permits.show', compact('permitRequest'));
     }
 } 

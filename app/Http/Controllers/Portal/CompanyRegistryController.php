@@ -10,7 +10,14 @@ class CompanyRegistryController extends Controller
 {
     public function index()
     {
-        return view('portal.companies.registry.index');
+        // Determine layout version
+        $layout = request()->get('layout', 'v2'); // Default to v2, fallback to v1
+
+        if ($layout === 'v1') {
+            return view('portal.companies.registry.index');
+        }
+
+        return view('portal.v2.companies.registry.index');
     }
 
     public function search(Request $request)
@@ -42,6 +49,13 @@ class CompanyRegistryController extends Controller
     {
         $company->load(['type', 'owner', 'dissolutionRequest']);
 
-        return view('portal.companies.registry.show', compact('company'));
+        // Determine layout version
+        $layout = request()->get('layout', 'v2'); // Default to v2, fallback to v1
+
+        if ($layout === 'v1') {
+            return view('portal.companies.registry.show', compact('company'));
+        }
+
+        return view('portal.v2.companies.registry.show', compact('company'));
     }
 }

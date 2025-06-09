@@ -15,7 +15,21 @@ class AdminRoleController extends Controller
             ->latest()
             ->paginate(10);
 
-        return view('portal.admin.roles.index', [
+        // Determine layout version
+        $layout = request()->get('layout', 'v2'); // Default to v2, fallback to v1
+
+        if ($layout === 'v1') {
+            return view('portal.admin.roles.index', [
+                'roles' => $roles,
+                'stats' => [
+                    'total' => Role::count(),
+                    'admin_roles' => Role::where('is_admin', true)->count(),
+                    'game_roles' => Role::where('is_game_role', true)->count()
+                ]
+            ]);
+        }
+
+        return view('portal.v2.admin.roles.index', [
             'roles' => $roles,
             'stats' => [
                 'total' => Role::count(),

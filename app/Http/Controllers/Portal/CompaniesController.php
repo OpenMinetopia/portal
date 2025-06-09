@@ -22,7 +22,7 @@ class CompaniesController extends Controller
         $this->bankingService = $bankingService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
         // Get user's companies and requests
         $companies = Company::where('owner_id', auth()->id())
@@ -35,23 +35,48 @@ class CompaniesController extends Controller
             ->latest()
             ->get();
 
-        return view('portal.companies.index', compact('companies', 'requests'));
+        // Check if user wants V2 layout
+        $layout = $request->get('layout', 'v2'); // Default to V2
+        
+        if ($layout === 'v1') {
+            return view('portal.companies.index', compact('companies', 'requests'));
+        }
+        
+        return view('portal.v2.companies.index', compact('companies', 'requests'));
     }
 
-    public function register()
+    public function register(Request $request)
     {
         // Show available company types
         $companyTypes = CompanyType::where('is_active', true)->get();
-        return view('portal.companies.register', compact('companyTypes'));
+        
+        // Check if user wants V2 layout
+        $layout = $request->get('layout', 'v2'); // Default to V2
+        
+        if ($layout === 'v1') {
+            return view('portal.companies.register', compact('companyTypes'));
+        }
+        
+        return view('portal.v2.companies.register', compact('companyTypes'));
     }
 
-    public function request(CompanyType $companyType)
+    public function request(Request $request, CompanyType $companyType)
     {
         if (!$companyType->is_active) {
             return back()->with('error', 'Dit bedrijfstype is momenteel niet beschikbaar.');
         }
 
-        return view('portal.companies.request', [
+        // Check if user wants V2 layout
+        $layout = $request->get('layout', 'v2'); // Default to V2
+        
+        if ($layout === 'v1') {
+            return view('portal.companies.request', [
+                'companyType' => $companyType,
+                'bank_accounts' => auth()->user()->bank_accounts
+            ]);
+        }
+
+        return view('portal.v2.companies.request', [
             'companyType' => $companyType,
             'bank_accounts' => auth()->user()->bank_accounts
         ]);
@@ -253,17 +278,24 @@ class CompaniesController extends Controller
         }
     }
 
-    public function showRequest(CompanyRequest $companyRequest)
+    public function showRequest(Request $request, CompanyRequest $companyRequest)
     {
         // Check if user owns the request
         if ($companyRequest->user_id !== auth()->id()) {
             abort(403);
         }
 
-        return view('portal.companies.request-details', compact('companyRequest'));
+        // Check if user wants V2 layout
+        $layout = $request->get('layout', 'v2'); // Default to V2
+        
+        if ($layout === 'v1') {
+            return view('portal.companies.request-details', compact('companyRequest'));
+        }
+        
+        return view('portal.v2.companies.request-details', compact('companyRequest'));
     }
 
-    public function show(Company $company)
+    public function show(Request $request, Company $company)
     {
         // Check if user owns the company
         if ($company->owner_id !== auth()->id()) {
@@ -273,6 +305,13 @@ class CompaniesController extends Controller
         // Get dissolution request if exists
         $dissolutionRequest = $company->dissolutionRequest;
 
-        return view('portal.companies.show', compact('company', 'dissolutionRequest'));
+        // Check if user wants V2 layout
+        $layout = $request->get('layout', 'v2'); // Default to V2
+        
+        if ($layout === 'v1') {
+            return view('portal.companies.show', compact('company', 'dissolutionRequest'));
+        }
+        
+        return view('portal.v2.companies.show', compact('company', 'dissolutionRequest'));
     }
 } 

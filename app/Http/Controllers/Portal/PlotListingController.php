@@ -28,7 +28,16 @@ class PlotListingController extends Controller
             ->latest()
             ->get();
 
-        return view('portal.plots.listings.index', [
+        // Determine layout version
+        $layout = request()->get('layout', 'v2'); // Default to v2, fallback to v1
+
+        if ($layout === 'v1') {
+            return view('portal.plots.listings.index', [
+                'listings' => $listings
+            ]);
+        }
+
+        return view('portal.v2.plots.listings.index', [
             'listings' => $listings
         ]);
     }
@@ -50,7 +59,16 @@ class PlotListingController extends Controller
                 ->with('error', 'Dit plot staat al te koop.');
         }
 
-        return view('portal.plots.listings.create', [
+        // Determine layout version
+        $layout = request()->get('layout', 'v2'); // Default to v2, fallback to v1
+
+        if ($layout === 'v1') {
+            return view('portal.plots.listings.create', [
+                'plot' => $plot
+            ]);
+        }
+
+        return view('portal.v2.plots.listings.create', [
             'plot' => $plot
         ]);
     }
@@ -132,7 +150,16 @@ class PlotListingController extends Controller
                 ]);
         }
 
-        return view('portal.plots.listings.buy', [
+        // Determine layout version
+        $layout = request()->get('layout', 'v2'); // Default to v2, fallback to v1
+
+        if ($layout === 'v1') {
+            return view('portal.plots.listings.buy', [
+                'listing' => $listing
+            ]);
+        }
+
+        return view('portal.v2.plots.listings.buy', [
             'listing' => $listing
         ]);
     }

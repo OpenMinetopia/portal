@@ -26,12 +26,26 @@ class CompanyRequestManagementController extends Controller
             ->latest()
             ->paginate(10);
 
-        return view('portal.companies.manage.index', compact('requests'));
+        // Determine layout version
+        $layout = request()->get('layout', 'v2'); // Default to v2, fallback to v1
+
+        if ($layout === 'v1') {
+            return view('portal.companies.manage.index', compact('requests'));
+        }
+
+        return view('portal.v2.companies.manage.index', compact('requests'));
     }
 
     public function show(CompanyRequest $companyRequest)
     {
-        return view('portal.companies.manage.show', compact('companyRequest'));
+        // Determine layout version
+        $layout = request()->get('layout', 'v2'); // Default to v2, fallback to v1
+
+        if ($layout === 'v1') {
+            return view('portal.companies.manage.show', compact('companyRequest'));
+        }
+
+        return view('portal.v2.companies.manage.show', compact('companyRequest'));
     }
 
     public function handle(Request $request, CompanyRequest $companyRequest)

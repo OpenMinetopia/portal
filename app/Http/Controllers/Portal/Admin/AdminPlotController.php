@@ -23,7 +23,16 @@ class AdminPlotController extends Controller
     {
         $plots = $this->plotService->getAllPlots();
 
-        return view('portal.admin.plots.index', [
+        // Determine layout version
+        $layout = request()->get('layout', 'v2'); // Default to v2, fallback to v1
+
+        if ($layout === 'v1') {
+            return view('portal.admin.plots.index', [
+                'plots' => $plots
+            ]);
+        }
+
+        return view('portal.v2.admin.plots.index', [
             'plots' => $plots
         ]);
     }
@@ -44,7 +53,17 @@ class AdminPlotController extends Controller
         // Get all verified users for the selection dropdowns
         $users = User::where('minecraft_verified', true)->get();
 
-        return view('portal.admin.plots.show', [
+        // Determine layout version
+        $layout = request()->get('layout', 'v2'); // Default to v2, fallback to v1
+
+        if ($layout === 'v1') {
+            return view('portal.admin.plots.show', [
+                'plot' => $plot,
+                'users' => $users
+            ]);
+        }
+
+        return view('portal.v2.admin.plots.show', [
             'plot' => $plot,
             'users' => $users
         ]);

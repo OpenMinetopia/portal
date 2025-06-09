@@ -16,16 +16,25 @@ class PlotController extends Controller
         $this->plotService = $plotService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $plots = auth()->user()->plots;
-
-        return view('portal.plots.index', [
+        
+        // Check if user wants V2 layout
+        $layout = $request->get('layout', 'v2'); // Default to V2
+        
+        if ($layout === 'v1') {
+            return view('portal.plots.index', [
+                'plots' => $plots
+            ]);
+        }
+        
+        return view('portal.v2.plots.index', [
             'plots' => $plots
         ]);
     }
 
-    public function show(string $name)
+    public function show(Request $request, string $name)
     {
         $plots = auth()->user()->plots;
         $plot = collect($plots)->firstWhere('name', $name);
@@ -41,7 +50,18 @@ class PlotController extends Controller
                 ->get()
             : collect();
 
-        return view('portal.plots.show', [
+        // Check if user wants V2 layout
+        $layout = $request->get('layout', 'v2'); // Default to V2
+        
+        if ($layout === 'v1') {
+            return view('portal.plots.show', [
+                'plot' => $plot,
+                'users' => $users,
+                'isOwner' => $plot['permission'] === 'OWNER'
+            ]);
+        }
+
+        return view('portal.v2.plots.show', [
             'plot' => $plot,
             'users' => $users,
             'isOwner' => $plot['permission'] === 'OWNER'

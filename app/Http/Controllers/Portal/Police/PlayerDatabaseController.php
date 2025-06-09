@@ -51,12 +51,29 @@ class PlayerDatabaseController extends Controller
             return view('portal.police.players.partials.table', compact('users'));
         }
 
-        return view('portal.police.players.index', compact('users'));
+        // Determine layout version
+        $layout = request()->get('layout', 'v2'); // Default to v2, fallback to v1
+
+        if ($layout === 'v1') {
+            return view('portal.police.players.index', compact('users'));
+        }
+
+        return view('portal.v2.police.players.index', compact('users'));
     }
 
     public function show(User $user)
     {
-        return view('portal.police.players.show', [
+        // Determine layout version
+        $layout = request()->get('layout', 'v2'); // Default to v2, fallback to v1
+
+        if ($layout === 'v1') {
+            return view('portal.police.players.show', [
+                'user' => $user,
+                'records' => $user->criminal_records
+            ]);
+        }
+
+        return view('portal.v2.police.players.show', [
             'user' => $user,
             'records' => $user->criminal_records
         ]);
