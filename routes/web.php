@@ -23,6 +23,7 @@ use App\Http\Controllers\Portal\PlotController;
 use App\Http\Controllers\Portal\PlotListingController;
 use App\Http\Controllers\Portal\BankTransactionController;
 use App\Http\Controllers\Portal\Admin\AdminPlotController;
+use App\Http\Controllers\Portal\Admin\SystemDebugController;
 
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisterController::class, 'create'])->name('register');
@@ -74,17 +75,20 @@ Route::middleware('auth')->group(function () {
         });
 
         Route::prefix('portal')->name('portal.')->group(function () {
-            Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-                // User & Role Management
-                Route::resource('users', AdminUserController::class);
-                Route::post('users/{user}/roles', [AdminUserController::class, 'updateRoles'])->name('users.roles.update');
-                Route::resource('roles', AdminRoleController::class);
+                    Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+            // User & Role Management
+            Route::resource('users', AdminUserController::class);
+            Route::post('users/{user}/roles', [AdminUserController::class, 'updateRoles'])->name('users.roles.update');
+            Route::resource('roles', AdminRoleController::class);
 
-                // Settings
-                Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
-                Route::put('settings/features', [SettingsController::class, 'updateFeatures'])->name('settings.update-features');
-                Route::put('settings/permit-settings', [SettingsController::class, 'updatePermitSettings'])->name('settings.update-permit-settings');
-                Route::put('settings/company-settings', [SettingsController::class, 'updateCompanySettings'])->name('settings.update-company-settings');
+            // Settings
+            Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
+            Route::put('settings/features', [SettingsController::class, 'updateFeatures'])->name('settings.update-features');
+            Route::put('settings/permit-settings', [SettingsController::class, 'updatePermitSettings'])->name('settings.update-permit-settings');
+            Route::put('settings/company-settings', [SettingsController::class, 'updateCompanySettings'])->name('settings.update-company-settings');
+
+            // Debug Information (only in non-production)
+            Route::get('debug', [SystemDebugController::class, 'index'])->name('debug.index');
 
                 // Admin permit type management
                 Route::prefix('permits')->name('permits.')->group(function () {
