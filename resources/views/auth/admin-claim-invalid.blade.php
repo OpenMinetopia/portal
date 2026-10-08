@@ -6,7 +6,11 @@
 
 @section('content')
     <p class="text-gray-600 dark:text-gray-400">
-        Vraag op de OpenMinetopia-website bij je portaal een nieuwe beheerderslink aan en open die meteen.
+        @if (\App\Support\Portal::hosted())
+            Vraag op de OpenMinetopia-website bij je portaal een nieuwe beheerderslink aan en open die meteen.
+        @else
+            Maak op de server een nieuwe link met <code class="font-mono text-sm">php artisan portal:admin-link</code> en open die meteen.
+        @endif
     </p>
 
     <a href="{{ route('login') }}" class="mt-8 inline-flex w-full justify-center rounded-md bg-indigo-600 px-4 py-2.5 font-semibold text-white transition hover:bg-indigo-500 active:translate-y-px dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:hover:text-gray-900">

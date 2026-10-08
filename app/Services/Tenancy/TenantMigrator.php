@@ -9,15 +9,15 @@ use Illuminate\Support\Facades\Cache;
 use Throwable;
 
 /**
- * Runs a tenant's pending migrations from database/migrations/tenant. Existing
- * portal databases already ran these files under the same names, so for them
- * nothing is pending.
+ * Runs a tenant's pending migrations from database/migrations (not recursive, so
+ * database/migrations/central stays out). Existing portal databases already ran
+ * these files under the same names, so for them nothing is pending.
  */
 class TenantMigrator
 {
     public static function path(): string
     {
-        return database_path('migrations/tenant');
+        return database_path('migrations');
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\Portal;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -11,7 +12,7 @@ class TenantDomainOnly
 {
     public function handle(Request $request, Closure $next): Response
     {
-        abort_unless(tenancy()->initialized, 404);
+        abort_unless(Portal::single() || tenancy()->initialized, 404);
 
         return $next($request);
     }

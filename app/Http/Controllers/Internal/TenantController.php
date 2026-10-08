@@ -108,7 +108,7 @@ class TenantController extends Controller
 
     public function pluginCheck(string $tenantId, PluginConnectionCheck $check): JsonResponse
     {
-        return response()->json($check->check($this->find($tenantId)));
+        return response()->json($check->checkTenant($this->find($tenantId)));
     }
 
     public function adminClaim(string $tenantId): JsonResponse

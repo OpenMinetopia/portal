@@ -16,7 +16,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Demo mode: fake plugin and Mojang answers, never in production (see config/portal.php).
+        if (config('portal.demo')) {
+            $this->app->bind(\App\Services\Plugin\PluginApiService::class, \App\Demo\FakePluginApiService::class);
+            $this->app->bind(\App\Services\MojangApiService::class, \App\Demo\FakeMojangApiService::class);
+        }
     }
 
     /**

@@ -32,7 +32,11 @@
             </div>
 
             <p class="mt-10 border-t border-gray-200 pt-6 text-sm text-gray-500 dark:border-gray-800 dark:text-gray-500">
-                Een portaal van <a href="https://openminetopia.nl" class="font-semibold text-indigo-600 hover:underline dark:text-indigo-400">OpenMinetopia</a>.
+                @if (\App\Support\Portal::hosted())
+                    Een portaal van <a href="https://openminetopia.nl" class="font-semibold text-indigo-600 hover:underline dark:text-indigo-400">OpenMinetopia</a>.
+                @else
+                    Gemaakt met <a href="https://github.com/OpenMinetopia/portal" class="font-semibold text-indigo-600 hover:underline dark:text-indigo-400">OpenMinetopia Portal</a>.
+                @endif
             </p>
         </div>
     </div>

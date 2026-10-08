@@ -1,5 +1,8 @@
 # Hosting the multi-tenant portal
 
+This is about hosted mode (`PORTAL_MODE=hosted`), the platform on `*.mtportal.nl`.
+A self-hosted portal is the default single mode; see `php artisan portal:install`.
+
 One Laravel app serves every portal. A request's host picks the tenant
 (`domains` table); each tenant has its own MySQL database on the same server.
 The OMT website creates, changes, pauses and deletes tenants through the signed
@@ -20,7 +23,7 @@ provisioning API on the central domain; nothing else does.
 ```sh
 composer install --no-dev --optimize-autoloader
 npm ci && npm run build
-php artisan migrate --force          # central database
+php artisan migrate --force --path=database/migrations/central   # central database
 php artisan tenants:migrate-safe     # every tenant; one failure never stops the rest
 php artisan optimize
 ```
@@ -34,6 +37,7 @@ See `.env.example`. The ones that matter for tenancy:
 
 | Variable | Value |
 | --- | --- |
+| `PORTAL_MODE` | `hosted` |
 | `DB_*` | the central database |
 | `TENANCY_CENTRAL_DOMAINS` | `central.mtportal.nl` (comma separated) |
 | `PORTAL_PROVISIONING_SECRET` | same value as the website's |
@@ -50,8 +54,8 @@ never falls back to these.
 ## Moving an existing portal in
 
 The existing per-portal databases become the tenant databases as they are. Their
-`migrations` table already lists every file in `database/migrations/tenant`
-(same names as before), so nothing re-runs; a PUT from the website reports
+`migrations` table already lists every file in `database/migrations` (same
+names as before; the central migrations live in `database/migrations/central`), so nothing re-runs; a PUT from the website reports
 `"migrations": {"ran": []}`.
 
 Uploaded files (plot listing images) have to be copied by hand, once:

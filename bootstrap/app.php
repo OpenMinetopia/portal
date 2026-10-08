@@ -26,6 +26,10 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
         then: function () {
+            if (config('portal.mode') !== 'hosted') {
+                return;
+            }
+
             // The provisioning API answers on the central domains only.
             foreach (config('tenancy.central_domains') as $domain) {
                 Route::domain($domain)
@@ -36,7 +40,9 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Before StartSession, so sessions and auth use the tenant's database.
+        // Before StartSession, so sessions and auth use the tenant's database. These
+        // check the portal mode per request (config is not loaded yet at this point)
+        // and do nothing in single mode.
         $middleware->append([IdentifyTenant::class, EnsureTenantActive::class]);
         $middleware->web(prepend: TenantDomainOnly::class);
         $middleware->api(prepend: TenantDomainOnly::class);

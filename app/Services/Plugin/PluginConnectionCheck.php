@@ -22,9 +22,15 @@ class PluginConnectionCheck
     public function __construct(private PluginAddressGuard $guard) {}
 
     /** @return Result */
-    public function check(Tenant $tenant): array
+    public function checkTenant(Tenant $tenant): array
     {
-        $url = rtrim((string) $tenant->plugin_api_url, '/');
+        return $this->check((string) $tenant->plugin_api_url, (string) $tenant->plugin_api_key);
+    }
+
+    /** @return Result */
+    public function check(string $url, string $apiKey): array
+    {
+        $url = rtrim($url, '/');
 
         if ($url === '') {
             return $this->result(false, false, null, 'dns', 'No plugin URL is set.');
@@ -40,7 +46,7 @@ class PluginConnectionCheck
             }
 
             $started = hrtime(true);
-            $authenticated = $client->withHeaders(['X-API-Key' => (string) $tenant->plugin_api_key])->get($url.self::PROBE_PATH);
+            $authenticated = $client->withHeaders(['X-API-Key' => $apiKey])->get($url.self::PROBE_PATH);
             $latency = (int) round((hrtime(true) - $started) / 1e6);
         } catch (PluginAddressException $exception) {
             return $this->result(false, false, null, $exception->errorCode, $exception->getMessage());

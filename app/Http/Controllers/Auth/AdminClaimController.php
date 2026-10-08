@@ -17,7 +17,7 @@ class AdminClaimController extends Controller
         if ($request->user()) {
             AdminClaim::consume(tenant(), $token, $request->user())
                 ? session()->flash('success', 'Je bent nu beheerder van dit portaal.')
-                : session()->flash('error', 'De beheerderslink is verlopen of al gebruikt.');
+                : session()->flash('error', 'De beheerderslink is verlopen of al gebruikt. '.AdminClaim::howToGetANewLink());
 
             return redirect()->route('dashboard');
         }

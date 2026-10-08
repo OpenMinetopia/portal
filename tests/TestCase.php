@@ -10,6 +10,9 @@ use Illuminate\Support\Str;
 use PDO;
 
 /**
+ * Hosted mode (PORTAL_MODE=hosted in phpunit.xml). Single mode has its own base
+ * class in tests/Single.
+ *
  * Runs against MySQL/MariaDB: a central database plus one database per test
  * tenant, the way the portal runs in production. Databases are migrated once per
  * run; before every test the central tables and all tenant data except the rows
@@ -102,7 +105,7 @@ abstract class TestCase extends BaseTestCase
         $server = self::server();
         $server->exec('CREATE DATABASE IF NOT EXISTS `'.env('DB_DATABASE').'`');
 
-        Artisan::call('migrate:fresh', ['--force' => true]);
+        Artisan::call('migrate:fresh', ['--force' => true, '--path' => 'database/migrations/central']);
 
         foreach (array_keys(self::TENANTS) as $key) {
             $database = self::tenantDatabase($key);

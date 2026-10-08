@@ -21,7 +21,7 @@ afterEach(function () {
 
 it('keeps the same migration file names the existing databases ran', function () {
     $ran = collect(DB::select("SELECT migration FROM `{$this->legacyDatabase}`.migrations"))->pluck('migration')->sort()->values()->all();
-    $files = collect(glob(database_path('migrations/tenant/*.php')))->map(fn ($file) => basename($file, '.php'))->sort()->values()->all();
+    $files = collect(glob(database_path('migrations/*.php')))->map(fn ($file) => basename($file, '.php'))->sort()->values()->all();
 
     expect($files)->toBe($ran);
 });
