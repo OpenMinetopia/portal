@@ -2,20 +2,6 @@
 
 use App\Http\Controllers\Api\MinecraftApiController;
 use App\Http\Controllers\Api\MinecraftVerificationController;
-use App\Http\Controllers\Api\MinetopiaController;
-use App\Http\Controllers\Api\ArrestController;
-use App\Http\Controllers\Api\EmergencyController;
-use App\Http\Controllers\Api\SecurityController;
-use App\Http\Controllers\Api\PlotController;
-use App\Http\Controllers\Api\LevelController;
-use App\Http\Controllers\Api\ChatController;
-use App\Http\Controllers\Api\FineController;
-use App\Http\Controllers\Api\VehicleController;
-use App\Http\Controllers\Api\WalkieTalkieController;
-use App\Http\Controllers\Api\DetectionGateController;
-use App\Http\Controllers\Api\TeleporterController;
-use App\Http\Controllers\Api\FitnessController;
-use App\Http\Controllers\Api\PlayerDatabaseController;
 use Illuminate\Support\Facades\Route;
 
 // Public endpoints (no API key required)
@@ -23,15 +9,8 @@ Route::get('/minecraft/player/{username}', [MinecraftApiController::class, 'getP
     ->middleware('throttle:60,1')
     ->name('api.minecraft.player');
 
-// Protected endpoints (require API key)
-Route::middleware('api.key')->group(function () {
-    // Verification endpoint
+// Protected endpoints (require the tenant's API key)
+Route::middleware(['throttle:minecraft-verify', 'api.key'])->group(function () {
     Route::post('/minecraft/verify', [MinecraftVerificationController::class, 'verify'])
         ->name('api.minecraft.verify');
-});
-
-Route::middleware(['auth:sanctum'])->group(function () {
-    Route::get('/police/players', [PlayerDatabaseController::class, 'search'])
-        ->middleware('police')
-        ->name('api.police.players.search');
 });

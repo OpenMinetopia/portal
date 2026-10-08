@@ -2,10 +2,11 @@
 
 return [
     'api' => [
-        'url' => env('PLUGIN_API_URL', 'http://94.176.214.90:25570'),
+        // Set per tenant by App\Tenancy\TenantConfigBootstrapper.
+        'url' => env('PLUGIN_API_URL'),
         'key' => env('PLUGIN_API_KEY'),
     ],
 
-    'server_address' => env('MC_SERVER_ADDRESS', 'demo.openminetopia.nl'),
+    'server_address' => env('MC_SERVER_ADDRESS'),
 
 ];

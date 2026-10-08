@@ -23,15 +23,20 @@ use App\Http\Controllers\Portal\PlotController;
 use App\Http\Controllers\Portal\PlotListingController;
 use App\Http\Controllers\Portal\BankTransactionController;
 use App\Http\Controllers\Portal\Admin\AdminPlotController;
-use App\Http\Controllers\Portal\Admin\SystemDebugController;
+use App\Http\Controllers\Auth\AdminClaimController;
 
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisterController::class, 'create'])->name('register');
-    Route::post('register', [RegisterController::class, 'store']);
+    Route::post('register', [RegisterController::class, 'store'])->middleware('throttle:register');
 
     Route::get('login', [LoginController::class, 'create'])->name('login');
-    Route::post('login', [LoginController::class, 'store']);
+    Route::post('login', [LoginController::class, 'store'])->middleware('throttle:login');
 });
+
+// One-time link from the OMT website that makes whoever opens it an admin of this portal.
+Route::get('beheerder-worden/{token}', AdminClaimController::class)
+    ->middleware('throttle:admin-claim')
+    ->name('admin-claim');
 
 Route::middleware('auth')->group(function () {
     Route::get('/verify-minecraft', [MinecraftVerificationController::class, 'show'])
@@ -86,9 +91,6 @@ Route::middleware('auth')->group(function () {
             Route::put('settings/features', [SettingsController::class, 'updateFeatures'])->name('settings.update-features');
             Route::put('settings/permit-settings', [SettingsController::class, 'updatePermitSettings'])->name('settings.update-permit-settings');
             Route::put('settings/company-settings', [SettingsController::class, 'updateCompanySettings'])->name('settings.update-company-settings');
-
-            // Debug Information (only in non-production)
-            Route::get('debug', [SystemDebugController::class, 'index'])->name('debug.index');
 
                 // Admin permit type management
                 Route::prefix('permits')->name('permits.')->group(function () {

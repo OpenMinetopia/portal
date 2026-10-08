@@ -5,7 +5,7 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\PortalFeature;
 
-class CreateCriticalData extends Migration
+return new class extends Migration
 {
     public function up(): void
     {
@@ -71,4 +71,4 @@ class CreateCriticalData extends Migration
     {
         //
     }
-}
+};

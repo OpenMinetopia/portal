@@ -10,8 +10,9 @@ class ValidateApiKey
     public function handle(Request $request, Closure $next)
     {
         $apiKey = $request->header('X-API-Key');
-        
-        if (!$apiKey || $apiKey !== config('services.minecraft.api_key')) {
+        $expected = config('services.minecraft.api_key');
+
+        if (! is_string($apiKey) || ! is_string($expected) || $expected === '' || ! hash_equals($expected, $apiKey)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid API key.',
@@ -21,4 +22,4 @@ class ValidateApiKey
 
         return $next($request);
     }
-} 
+}

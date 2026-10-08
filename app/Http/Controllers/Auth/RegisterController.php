@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use App\Services\MojangApiService;
 use App\Models\Role;
+use App\Services\Tenancy\AdminClaim;
 
 class RegisterController extends Controller
 {
@@ -45,22 +46,16 @@ class RegisterController extends Controller
             'token' => Str::random(32),
         ]);
 
-        // Check if this is the first user
-        if (User::count() === 1) {
-            // Assign admin role (assuming role with ID 1 is admin)
-            $adminRole = Role::where('is_admin', true)->first();
-            if ($adminRole) {
-                $user->roles()->attach($adminRole->id);
-            }
-        } else {
-            // Assign default player role for subsequent users
-            $playerRole = Role::where('slug', 'player')->first();
-            if ($playerRole) {
-                $user->roles()->attach($playerRole);
-            }
+        // Nobody becomes admin just by registering first: a stranger could take over a
+        // fresh portal. Admins come from the one-time claim link from the website.
+        $playerRole = Role::where('slug', 'player')->first();
+        if ($playerRole) {
+            $user->roles()->attach($playerRole);
         }
 
         auth()->login($user);
+        $request->session()->regenerate();
+        AdminClaim::consumeFromSession($request, $user);
 
         return redirect()->route('dashboard');
     }

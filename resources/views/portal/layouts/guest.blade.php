@@ -44,6 +44,12 @@
                 <p class="mt-2 text-gray-600 dark:text-gray-400">@yield('subheader')</p>
             @endif
 
+            @if (session()->has(\App\Services\Tenancy\AdminClaim::SESSION_KEY))
+                <div class="mt-6 rounded-md border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-900 dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-200">
+                    Log in of maak een account aan. Daarna ben je beheerder van dit portaal.
+                </div>
+            @endif
+
             <div class="mt-8">
                 @yield('content')
             </div>
