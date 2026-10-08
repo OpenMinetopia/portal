@@ -33,6 +33,11 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
+        // A cached config ignores phpunit.xml, and setup below runs migrate:fresh.
+        if ($this->app->configurationIsCached() || config('database.connections.mysql.database') !== env('DB_DATABASE')) {
+            throw new \RuntimeException('Run `php artisan config:clear` first: the tests would use the wrong database.');
+        }
+
         $this->withoutVite();
 
         if (! self::$prepared) {
