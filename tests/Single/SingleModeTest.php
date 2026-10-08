@@ -87,3 +87,10 @@ it('shows neutral wording on error pages', function () {
         ->assertSee('Gemaakt met')
         ->assertDontSee('Een portaal van');
 });
+
+it('reaches a plugin on the local machine or network without the hosted address guard', function () {
+    Http::fake(['*' => Http::response(['success' => true, 'plots' => []])]);
+
+    expect(app(\App\Services\Plugin\PluginApiService::class)->get('/api/plots'))->toBe(['success' => true, 'plots' => []]);
+    Http::assertSent(fn ($request) => $request->url() === 'http://127.0.0.1:4567/api/plots' && $request->hasHeader('X-API-Key', 'plt_single'));
+});

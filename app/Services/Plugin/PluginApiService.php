@@ -13,7 +13,7 @@ class PluginApiService
     protected ?string $baseUrl;
     protected ?string $apiKey;
 
-    public function __construct(protected PluginAddressGuard $guard)
+    public function __construct(protected PluginHttp $http)
     {
         $this->baseUrl = rtrim((string) config('plugin.api.url'), '/') ?: null;
         $this->apiKey = config('plugin.api.key');
@@ -44,7 +44,7 @@ class PluginApiService
         $url = $this->baseUrl . $endpoint;
 
         try {
-            $request = $this->guard->client($this->baseUrl)->withHeaders([
+            $request = $this->http->client($this->baseUrl)->withHeaders([
                 'X-API-Key' => $this->apiKey,
             ]);
 

@@ -19,7 +19,7 @@ class PluginConnectionCheck
 {
     public const PROBE_PATH = '/api/omt-portal-check';
 
-    public function __construct(private PluginAddressGuard $guard) {}
+    public function __construct(private PluginHttp $http) {}
 
     /** @return Result */
     public function checkTenant(Tenant $tenant): array
@@ -37,7 +37,7 @@ class PluginConnectionCheck
         }
 
         try {
-            $client = $this->guard->client($url);
+            $client = $this->http->client($url);
 
             $anonymous = $client->get($url.self::PROBE_PATH);
 
