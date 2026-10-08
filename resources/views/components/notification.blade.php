@@ -1,61 +1,36 @@
-@if(session('success') || session('error'))
+@if (session('success') || session('error'))
     @php
         $type = session('success') ? 'success' : 'error';
         $message = session($type);
         $title = is_array($message) ? $message['title'] : null;
         $text = is_array($message) ? $message['message'] : $message;
-        
-        $colors = [
-            'success' => [
-                'bg' => 'bg-green-50 dark:bg-green-500/10',
-                'text' => 'text-green-800 dark:text-green-200',
-                'icon' => 'text-green-400 dark:text-green-500',
-                'hover' => 'hover:bg-green-100 dark:hover:bg-green-500/20',
-                'button' => 'text-green-500 dark:text-green-400',
-            ],
-            'error' => [
-                'bg' => 'bg-red-50 dark:bg-red-500/10',
-                'text' => 'text-red-800 dark:text-red-200',
-                'icon' => 'text-red-400 dark:text-red-500',
-                'hover' => 'hover:bg-red-100 dark:hover:bg-red-500/20',
-                'button' => 'text-red-500 dark:text-red-400',
-            ],
-        ];
     @endphp
 
-    <div x-data="{ show: true }"
+    {{-- A toast bottom-right that slides in, then leaves after five seconds. --}}
+    <div x-data="{ show: false }"
+         x-init="$nextTick(() => show = true); setTimeout(() => show = false, 5000)"
          x-show="show"
-         x-transition
-         x-init="setTimeout(() => show = false, 5000)"
-         class="fixed bottom-0 right-0 m-6 w-96 max-w-full z-50">
-        <div class="rounded-lg shadow-lg {{ $colors[$type]['bg'] }} p-4">
-            <div class="flex items-start">
-                <div class="flex-shrink-0">
-                    @if($type === 'success')
-                        <x-heroicon-s-check-circle class="h-5 w-5 {{ $colors[$type]['icon'] }}"/>
-                    @else
-                        <x-heroicon-s-x-circle class="h-5 w-5 {{ $colors[$type]['icon'] }}"/>
-                    @endif
-                </div>
-                <div class="ml-3 w-0 flex-1">
-                    @if($title)
-                        <p class="text-sm font-medium {{ $colors[$type]['text'] }}">
-                            {{ $title }}
-                        </p>
-                    @endif
-                    <p class="mt-1 text-sm {{ $colors[$type]['text'] }}">
-                        {{ $text }}
-                    </p>
-                </div>
-                <div class="ml-4 flex flex-shrink-0">
-                    <button @click="show = false"
-                            type="button"
-                            class="inline-flex rounded-md p-1.5 {{ $colors[$type]['button'] }} {{ $colors[$type]['hover'] }}">
-                        <span class="sr-only">Sluiten</span>
-                        <x-heroicon-s-x-mark class="h-5 w-5"/>
-                    </button>
-                </div>
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 translate-y-3"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0 translate-y-3"
+         role="{{ $type === 'error' ? 'alert' : 'status' }}"
+         class="fixed bottom-0 right-0 z-50 m-4 w-96 max-w-[calc(100%-2rem)] sm:m-6">
+        <div @class([
+            'flex items-start gap-3 rounded-lg border border-l-4 bg-white p-4 shadow-lg dark:bg-gray-800',
+            'border-gray-200 border-l-brand dark:border-gray-700 dark:border-l-brand' => $type === 'success',
+            'border-gray-200 border-l-red-600 dark:border-gray-700 dark:border-l-red-400' => $type === 'error',
+        ])>
+            <div class="min-w-0 flex-1 text-sm">
+                <p class="font-semibold text-gray-900 dark:text-white">{{ $title ?? ($type === 'success' ? 'Gelukt' : 'Er ging iets mis') }}</p>
+                <p class="mt-0.5 text-gray-600 dark:text-gray-300">{{ $text }}</p>
             </div>
+            <button @click="show = false" type="button" class="-m-1 rounded-md p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-white">
+                <span class="sr-only">Sluiten</span>
+                <x-heroicon-o-x-mark class="h-5 w-5"/>
+            </button>
         </div>
     </div>
-@endif 
+@endif

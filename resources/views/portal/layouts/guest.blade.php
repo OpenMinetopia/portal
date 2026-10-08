@@ -3,20 +3,11 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Overzicht') — {{ config('app.name', 'Minetopia Panel') }}</title>
-
+    <title>@yield('title') — {{ config('app.name', 'Minetopia Panel') }}</title>
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}">
-    <link rel="manifest" href="{{ asset('site.webmanifest') }}">
-    <meta name="theme-color" content="#ffffff">
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400..800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
-
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script>
         if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -27,7 +18,6 @@
     </script>
 </head>
 <body class="h-full bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100" x-data="{
-    sidebarOpen: false,
     darkMode: document.documentElement.classList.contains('dark'),
     toggleDarkMode() {
         this.darkMode = !this.darkMode;
@@ -35,19 +25,29 @@
         document.documentElement.classList.toggle('dark', this.darkMode);
     }
 }">
-    @include('portal.layouts.partials.sidebar')
+    <div class="flex min-h-full flex-col justify-center px-4 py-12">
+        <div class="mx-auto w-full max-w-sm animate-omt-rise">
+            <div class="flex items-center justify-between">
+                <span class="omt-hop flex items-center gap-3 text-base font-bold tracking-tight">
+                    <img src="{{ asset('images/brand/logo.svg') }}" alt="" class="omt-pixel h-7 w-7 animate-omt-land">
+                    {{ config('app.name') }}
+                </span>
+                <button @click="toggleDarkMode" type="button" class="rounded-md p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
+                        :aria-label="darkMode ? 'Licht thema' : 'Donker thema'">
+                    <x-heroicon-o-moon x-show="!darkMode" class="h-5 w-5" />
+                    <x-heroicon-o-sun x-show="darkMode" x-cloak class="h-5 w-5" />
+                </button>
+            </div>
 
-    <div class="min-h-full bg-gray-50 lg:pl-64 dark:bg-gray-900">
-        @include('portal.layouts.partials.header')
+            <h1 class="mt-10 text-3xl font-bold tracking-tight">@yield('header')</h1>
+            @hasSection('subheader')
+                <p class="mt-2 text-gray-600 dark:text-gray-400">@yield('subheader')</p>
+            @endif
 
-        <main class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-            <div class="animate-omt-rise">
+            <div class="mt-8">
                 @yield('content')
             </div>
-        </main>
+        </div>
     </div>
-
-    @stack('scripts')
-    <x-notification/>
 </body>
 </html>

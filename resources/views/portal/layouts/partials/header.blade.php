@@ -1,104 +1,59 @@
-<header class="sticky top-0 z-40 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-b border-gray-100 dark:border-gray-800/80 shadow-sm dark:shadow-gray-950/50">
-    <div class="flex h-16 items-center gap-x-4 px-4 sm:px-6 lg:px-8">
-        <!-- Mobile menu button -->
-        <button type="button" 
-                @click="sidebarOpen = true" 
-                class="-m-2.5 p-2.5 text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-100 hover:bg-gray-50/90 dark:hover:bg-gray-800/90 rounded-lg transition-all duration-150 lg:hidden">
-            <span class="sr-only">Open sidebar</span>
-            <x-heroicon-s-bars-3 class="h-6 w-6" />
+<header class="sticky top-0 z-30 border-b border-gray-200 bg-white/90 backdrop-blur dark:border-gray-800 dark:bg-gray-900/90">
+    <div class="mx-auto flex h-16 max-w-6xl items-center gap-x-4 px-4 sm:px-6 lg:px-8">
+        <button type="button" @click="sidebarOpen = true" class="-ml-2 rounded-md p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white lg:hidden">
+            <span class="sr-only">Menu openen</span>
+            <x-heroicon-o-bars-3 class="h-6 w-6" />
         </button>
 
-        <!-- Page Title -->
-        @hasSection('header')
-            <div class="flex-1">
-                <h1 class="text-lg font-semibold text-gray-900 dark:text-white">
-                    @yield('header')
-                </h1>
-            </div>
-        @endif
+        <h1 class="min-w-0 flex-1 truncate text-lg font-bold tracking-tight text-gray-900 dark:text-white">
+            @yield('header')
+        </h1>
 
-        <div class="flex justify-end gap-2">
-            <!-- Notifications -->
-            <div class="relative" x-data="{ open: false }">
-                <button @click="open = !open" 
-                        class="relative rounded-lg p-2.5 text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-100 hover:bg-gray-50/90 dark:hover:bg-gray-800/90 transition-all duration-150">
-                    <span class="sr-only">View notifications</span>
-                    <x-heroicon-s-bell class="h-6 w-6" />
-                    @if(auth()->user()->unreadNotifications->count() > 0)
-                        <span class="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500"></span>
+        @php($unread = auth()->user()->unreadNotifications->count())
+        <div class="relative" x-data="{ open: false }">
+            <button @click="open = !open" class="relative rounded-md p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
+                    :aria-expanded="open">
+                <span class="sr-only">Notificaties{{ $unread ? " ($unread ongelezen)" : '' }}</span>
+                <x-heroicon-o-bell class="h-6 w-6" />
+                @if ($unread > 0)
+                    <span class="absolute right-1.5 top-1.5 h-2 w-2 rounded-sm bg-brand ring-2 ring-white dark:ring-gray-900"></span>
+                @endif
+            </button>
+
+            <div x-show="open" x-cloak
+                 @click.away="open = false"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 -translate-y-1"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-100"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 class="absolute right-0 z-10 mt-2 w-80 origin-top-right rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
+                <div class="flex items-center justify-between border-b border-gray-200 px-4 py-3 dark:border-gray-700">
+                    <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Notificaties</h2>
+                    @if ($unread > 0)
+                        <form action="{{ route('notifications.mark-all-read') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="text-sm text-indigo-600 hover:underline dark:text-indigo-400">Alles gelezen</button>
+                        </form>
                     @endif
-                </button>
+                </div>
 
-                <!-- Notifications Panel -->
-                <div x-show="open" 
-                     @click.away="open = false"
-                     x-transition:enter="transition ease-out duration-200"
-                     x-transition:enter-start="opacity-0 scale-95"
-                     x-transition:enter-end="opacity-100 scale-100"
-                     x-transition:leave="transition ease-in duration-75"
-                     x-transition:leave-start="opacity-100 scale-100"
-                     x-transition:leave-end="opacity-0 scale-95"
-                     class="absolute right-0 z-10 mt-2 w-80 origin-top-right rounded-md bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                    <div class="p-4">
-                        <div class="flex items-center justify-between mb-4">
-                            <h2 class="text-base font-semibold text-gray-900 dark:text-white">Notificaties</h2>
-                            @if(auth()->user()->unreadNotifications->count() > 0)
-                                <form action="{{ route('notifications.mark-all-read') }}" method="POST">
-                                    @csrf
-                                    <button type="submit" class="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-500">
-                                        Alles gelezen
-                                    </button>
-                                </form>
-                            @endif
+                <div class="max-h-96 divide-y divide-gray-200 overflow-y-auto dark:divide-gray-700">
+                    @forelse (auth()->user()->notifications()->latest()->take(5)->get() as $notification)
+                        <div class="flex gap-3 px-4 py-3">
+                            <span @class(['mt-1.5 h-2 w-2 shrink-0 rounded-sm', 'bg-brand' => ! $notification->read_at, 'bg-transparent' => $notification->read_at])></span>
+                            <div class="min-w-0 flex-1">
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $notification->data['title'] }}</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">{{ $notification->data['message'] }}</p>
+                                <p class="mt-1 text-xs text-gray-500">{{ $notification->created_at->diffForHumans() }}</p>
+                            </div>
                         </div>
-                        
-                        <div class="space-y-4 max-h-96 overflow-y-auto">
-                            @forelse(auth()->user()->notifications()->latest()->take(5)->get() as $notification)
-                                <div @class([
-                                    'flex gap-4 p-3 rounded-lg transition-colors',
-                                    'bg-gray-50 dark:bg-gray-700/50' => !$notification->read_at,
-                                    'hover:bg-gray-50 dark:hover:bg-gray-700/50' => $notification->read_at,
-                                ])>
-                                    <div class="flex-shrink-0">
-                                        @if($notification->data['type'] === 'bought')
-                                            <x-heroicon-s-shopping-cart class="h-6 w-6 text-green-500"/>
-                                        @else
-                                            <x-heroicon-s-banknotes class="h-6 w-6 text-green-500"/>
-                                        @endif
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <p class="text-sm font-medium text-gray-900 dark:text-white">
-                                            {{ $notification->data['title'] }}
-                                        </p>
-                                        <p class="text-sm text-gray-500 dark:text-gray-400">
-                                            {{ $notification->data['message'] }}
-                                        </p>
-                                        <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">
-                                            {{ $notification->created_at->diffForHumans() }}
-                                        </p>
-                                    </div>
-                                </div>
-                            @empty
-                                <div class="text-center py-4">
-                                    <x-heroicon-o-bell class="mx-auto h-12 w-12 text-gray-400"/>
-                                    <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">Geen notificaties</h3>
-                                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Je hebt nog geen notificaties ontvangen.</p>
-                                </div>
-                            @endforelse
-                        </div>
-                    </div>
+                    @empty
+                        <p class="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">Je hebt nog geen notificaties.</p>
+                    @endforelse
                 </div>
             </div>
-
-            <!-- Logout Button -->
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" 
-                        class="rounded-lg p-2.5 text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-100 hover:bg-gray-50/90 dark:hover:bg-gray-800/90 transition-all duration-150">
-                    <span class="sr-only">Log out</span>
-                    <x-heroicon-s-arrow-right-on-rectangle class="h-6 w-6" />
-                </button>
-            </form>
         </div>
     </div>
-</header> 
+</header>

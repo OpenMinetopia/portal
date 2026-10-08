@@ -1,3 +1,38 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    html { -webkit-font-smoothing: antialiased; }
+    ::selection { background: #93d879; color: #141414; }
+    :focus-visible { outline: 3px solid #3f6b30; outline-offset: 2px; }
+    .dark :focus-visible { outline-color: #93d879; }
+    [x-cloak] { display: none !important; }
+}
+
+@layer components {
+    /* The pixel logo is pixel art: never smooth it. */
+    .omt-pixel { image-rendering: pixelated; }
+
+    /* Sidebar link: a small green square pops in on hover and stays on the active page. */
+    .omt-nav-link { @apply flex items-center gap-x-3 rounded-md px-2 py-1.5 text-sm text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white; }
+    .omt-nav-link::before { content: ""; width: 7px; height: 7px; flex: none; margin-right: -4px; background: #93d879; transform: scale(0) rotate(-45deg); transition: transform 300ms cubic-bezier(.3, 1.6, .5, 1); }
+    .omt-nav-link:hover::before, .omt-nav-link[aria-current]::before { transform: none; }
+    .omt-nav-link[aria-current] { @apply bg-gray-100 font-semibold text-gray-900 dark:bg-gray-800 dark:text-white; }
+    .omt-nav-link svg { @apply h-5 w-5 shrink-0 text-gray-400 dark:text-gray-500; }
+    .omt-nav-link[aria-current] svg { @apply text-gray-700 dark:text-gray-300; }
+
+    /* Logo hop on hover */
+    .omt-hop:hover .omt-pixel { animation: omt-hop 450ms cubic-bezier(.2, .8, .2, 1); }
+}
+
+@keyframes omt-hop {
+    0% { transform: none; }
+    30% { transform: translateY(-5px) scaleY(1.06); }
+    60% { transform: translateY(0) scale(1.08, .9); }
+    100% { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 1ms !important; transition-duration: 1ms !important; }
+}
