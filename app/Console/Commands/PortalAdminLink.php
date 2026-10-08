@@ -2,13 +2,16 @@
 
 namespace App\Console\Commands;
 
+use App\Models\User;
 use App\Services\Tenancy\AdminClaim;
 use App\Support\Portal;
 use Illuminate\Console\Command;
 
 class PortalAdminLink extends Command
 {
-    protected $signature = 'portal:admin-link {--hours= : Hoe lang de link geldig is (standaard 24)}';
+    protected $signature = 'portal:admin-link
+        {--hours= : Hoe lang de link geldig is (standaard 24)}
+        {--if-no-admin : Alleen als er nog geen beheerder is}';
 
     protected $description = 'Maak een eenmalige link waarmee je beheerder van het portaal wordt';
 
@@ -18,6 +21,10 @@ class PortalAdminLink extends Command
             $this->error('Op het gehoste platform maakt de OpenMinetopia-website deze links.');
 
             return self::FAILURE;
+        }
+
+        if ($this->option('if-no-admin') && User::whereHas('roles', fn ($roles) => $roles->where('is_admin', true))->exists()) {
+            return self::SUCCESS;
         }
 
         $hours = (int) ($this->option('hours') ?: config('portal.admin_link_hours'));

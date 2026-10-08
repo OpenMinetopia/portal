@@ -94,3 +94,15 @@ it('reaches a plugin on the local machine or network without the hosted address 
     expect(app(\App\Services\Plugin\PluginApiService::class)->get('/api/plots'))->toBe(['success' => true, 'plots' => []]);
     Http::assertSent(fn ($request) => $request->url() === 'http://127.0.0.1:4567/api/plots' && $request->hasHeader('X-API-Key', 'plt_single'));
 });
+
+it('only prints an admin link while nobody is admin when asked to', function () {
+    $this->artisan('portal:admin-link --if-no-admin')->expectsOutputToContain('beheerder-worden')->assertSuccessful();
+
+    $user = User::create([
+        'name' => 'Eigenaar', 'email' => 'eigenaar@example.com', 'minecraft_username' => 'Notch',
+        'password' => Hash::make('geheim123'), 'token' => Str::random(32),
+    ]);
+    $user->roles()->attach(Role::where('is_admin', true)->first());
+
+    $this->artisan('portal:admin-link --if-no-admin')->doesntExpectOutputToContain('beheerder-worden')->assertSuccessful();
+});

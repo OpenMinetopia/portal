@@ -34,6 +34,7 @@ class PortalInstall extends Command
         {--db-username=}
         {--db-password=}
         {--new-keys : Maak nieuwe api-keys, ook als er al keys zijn}
+        {--no-admin-link : Geen beheerderslink maken}
         {--environment=production : APP_ENV}';
 
     protected $description = 'Richt een eigen portaal in: .env, sleutels, database en de config.yml voor de plugin';
@@ -48,7 +49,8 @@ class PortalInstall extends Command
 
         $env = new EnvFile($this->laravel->environmentFilePath());
 
-        if (! $env->exists()) {
+        // An empty .env happens in Docker, where the file is mounted from the host.
+        if (! $env->exists() || filesize($this->laravel->environmentFilePath()) === 0) {
             copy(base_path('.env.example'), $this->laravel->environmentFilePath());
         }
 
@@ -147,13 +149,22 @@ class PortalInstall extends Command
             $this->callSilently('storage:link');
         }
 
+        // The web server reads the cached config; make it pick up the new .env.
+        if ($this->laravel->configurationIsCached()) {
+            $this->callSilently('config:cache');
+        }
+
         $this->printPluginConfig($values, $pluginHost, $pluginPort);
 
-        $this->newLine();
-        $this->line('<options=bold>Beheerder worden</>');
-        $this->call('portal:admin-link');
+        if (! $this->option('no-admin-link')) {
+            $this->newLine();
+            $this->line('<options=bold>Beheerder worden</>');
+            $this->call('portal:admin-link');
+        }
 
-        $this->line('Test daarna de verbinding met de plugin: <options=bold>php artisan portal:check</>');
+        if (! $this->option('no-interaction')) {
+            $this->line('Test daarna de verbinding met de plugin: <options=bold>php artisan portal:check</>');
+        }
 
         return self::SUCCESS;
     }

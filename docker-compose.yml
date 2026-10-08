@@ -1,0 +1,58 @@
+# OpenMinetopia Portal with MariaDB. FrankenPHP in the portal image is also the
+# web server: with a domain in PORTAL_SERVER_NAME it gets an HTTPS certificate
+# by itself; with ":80" it serves plain HTTP (for an IP address).
+#
+# install.sh writes the .env next to this file and the portal's own settings to
+# portal.env. See README.md.
+name: openminetopia-portal
+
+services:
+  portal:
+    image: ${PORTAL_IMAGE:-ghcr.io/openminetopia/portal:latest}
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SERVER_NAME: ${PORTAL_SERVER_NAME:-:80}
+      CADDY_GLOBAL_OPTIONS: ${PORTAL_CADDY_OPTIONS:-}
+      DB_CONNECTION: mariadb
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: portal
+      DB_USERNAME: portal
+      DB_PASSWORD: ${DB_PASSWORD:?Zet DB_PASSWORD in .env}
+    ports:
+      - "${PORTAL_HTTP_PORT:-80}:80"
+      - "${PORTAL_HTTPS_PORT:-443}:443"
+      - "${PORTAL_HTTPS_PORT:-443}:443/udp"
+    extra_hosts:
+      # So the portal can reach a plugin on this machine as host.docker.internal.
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./portal.env:/app/.env
+      - storage:/app/storage
+      - caddy-data:/data/caddy
+      - caddy-config:/config/caddy
+
+  db:
+    image: mariadb:11
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: portal
+      MARIADB_USER: portal
+      MARIADB_PASSWORD: ${DB_PASSWORD:?Zet DB_PASSWORD in .env}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Zet DB_ROOT_PASSWORD in .env}
+    volumes:
+      - db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+volumes:
+  storage:
+  db:
+  caddy-data:
+  caddy-config:
