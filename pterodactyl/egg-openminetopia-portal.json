@@ -1,0 +1,132 @@
+{
+    "_comment": "DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY PTERODACTYL PANEL - PTERODACTYL.IO",
+    "meta": {
+        "version": "PTDL_v2",
+        "update_url": null
+    },
+    "exported_at": "2026-10-09T00:00:00+00:00",
+    "name": "OpenMinetopia Portal",
+    "author": "beheer@openminetopia.nl",
+    "description": "Het webportaal voor een Minecraft-server met de OpenMinetopia-plugin: bank, plots, makelaar, bedrijven, vergunningen en politie. Maak eerst een database aan op het tabblad Databases en vul die gegevens in bij Startup. Bij de eerste start toont de console de regels voor de config.yml van de plugin en een link om beheerder te worden. Het portaal luistert met HTTP op de poort van deze server; zet er voor HTTPS een reverse proxy of Cloudflare voor.",
+    "features": null,
+    "docker_images": {
+        "OpenMinetopia Portal": "ghcr.io/openminetopia/portal-pterodactyl:latest"
+    },
+    "file_denylist": [],
+    "startup": "portal-start",
+    "config": {
+        "files": "{}",
+        "startup": "{\"done\": \"Portaal draait op poort\"}",
+        "logs": "{}",
+        "stop": "^C"
+    },
+    "scripts": {
+        "installation": {
+            "script": "#!/bin/bash\n# The app lives in the image; the server's folder only holds .env and storage.\nset -e\ncd /mnt/server\nmkdir -p storage/app/public storage/logs storage/framework/cache/data storage/framework/sessions storage/framework/views\ntouch .env\necho \"Klaar. Start de server: het portaal richt zichzelf in met de variabelen van deze server.\"\n",
+            "container": "ghcr.io/openminetopia/portal-pterodactyl:latest",
+            "entrypoint": "bash"
+        }
+    },
+    "variables": [
+        {
+            "name": "Naam van het portaal",
+            "description": "Spelers zien deze naam bovenaan het portaal.",
+            "env_variable": "PORTAL_NAME",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|max:60",
+            "field_type": "text"
+        },
+        {
+            "name": "Adres van het portaal",
+            "description": "Waar spelers het portaal openen, met http:// of https://. Bijvoorbeeld https://portaal.jouwserver.nl, of http://IP:POORT van deze server.",
+            "env_variable": "PORTAL_URL",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|url",
+            "field_type": "text"
+        },
+        {
+            "name": "Serveradres voor spelers",
+            "description": "Wat spelers in Minecraft invullen, bijvoorbeeld play.jouwserver.nl. Mag leeg blijven.",
+            "env_variable": "SERVER_ADDRESS",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "nullable|string|max:255",
+            "field_type": "text"
+        },
+        {
+            "name": "Adres van de plugin",
+            "description": "IP-adres van de Minecraft-server waar de OpenMinetopia-plugin draait. Niet 127.0.0.1: dat is dit portaal zelf.",
+            "env_variable": "PLUGIN_HOST",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|max:255",
+            "field_type": "text"
+        },
+        {
+            "name": "Poort van de plugin",
+            "description": "rest-api → port in de config.yml van de plugin.",
+            "env_variable": "PLUGIN_PORT",
+            "default_value": "4567",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|integer|between:1,65535",
+            "field_type": "text"
+        },
+        {
+            "name": "Database host",
+            "description": "Van het tabblad Databases van deze server.",
+            "env_variable": "DB_HOST",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|max:255",
+            "field_type": "text"
+        },
+        {
+            "name": "Database poort",
+            "description": "Van het tabblad Databases van deze server.",
+            "env_variable": "DB_PORT",
+            "default_value": "3306",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|integer|between:1,65535",
+            "field_type": "text"
+        },
+        {
+            "name": "Database naam",
+            "description": "Van het tabblad Databases van deze server.",
+            "env_variable": "DB_DATABASE",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|max:64",
+            "field_type": "text"
+        },
+        {
+            "name": "Database gebruiker",
+            "description": "Van het tabblad Databases van deze server.",
+            "env_variable": "DB_USERNAME",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|max:64",
+            "field_type": "text"
+        },
+        {
+            "name": "Database wachtwoord",
+            "description": "Van het tabblad Databases van deze server.",
+            "env_variable": "DB_PASSWORD",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|max:255",
+            "field_type": "text"
+        }
+    ]
+}
