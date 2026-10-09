@@ -80,7 +80,7 @@ class DemoSeeder extends Seeder
 
         PermitRequest::updateOrCreate(['user_id' => $users['Lotte']->id, 'permit_type_id' => $building->id], [
             'form_data' => ['Plot' => 'westerdam_bakkerij', 'Wat ga je bouwen?' => 'Een terras aan de achterkant van de bakkerij.'],
-            'status' => 'pending', 'price' => 2500, 'bank_account_uuid' => 'a1f0c9e2-0000-4000-8000-000000000004',
+            'status' => 'pending', 'price' => 2500, 'bank_account_uuid' => 'e9a24f71-3b8c-4d05-a6e2-8f1c7d3b2a90',
         ]);
 
         $soleTrader = CompanyType::updateOrCreate(['name' => 'Eenmanszaak'], [
