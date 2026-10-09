@@ -33,3 +33,17 @@ it('fills a portal that works without a minecraft server', function () {
 
     expect(User::count())->toBe(4);
 });
+
+it('has a demo login only in demo mode', function () {
+    $this->get('http://portaal.test/demo')->assertNotFound();
+
+    config(['portal.demo' => true]);
+    $this->app->bind(PluginApiService::class, FakePluginApiService::class);
+    $this->app->bind(MojangApiService::class, FakeMojangApiService::class);
+    $this->seed(DemoSeeder::class);
+
+    $this->get('http://portaal.test/login')->assertSee(DemoSeeder::EMAIL);
+    $this->get('http://portaal.test/demo?theme=dark&naar=/portal/plots')->assertOk()->assertSee('"dark"', false)->assertSee('"\/portal\/plots"', false);
+    $this->assertAuthenticated();
+    $this->get('http://portaal.test/demo?naar=//evil.example')->assertSee('location.replace("\/")', false);
+});

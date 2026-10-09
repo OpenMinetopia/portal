@@ -24,6 +24,7 @@ use App\Http\Controllers\Portal\PlotListingController;
 use App\Http\Controllers\Portal\BankTransactionController;
 use App\Http\Controllers\Portal\Admin\AdminPlotController;
 use App\Http\Controllers\Auth\AdminClaimController;
+use App\Http\Controllers\Demo\DemoLoginController;
 
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisterController::class, 'create'])->name('register');
@@ -32,6 +33,9 @@ Route::middleware('guest')->group(function () {
     Route::get('login', [LoginController::class, 'create'])->name('login');
     Route::post('login', [LoginController::class, 'store'])->middleware('throttle:login');
 });
+
+// Demo mode only (PORTAL_DEMO=true): log in as the demo admin.
+Route::get('demo', DemoLoginController::class)->name('demo');
 
 // One-time link from the OMT website that makes whoever opens it an admin of this portal.
 Route::get('beheerder-worden/{token}', AdminClaimController::class)

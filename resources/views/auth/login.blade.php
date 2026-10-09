@@ -5,6 +5,11 @@
 @section('subheader', 'Log in met je portaal-account.')
 
 @section('content')
+    @if (\App\Support\Portal::demo())
+        <div class="mb-6 rounded-md border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-900 dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-200">
+            Demo: log in met <span class="font-mono">{{ \Database\Seeders\DemoSeeder::EMAIL }}</span> en wachtwoord <span class="font-mono">{{ \Database\Seeders\DemoSeeder::PASSWORD }}</span>.
+        </div>
+    @endif
     <form method="POST" action="{{ route('login') }}" class="space-y-5">
         @csrf
         <x-portal.input name="email" type="email" label="E-mailadres" required autofocus autocomplete="email" />

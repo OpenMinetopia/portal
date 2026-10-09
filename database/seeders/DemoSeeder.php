@@ -98,7 +98,7 @@ class DemoSeeder extends Seeder
             'company_type_id' => $soleTrader->id, 'user_id' => $users['Lotte']->id,
             'form_data' => ['Wat doet je bedrijf?' => 'Brood, taart en koffie aan de Markt.'],
             'status' => 'approved', 'handled_by' => $users['Burgemeester']->id, 'handled_at' => now()->subWeeks(3), 'price' => 1000,
-            'bank_account_uuid' => 'a1f0c9e2-0000-4000-8000-000000000003',
+            'bank_account_uuid' => DemoWorld::PLAYERS['Lotte'],
         ]);
         Company::updateOrCreate(['name' => 'Bakkerij Lotte'], [
             'slug' => 'bakkerij-lotte', 'type_id' => $soleTrader->id, 'owner_id' => $users['Lotte']->id,
@@ -108,12 +108,12 @@ class DemoSeeder extends Seeder
         CompanyRequest::updateOrCreate(['name' => 'Havenbedrijf Daan'], [
             'company_type_id' => $soleTrader->id, 'user_id' => $users['Daan']->id,
             'form_data' => ['Wat doet je bedrijf?' => 'Laden en lossen in Noordhaven.'],
-            'status' => 'pending', 'price' => 1000, 'bank_account_uuid' => 'a1f0c9e2-0000-4000-8000-000000000005',
+            'status' => 'pending', 'price' => 1000, 'bank_account_uuid' => DemoWorld::PLAYERS['Daan'],
         ]);
 
         PlotListing::updateOrCreate(['plot_name' => 'westerdam_kade_12'], [
             'seller_id' => $users['Burgemeester']->id,
-            'payout_bank_account_uuid' => array_key_first(DemoWorld::ACCOUNTS),
+            'payout_bank_account_uuid' => DemoWorld::PLAYERS['Burgemeester'],
             'price' => 85000, 'description' => 'Karakteristiek grachtenpand met uitzicht op de Kade. Drie verdiepingen en een kelder.',
             'min_x' => 240, 'min_y' => 64, 'min_z' => -280, 'max_x' => 252, 'max_y' => 95, 'max_z' => -268,
             'instant_buy' => true, 'status' => 'active',
