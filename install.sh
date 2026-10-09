@@ -136,7 +136,9 @@ else
     fi
 fi
 PLUGIN_PORT="$(ask "Poort van de plugin-API (rest-api → port)" "${OMT_PLUGIN_PORT:-4567}")"
-[[ "$PLUGIN_PORT" =~ ^[0-9]+$ ]] && [ "$PLUGIN_PORT" -ge 1 ] && [ "$PLUGIN_PORT" -le 65535 ] || fail "De poort moet een getal tussen 1 en 65535 zijn."
+if ! [[ "$PLUGIN_PORT" =~ ^[0-9]+$ ]] || [ "$PLUGIN_PORT" -lt 1 ] || [ "$PLUGIN_PORT" -gt 65535 ]; then
+    fail "De poort moet een getal tussen 1 en 65535 zijn."
+fi
 
 # 3. Files.
 mkdir -p "$OMT_DIR"
