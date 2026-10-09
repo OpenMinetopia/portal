@@ -56,8 +56,9 @@ is_ip() {
     [[ "$1" =~ ^[0-9]{1,3}(\.[0-9]{1,3}){3}$ ]] || [[ "$1" == *:*:* ]]
 }
 
+# Never from stdin: with `curl … | bash` the rest of this script is still waiting there.
 compose() {
-    docker compose --project-directory "$OMT_DIR" -f "$OMT_DIR/docker-compose.yml" "$@"
+    docker compose --project-directory "$OMT_DIR" -f "$OMT_DIR/docker-compose.yml" "$@" </dev/null
 }
 
 echo
