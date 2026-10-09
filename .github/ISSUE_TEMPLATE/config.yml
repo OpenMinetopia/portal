@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Hulp en vragen
+    url: https://discord.gg/6E3p8mPSVf
+    about: Vragen over installeren of gebruiken stel je het snelst op Discord.
+  - name: Documentatie
+    url: https://wiki.openminetopia.nl
+    about: Uitleg over de plugin en het portaal.

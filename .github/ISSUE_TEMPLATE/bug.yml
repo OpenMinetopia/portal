@@ -1,0 +1,44 @@
+name: Bug melden
+description: Iets werkt niet zoals het hoort.
+labels: [bug]
+body:
+  - type: textarea
+    id: wat
+    attributes:
+      label: Wat gaat er mis?
+      description: Wat zag je, en wat had je verwacht?
+    validations:
+      required: true
+  - type: textarea
+    id: stappen
+    attributes:
+      label: Hoe gebeurt het?
+      description: De stappen om het na te doen.
+      placeholder: |
+        1. Ga naar ...
+        2. Klik op ...
+        3. ...
+    validations:
+      required: true
+  - type: dropdown
+    id: installatie
+    attributes:
+      label: Hoe draait je portaal?
+      options:
+        - Gehost via openminetopia.nl
+        - Docker (install.sh)
+        - Pterodactyl
+        - Zelf geïnstalleerd (PHP en webserver)
+    validations:
+      required: true
+  - type: input
+    id: versie
+    attributes:
+      label: Versie
+      description: De image-versie, of de commit als je zelf installeert.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Foutmelding of logs
+      description: Bijvoorbeeld uit `openminetopia-portal logs` of storage/logs. Haal wachtwoorden en api-keys eruit.
+      render: text

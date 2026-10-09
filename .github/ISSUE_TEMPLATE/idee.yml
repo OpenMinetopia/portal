@@ -1,0 +1,15 @@
+name: Idee of wens
+description: Iets dat het portaal beter zou maken.
+labels: [idee]
+body:
+  - type: textarea
+    id: idee
+    attributes:
+      label: Wat zou je willen?
+    validations:
+      required: true
+  - type: textarea
+    id: waarom
+    attributes:
+      label: Waarom?
+      description: Welk probleem lost het op voor jou of je spelers?
