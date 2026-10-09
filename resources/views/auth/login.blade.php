@@ -10,15 +10,20 @@
             Demo: log in met <span class="font-mono">{{ \Database\Seeders\DemoSeeder::EMAIL }}</span> en wachtwoord <span class="font-mono">{{ \Database\Seeders\DemoSeeder::PASSWORD }}</span>.
         </div>
     @endif
+    <x-portal.status />
+
     <form method="POST" action="{{ route('login') }}" class="space-y-5">
         @csrf
         <x-portal.input name="email" type="email" label="E-mailadres" required autofocus autocomplete="email" />
         <x-portal.input name="password" type="password" label="Wachtwoord" required autocomplete="current-password" />
 
-        <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-            <input type="checkbox" name="remember" id="remember" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 dark:border-gray-600 dark:bg-gray-800">
-            Ingelogd blijven
-        </label>
+        <div class="flex items-center justify-between">
+            <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                <input type="checkbox" name="remember" id="remember" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 dark:border-gray-600 dark:bg-gray-800">
+                Ingelogd blijven
+            </label>
+            <a href="{{ route('password.request') }}" class="text-sm font-semibold text-indigo-600 hover:underline dark:text-indigo-400">Wachtwoord vergeten?</a>
+        </div>
 
         <button type="submit" class="w-full rounded-md bg-indigo-600 px-4 py-2.5 font-semibold text-white transition hover:bg-indigo-500 active:translate-y-px dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:hover:text-gray-900">
             Inloggen

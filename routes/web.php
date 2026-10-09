@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\MinecraftVerificationController;
 use App\Http\Controllers\Portal\DashboardController;
 use App\Http\Controllers\Portal\Admin\AdminUserController;
@@ -32,6 +34,16 @@ Route::middleware('guest')->group(function () {
 
     Route::get('login', [LoginController::class, 'create'])->name('login');
     Route::post('login', [LoginController::class, 'store'])->middleware('throttle:login');
+
+    Route::get('wachtwoord-vergeten', [ForgotPasswordController::class, 'create'])->name('password.request');
+    Route::post('wachtwoord-vergeten', [ForgotPasswordController::class, 'store'])
+        ->middleware('throttle:password-reset')
+        ->name('password.email');
+
+    Route::get('wachtwoord-herstellen/{token}', [ResetPasswordController::class, 'create'])->name('password.reset');
+    Route::post('wachtwoord-herstellen', [ResetPasswordController::class, 'store'])
+        ->middleware('throttle:password-reset')
+        ->name('password.update');
 });
 
 // Demo mode only (PORTAL_DEMO=true): log in as the demo admin.

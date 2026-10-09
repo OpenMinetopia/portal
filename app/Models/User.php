@@ -6,6 +6,7 @@ use App\Services\Plugin\PlayerService;
 use App\Services\Plugin\BankingService;
 use App\Services\Plugin\CriminalRecordService;
 use App\Services\Plugin\PlotService;
+use App\Notifications\ResetPassword;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -39,6 +40,11 @@ class User extends Authenticatable
         'minecraft_verified' => 'boolean',
         'password' => 'hashed',
     ];
+
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify((new ResetPassword($token))->locale('nl'));
+    }
 
     // Relationships
     public function roles(): BelongsToMany

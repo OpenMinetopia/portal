@@ -69,5 +69,8 @@ class TenantStorageBootstrapper implements TenancyBootstrapper
         $this->app->forgetInstance('session.store');
         $this->app['session']->forgetDrivers();
         $this->app['auth']->forgetGuards();
+
+        // The redirector flashes (errors, status) to the session it was made with.
+        $this->app->forgetInstance('redirect');
     }
 }

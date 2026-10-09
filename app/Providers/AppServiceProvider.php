@@ -37,6 +37,7 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('login', fn (Request $request) => Limit::perMinute(5)->by('login|'.$perTenant($request)));
         RateLimiter::for('register', fn (Request $request) => Limit::perMinute(3)->by('register|'.$perTenant($request)));
+        RateLimiter::for('password-reset', fn (Request $request) => Limit::perMinute(5)->by('password-reset|'.$perTenant($request)));
         RateLimiter::for('admin-claim', fn (Request $request) => Limit::perMinute(10)->by('admin-claim|'.$perTenant($request)));
         RateLimiter::for('minecraft-verify', fn (Request $request) => Limit::perMinute(30)->by('minecraft-verify|'.$perTenant($request)));
     }

@@ -127,6 +127,22 @@ Herstart daarna de Minecraft-server en test de verbinding met `openminetopia-por
 
 Koppelen met `/koppel` gaat in de huidige plugin altijd via HTTPS. Draait je portaal zonder HTTPS, dan werkt koppelen pas met een plugin-versie die `http://` in `portal.url` ondersteunt.
 
+## E-mail
+
+Spelers die hun wachtwoord vergeten zijn, krijgen een link per e-mail. Daarvoor heeft het portaal een mailserver nodig. Zet je SMTP-gegevens in de `.env` van het portaal (bij Docker is dat `portal.env` in `/opt/openminetopia-portal`, bij Pterodactyl `.env` in de File Manager):
+
+```dotenv
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.jouwprovider.nl
+MAIL_PORT=587
+MAIL_USERNAME=portaal@jouwserver.nl
+MAIL_PASSWORD=…
+MAIL_FROM_ADDRESS=portaal@jouwserver.nl
+MAIL_FROM_NAME="Jouw Portaal"
+```
+
+Herstart daarna het portaal (bij Docker: `docker compose restart portal` in `/opt/openminetopia-portal`). Zonder mailserver komen de e-mails in `storage/logs/laravel.log` terecht en niet bij de speler.
+
 ## Proberen zonder Minecraft-server
 
 Zet `PORTAL_DEMO=true` in `.env` en laad de demodata:
