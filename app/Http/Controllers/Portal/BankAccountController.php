@@ -18,6 +18,10 @@ class BankAccountController extends Controller
 
     public function show(string $uuid)
     {
+        if (!collect(auth()->user()->bank_accounts)->contains('uuid', $uuid)) {
+            abort(403);
+        }
+
         $bankingService = app(BankingService::class);
         $account = $bankingService->getBankAccount($uuid);
         $users = $bankingService->getBankAccountUsers($uuid);

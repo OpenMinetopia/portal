@@ -1,5 +1,6 @@
 <?php
 
+use App\Demo\DemoWorld;
 use App\Demo\FakeMojangApiService;
 use App\Demo\FakePluginApiService;
 use App\Models\User;
@@ -46,4 +47,17 @@ it('has a demo login only in demo mode', function () {
     $this->get('http://portaal.test/demo?theme=dark&naar=/portal/plots')->assertOk()->assertSee('"dark"', false)->assertSee('"\/portal\/plots"', false);
     $this->assertAuthenticated();
     $this->get('http://portaal.test/demo?naar=//evil.example')->assertSee('location.replace("\/")', false);
+});
+
+it('only shows a bank account to its own users', function () {
+    config(['portal.demo' => true]);
+    $this->app->bind(PluginApiService::class, FakePluginApiService::class);
+    $this->app->bind(MojangApiService::class, FakeMojangApiService::class);
+    $this->seed(DemoSeeder::class);
+
+    $this->post('http://portaal.test/login', ['email' => DemoSeeder::EMAIL, 'password' => DemoSeeder::PASSWORD])->assertRedirect();
+
+    $this->get('http://portaal.test/portal/bank-accounts/c3e85b0a-6d14-4f2e-b7a9-52d0e8f1a6c4')->assertOk()->assertSee('Gemeente Westerdam');
+    $this->get('http://portaal.test/portal/bank-accounts/e9a24f71-3b8c-4d05-a6e2-8f1c7d3b2a90')->assertForbidden()->assertDontSee('Bakkerij Lotte');
+    $this->get('http://portaal.test/portal/bank-accounts/'.DemoWorld::PLAYERS['Lotte'])->assertForbidden();
 });
