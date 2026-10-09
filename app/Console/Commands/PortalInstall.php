@@ -263,7 +263,7 @@ class PortalInstall extends Command
 
         if ($scheme !== 'https') {
             $this->newLine();
-            $this->warn('Je portaal draait zonder HTTPS. De plugin koppelt accounts (/link) nu alleen via https://, dus koppelen werkt pas met HTTPS of met een plugin-versie die http:// in portal.url ondersteunt.');
+            $this->warn('Je portaal draait zonder HTTPS. De plugin koppelt accounts (/koppel) nu alleen via https://, dus koppelen werkt pas met HTTPS of met een plugin-versie die http:// in portal.url ondersteunt.');
         }
     }
 
