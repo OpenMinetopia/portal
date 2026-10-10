@@ -56,7 +56,19 @@
                                         <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
                                             {{ count($plot['members']) }}
                                         </td>
-                                        <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-3">
+                                        <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-3 space-x-3">
+                                            @if($brokerEnabled)
+                                                @if($listedPlotNames->contains($plot['name']))
+                                                    <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20 dark:bg-green-500/10 dark:text-green-400 dark:ring-green-500/20">
+                                                        Te koop
+                                                    </span>
+                                                @else
+                                                    <a href="{{ route('portal.admin.plots.listings.create', $plot['name']) }}"
+                                                       class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300">
+                                                        Te koop zetten
+                                                    </a>
+                                                @endif
+                                            @endif
                                             <a href="{{ route('portal.admin.plots.show', $plot['name']) }}" 
                                                class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300">
                                                 Details

@@ -13,6 +13,30 @@
                         <h3 class="text-base font-semibold text-gray-900 dark:text-white">Plot Informatie</h3>
                         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $plot['name'] }}</p>
                     </div>
+                    @if($brokerEnabled)
+                        @if($activeListing)
+                            <div class="flex items-center gap-2">
+                                <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20 dark:bg-green-500/10 dark:text-green-400 dark:ring-green-500/20">
+                                    Te koop voor {{ $activeListing->formatted_price }}
+                                </span>
+                                <form action="{{ route('portal.plots.listings.destroy', $activeListing) }}" method="POST"
+                                      onsubmit="return confirm('Weet je zeker dat je dit plot van de markt wilt halen?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit"
+                                            class="inline-flex items-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-white dark:ring-gray-600 dark:hover:bg-gray-600">
+                                        Van de markt halen
+                                    </button>
+                                </form>
+                            </div>
+                        @else
+                            <a href="{{ route('portal.admin.plots.listings.create', $plot['name']) }}"
+                               class="inline-flex items-center gap-x-1.5 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                                <x-heroicon-m-currency-euro class="h-4 w-4"/>
+                                Te koop zetten
+                            </a>
+                        @endif
+                    @endif
                 </div>
             </div>
             <div class="px-4 py-5 sm:p-6">

@@ -183,8 +183,8 @@ class PlotListingController extends Controller
                 throw new \Exception('Failed to withdraw money from buyer account');
             }
 
-            // Deposit to seller's account
-            $depositSuccess = $this->bankingService->deposit(
+            // Deposit to seller's account, server listings without a payout account keep nothing
+            $depositSuccess = !$listing->payout_bank_account_uuid || $this->bankingService->deposit(
                 $listing->payout_bank_account_uuid,
                 $listing->price
             );
@@ -206,10 +206,12 @@ class PlotListingController extends Controller
 
             if (!$transferSuccess) {
                 // Rollback the transaction if plot transfer fails
-                $this->bankingService->withdraw(
-                    $listing->payout_bank_account_uuid,
-                    $listing->price
-                );
+                if ($listing->payout_bank_account_uuid) {
+                    $this->bankingService->withdraw(
+                        $listing->payout_bank_account_uuid,
+                        $listing->price
+                    );
+                }
                 $this->bankingService->deposit(
                     $validated['buyer_bank_account_uuid'],
                     $listing->price
@@ -249,7 +251,7 @@ class PlotListingController extends Controller
 
     public function destroy(PlotListing $listing)
     {
-        if ($listing->seller_id !== auth()->id()) {
+        if ($listing->seller_id !== auth()->id() && !auth()->user()->isAdmin()) {
             return back()->with('error', [
                 'title' => 'Actie niet mogelijk',
                 'message' => 'Je kunt alleen je eigen listings verwijderen.'
@@ -258,7 +260,11 @@ class PlotListingController extends Controller
 
         $listing->update(['status' => 'cancelled']);
 
-        return redirect()->route('portal.plots.show', $listing->plot_name)
+        $redirect = auth()->user()->isAdmin() && ($listing->is_server_listing || $listing->seller_id !== auth()->id())
+            ? redirect()->route('portal.admin.plots.show', $listing->plot_name)
+            : redirect()->route('portal.plots.show', $listing->plot_name);
+
+        return $redirect
             ->with('success', [
                 'title' => 'Plot van de markt gehaald',
                 'message' => 'Je plot staat niet meer te koop en is van de markt gehaald.'

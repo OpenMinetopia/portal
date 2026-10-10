@@ -112,7 +112,7 @@ describe('upsert', function () {
                     'primary_domain' => 'gamma.mtportal.test',
                     'plugin' => ['url' => 'http://93.184.216.34:25570', 'has_api_key' => true],
                 ])
-                ->assertJsonCount(24, 'migrations.ran')
+                ->assertJsonCount(count(glob(database_path('migrations/*.php'))), 'migrations.ran')
                 ->assertJsonMissingPath('plugin.api_key');
 
             $tenant = Tenant::find($id);

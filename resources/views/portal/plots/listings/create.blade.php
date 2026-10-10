@@ -1,9 +1,15 @@
 @extends('portal.layouts.app')
 
+@php
+    $isServerListing = $isServerListing ?? false;
+    $storeUrl = $storeUrl ?? route('portal.plots.listings.store', $plot['name']);
+    $backUrl = $backUrl ?? route('portal.plots.show', $plot['name']);
+@endphp
+
 @section('title', 'Plot te koop zetten')
 @section('header')
     <div class="flex items-center gap-4">
-        <a href="{{ route('portal.plots.show', $plot['name']) }}"
+        <a href="{{ $backUrl }}"
            class="group flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
             <x-heroicon-s-arrow-left class="w-5 h-5"/>
             Terug naar plot
@@ -22,13 +28,34 @@
                 <div class="ml-3">
                     <h3 class="text-sm font-medium text-blue-800 dark:text-blue-300">Automatisch systeem</h3>
                     <div class="mt-2 text-sm text-blue-700 dark:text-blue-200">
-                        <p>Dit is een automatisch systeem. Wanneer iemand je plot koopt, zal het automatisch worden
-                            overgedragen aan de nieuwe eigenaar. Zorg ervoor dat je plot leeg is en dat je zeker weet
-                            dat je het wilt verkopen.</p>
+                        @if($isServerListing)
+                            <p>Je zet dit plot namens {{ config('app.name') }} te koop. Wanneer iemand het plot koopt,
+                                wordt de koper automatisch de enige eigenaar.</p>
+                        @else
+                            <p>Dit is een automatisch systeem. Wanneer iemand je plot koopt, zal het automatisch worden
+                                overgedragen aan de nieuwe eigenaar. Zorg ervoor dat je plot leeg is en dat je zeker weet
+                                dat je het wilt verkopen.</p>
+                        @endif
                     </div>
                 </div>
             </div>
         </div>
+
+        @if($isServerListing && (!empty($plot['owners']) || !empty($plot['members'])))
+            <div class="bg-yellow-50 dark:bg-yellow-500/10 rounded-lg p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <x-heroicon-s-exclamation-triangle class="h-5 w-5 text-yellow-400 dark:text-yellow-300"/>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-yellow-800 dark:text-yellow-300">Dit plot heeft al eigenaren of leden</h3>
+                        <div class="mt-2 text-sm text-yellow-700 dark:text-yellow-200">
+                            <p>Bij verkoop worden alle huidige eigenaren en leden van het plot verwijderd.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
 
         <!-- Main Form Card -->
         <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg">
@@ -36,7 +63,7 @@
                 <h3 class="text-lg font-medium text-gray-900 dark:text-white">Plot te koop zetten</h3>
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Vul de details in voor je plot verkoop</p>
             </div>
-            <form action="{{ route('portal.plots.listings.store', $plot['name']) }}"
+            <form action="{{ $storeUrl }}"
                   method="POST"
                   enctype="multipart/form-data"
                   class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -102,17 +129,17 @@
                             <label for="payout_bank_account_uuid" 
                                    class="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-gray-100">
                                 <x-heroicon-s-credit-card class="w-5 h-5 text-gray-400"/>
-                                Uitbetaling bankrekening <span class="text-red-500">*</span>
+                                Uitbetaling bankrekening @unless($isServerListing)<span class="text-red-500">*</span>@endunless
                             </label>
                             <div class="relative rounded-md shadow-sm">
                                 <select name="payout_bank_account_uuid" 
                                         id="payout_bank_account_uuid"
-                                        required
+                                        @required(!$isServerListing)
                                         class="block w-full py-3 pl-3 pr-10 border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                    <option value="">Selecteer een bankrekening</option>
+                                    <option value="">{{ $isServerListing ? 'Geen uitbetaling' : 'Selecteer een bankrekening' }}</option>
                                     @foreach(auth()->user()->bank_accounts as $account)
                                         <option value="{{ $account['uuid'] }}" 
-                                                @if($account['type'] === 'PRIVATE') selected @endif>
+                                                @if(!$isServerListing && $account['type'] === 'PRIVATE') selected @endif>
                                             {{ $account['name'] }} (€ {{ number_format($account['balance'], 2, ',', '.') }})
                                         </option>
                                     @endforeach
@@ -122,7 +149,11 @@
                                 </div>
                             </div>
                             <p class="text-sm text-gray-500 dark:text-gray-400">
-                                Selecteer de bankrekening waarop je de betaling wilt ontvangen
+                                @if($isServerListing)
+                                    Optioneel. Zonder bankrekening verdwijnt het aankoopbedrag uit de economie.
+                                @else
+                                    Selecteer de bankrekening waarop je de betaling wilt ontvangen
+                                @endif
                             </p>
                         </div>
 
@@ -227,7 +258,7 @@
                             <span class="text-red-500">*</span> Verplichte velden
                         </p>
                         <div class="flex gap-3">
-                            <a href="{{ route('portal.plots.show', $plot['name']) }}"
+                            <a href="{{ $backUrl }}"
                                class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
                                 Annuleren
                             </a>

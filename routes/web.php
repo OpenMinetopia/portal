@@ -26,6 +26,7 @@ use App\Http\Controllers\Portal\PlotController;
 use App\Http\Controllers\Portal\PlotListingController;
 use App\Http\Controllers\Portal\BankTransactionController;
 use App\Http\Controllers\Portal\Admin\AdminPlotController;
+use App\Http\Controllers\Portal\Admin\AdminPlotListingController;
 use App\Http\Controllers\Auth\AdminClaimController;
 use App\Http\Controllers\Demo\DemoLoginController;
 
@@ -133,6 +134,10 @@ Route::middleware('auth')->group(function () {
                 Route::delete('/plots/{name}/owners', [AdminPlotController::class, 'removeOwner'])->name('plots.owners.remove');
                 Route::post('/plots/{name}/members', [AdminPlotController::class, 'addMember'])->name('plots.members.add');
                 Route::delete('/plots/{name}/members', [AdminPlotController::class, 'removeMember'])->name('plots.members.remove');
+                Route::middleware('broker.enabled')->group(function () {
+                    Route::get('/plots/{name}/verkopen', [AdminPlotListingController::class, 'create'])->name('plots.listings.create');
+                    Route::post('/plots/{name}/verkopen', [AdminPlotListingController::class, 'store'])->name('plots.listings.store');
+                });
             });
 
             // Company Management Routes

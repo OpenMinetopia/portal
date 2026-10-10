@@ -44,7 +44,7 @@
                             <div>
                                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $listing->plot_name }}</h1>
                                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                                    Verkoper: {{ \App\Helpers\MinecraftHelper::getName($listing->seller->minecraft_uuid) }}
+                                    Verkoper: {{ $listing->seller_name }}
                                 </p>
                             </div>
                             <span class="inline-flex items-center rounded-md px-2.5 py-1.5 text-sm font-medium bg-green-50 text-green-700 ring-1 ring-inset ring-green-600/20 dark:bg-green-500/10 dark:text-green-400 dark:ring-green-500/20">

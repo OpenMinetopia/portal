@@ -13,6 +13,10 @@ beforeEach(function () {
     $server->exec("DROP DATABASE IF EXISTS `{$this->legacyDatabase}`; CREATE DATABASE `{$this->legacyDatabase}`");
     $server->exec("USE `{$this->legacyDatabase}`");
     $server->exec(file_get_contents(base_path('tests/Fixtures/legacy-portal.sql')));
+
+    $this->legacyMigrations = collect(DB::select("SELECT migration FROM `{$this->legacyDatabase}`.migrations"))->pluck('migration')->sort()->values()->all();
+    $this->migrationFiles = collect(glob(database_path('migrations/*.php')))->map(fn ($file) => basename($file, '.php'))->sort()->values()->all();
+    $this->newerMigrations = array_values(array_diff($this->migrationFiles, $this->legacyMigrations));
 });
 
 afterEach(function () {
@@ -20,31 +24,28 @@ afterEach(function () {
 });
 
 it('keeps the same migration file names the existing databases ran', function () {
-    $ran = collect(DB::select("SELECT migration FROM `{$this->legacyDatabase}`.migrations"))->pluck('migration')->sort()->values()->all();
-    $files = collect(glob(database_path('migrations/*.php')))->map(fn ($file) => basename($file, '.php'))->sort()->values()->all();
-
-    expect($files)->toBe($ran);
+    expect(array_values(array_diff($this->legacyMigrations, $this->migrationFiles)))->toBe([]);
 });
 
-it('finds nothing pending on an existing portal database and keeps its data', function () {
+it('only runs the newer migrations on an existing portal database and keeps its data', function () {
     $tenant = $this->createTenant('legacy', ['tenancy_db_name' => $this->legacyDatabase]);
 
-    expect(app(TenantMigrator::class)->pendingFor($tenant))->toBe([]);
+    expect(app(TenantMigrator::class)->pendingFor($tenant))->toBe($this->newerMigrations);
 
     $this->artisan('tenants:migrate-safe')
         ->expectsOutputToContain('1 tenants, 0 failed.')
         ->assertSuccessful();
 
-    expect(DB::table("{$this->legacyDatabase}.migrations")->count())->toBe(24)
+    expect(DB::table("{$this->legacyDatabase}.migrations")->count())->toBe(count($this->migrationFiles))
         ->and($tenant->run(fn () => User::where('email', 'owner@legacy.test')->first()->isAdmin()))->toBeTrue();
 });
 
-it('lets the provisioning api adopt an existing database without migrating anything', function () {
+it('lets the provisioning api adopt an existing database and run only the newer migrations', function () {
     $id = (string) Str::uuid();
 
     provision('PUT', "/tenants/{$id}", desiredState('legacy', ['database' => ['name' => $this->legacyDatabase]]))
         ->assertOk()
-        ->assertJsonPath('migrations.ran', []);
+        ->assertJsonPath('migrations.ran', $this->newerMigrations);
 
     $this->get('http://legacy.mtportal.test/login')->assertOk();
 });

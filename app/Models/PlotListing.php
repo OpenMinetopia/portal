@@ -13,6 +13,7 @@ class PlotListing extends Model
     protected $fillable = [
         'plot_name',
         'seller_id',
+        'is_server_listing',
         'payout_bank_account_uuid',
         'buyer_bank_account_uuid',
         'price',
@@ -31,6 +32,7 @@ class PlotListing extends Model
     protected $casts = [
         'price' => 'decimal:2',
         'instant_buy' => 'boolean',
+        'is_server_listing' => 'boolean',
         'min_x' => 'integer',
         'min_y' => 'integer',
         'min_z' => 'integer',
@@ -42,6 +44,15 @@ class PlotListing extends Model
     public function seller(): BelongsTo
     {
         return $this->belongsTo(User::class, 'seller_id');
+    }
+
+    public function getSellerNameAttribute(): string
+    {
+        if ($this->is_server_listing) {
+            return config('app.name');
+        }
+
+        return \App\Helpers\MinecraftHelper::getName($this->seller->minecraft_uuid);
     }
 
     public function getFormattedPriceAttribute(): string
