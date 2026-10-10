@@ -36,6 +36,11 @@ class FakePlotService extends PlotService
             'location' => ['min' => ['x' => 0, 'y' => 60, 'z' => 0], 'max' => ['x' => 9, 'y' => 80, 'z' => 9]]] + $this->plots[$name];
     }
 
+    public function getAllPlots(): array
+    {
+        return collect(array_keys($this->plots))->map(fn ($name) => $this->getPlot($name))->values()->all();
+    }
+
     public function getPlayerPlots(string $uuid): array
     {
         return collect($this->plots)

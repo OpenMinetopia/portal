@@ -25,6 +25,7 @@ use App\Http\Controllers\Portal\BankAccountController;
 use App\Http\Controllers\Portal\PlotController;
 use App\Http\Controllers\Portal\PlotListingController;
 use App\Http\Controllers\Portal\PlotRentalController;
+use App\Http\Controllers\Portal\BulkPlotListingController;
 use App\Http\Controllers\Portal\PlotRentalOfferController;
 use App\Http\Controllers\Portal\BankTransactionController;
 use App\Http\Controllers\Portal\Admin\AdminPlotController;
@@ -114,6 +115,11 @@ Route::middleware('auth')->group(function () {
                     ->name('portal.plots.rentals.create');
                 Route::post('/plots/{plot}/verhuren', [PlotRentalOfferController::class, 'store'])
                     ->name('portal.plots.rentals.store');
+
+                Route::get('/plots/meerdere', [BulkPlotListingController::class, 'create'])
+                    ->name('portal.plots.bulk.create');
+                Route::post('/plots/meerdere', [BulkPlotListingController::class, 'store'])
+                    ->name('portal.plots.bulk.store');
             });
 
             // The seller or landlord (use-broker) or a manager (manage-broker); checked in the controller.
@@ -175,6 +181,11 @@ Route::middleware('auth')->group(function () {
 
                 Route::middleware(['feature:plots', 'can:manage-plots'])->group(function () {
                     Route::get('/plots', [AdminPlotController::class, 'index'])->name('plots.index');
+                    Route::middleware(['feature:broker', 'can:manage-broker'])->group(function () {
+                        // Before /plots/{name}, which would take "meerdere" as a plot name.
+                        Route::get('/plots/meerdere', [BulkPlotListingController::class, 'adminCreate'])->name('plots.bulk.create');
+                        Route::post('/plots/meerdere', [BulkPlotListingController::class, 'adminStore'])->name('plots.bulk.store');
+                    });
                     Route::get('/plots/{name}', [AdminPlotController::class, 'show'])->name('plots.show');
                     Route::post('/plots/{name}/owners', [AdminPlotController::class, 'addOwner'])->name('plots.owners.add');
                     Route::delete('/plots/{name}/owners', [AdminPlotController::class, 'removeOwner'])->name('plots.owners.remove');

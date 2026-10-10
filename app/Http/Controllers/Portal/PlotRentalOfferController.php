@@ -164,7 +164,7 @@ class PlotRentalOfferController extends Controller
         ]);
     }
 
-    public static function createOffer(Request $request, array $validated, array $plot, bool $isServerListing): PlotRentalOffer
+    public static function createOffer(Request $request, array $validated, array $plot, bool $isServerListing, ?string $imagePath = null): PlotRentalOffer
     {
         return PlotRentalOffer::create([
             'plot_name' => $plot['name'],
@@ -174,7 +174,7 @@ class PlotRentalOfferController extends Controller
             'price' => $validated['price'],
             'period' => $validated['period'],
             'description' => $validated['description'],
-            'image_path' => $request->hasFile('image') ? $request->file('image')->store('plot-listings', 'public') : null,
+            'image_path' => $imagePath ?? ($request->hasFile('image') ? $request->file('image')->store('plot-listings', 'public') : null),
             'min_x' => $plot['location']['min']['x'] ?? 0,
             'min_y' => $plot['location']['min']['y'] ?? 0,
             'min_z' => $plot['location']['min']['z'] ?? 0,
