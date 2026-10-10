@@ -7,8 +7,15 @@ cd /app
 
 mkdir -p /home/container/storage/app/public /home/container/storage/logs \
     /home/container/storage/framework/cache/data /home/container/storage/framework/sessions \
-    /home/container/storage/framework/views
+    /home/container/storage/framework/views /home/container/bootstrap/cache
 touch /home/container/.env
+
+# Wings can mount the image read-only, so Laravel's caches go to /home/container too.
+export APP_CONFIG_CACHE=/home/container/bootstrap/cache/config.php \
+    APP_ROUTES_CACHE=/home/container/bootstrap/cache/routes-v7.php \
+    APP_EVENTS_CACHE=/home/container/bootstrap/cache/events.php \
+    APP_SERVICES_CACHE=/home/container/bootstrap/cache/services.php \
+    APP_PACKAGES_CACHE=/home/container/bootstrap/cache/packages.php
 
 php artisan config:clear >/dev/null
 php artisan portal:wait-for-database --timeout=60
