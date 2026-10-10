@@ -5,7 +5,7 @@
 @endphp
 
 <a href="{{ route('dashboard') }}" class="omt-hop flex h-16 shrink-0 items-center gap-3 text-base font-bold tracking-tight text-gray-900 dark:text-white">
-    <img src="{{ asset('images/brand/logo.svg') }}" alt="" class="omt-pixel h-7 w-7 animate-omt-land">
+    <x-portal.logo />
     <span class="truncate">{{ config('app.name') }}</span>
 </a>
 
@@ -68,6 +68,7 @@
             <x-portal.nav-link :href="route('portal.admin.plots.index')" :active="request()->routeIs('portal.admin.plots.*')" icon="map">Plots</x-portal.nav-link>
             <x-portal.nav-link :href="route('portal.admin.roles.index')" :active="request()->routeIs('portal.admin.roles.*')" icon="key">Rollen</x-portal.nav-link>
             <x-portal.nav-link :href="route('portal.admin.settings.index')" :active="request()->routeIs('portal.admin.settings.*')" icon="cog-6-tooth">Instellingen</x-portal.nav-link>
+            <x-portal.nav-link :href="route('portal.admin.branding.edit')" :active="request()->routeIs('portal.admin.branding.*')" icon="paint-brush">Uiterlijk & logo</x-portal.nav-link>
         </ul>
     @endif
 </nav>

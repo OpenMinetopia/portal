@@ -10,6 +10,7 @@ use App\Http\Controllers\Portal\DashboardController;
 use App\Http\Controllers\Portal\Admin\AdminUserController;
 use App\Http\Controllers\Portal\Admin\AdminRoleController;
 use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\BrandingController;
 use App\Http\Controllers\Portal\Admin\PermitTypeController;
 use App\Http\Controllers\Portal\PermitsController;
 use App\Http\Controllers\Portal\PermitRequestManagementController;
@@ -27,6 +28,8 @@ use App\Http\Controllers\Portal\BankTransactionController;
 use App\Http\Controllers\Portal\Admin\AdminPlotController;
 use App\Http\Controllers\Auth\AdminClaimController;
 use App\Http\Controllers\Demo\DemoLoginController;
+
+Route::get('branding/logo', [BrandingController::class, 'logo'])->name('branding.logo');
 
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisterController::class, 'create'])->name('register');
@@ -107,6 +110,11 @@ Route::middleware('auth')->group(function () {
             Route::put('settings/features', [SettingsController::class, 'updateFeatures'])->name('settings.update-features');
             Route::put('settings/permit-settings', [SettingsController::class, 'updatePermitSettings'])->name('settings.update-permit-settings');
             Route::put('settings/company-settings', [SettingsController::class, 'updateCompanySettings'])->name('settings.update-company-settings');
+
+            // Appearance: accent colour and logo
+            Route::get('appearance', [BrandingController::class, 'edit'])->name('branding.edit');
+            Route::put('appearance', [BrandingController::class, 'update'])->name('branding.update');
+            Route::delete('appearance', [BrandingController::class, 'reset'])->name('branding.reset');
 
                 // Admin permit type management
                 Route::prefix('permits')->name('permits.')->group(function () {

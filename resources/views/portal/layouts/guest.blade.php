@@ -4,11 +4,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title') — {{ config('app.name', 'Minetopia Panel') }}</title>
-    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    @unless (\App\Models\BrandingSetting::current()->logo_path)
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    @endunless
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400..800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @include('portal.layouts.partials.branding')
     <script>
         if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark')
@@ -29,7 +32,7 @@
         <div class="mx-auto w-full max-w-sm animate-omt-rise">
             <div class="flex items-center justify-between">
                 <span class="omt-hop flex items-center gap-3 text-base font-bold tracking-tight">
-                    <img src="{{ asset('images/brand/logo.svg') }}" alt="" class="omt-pixel h-7 w-7 animate-omt-land">
+                    <x-portal.logo />
                     {{ config('app.name') }}
                 </span>
                 <button @click="toggleDarkMode" type="button" class="rounded-md p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"

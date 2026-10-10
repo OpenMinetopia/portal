@@ -37,20 +37,12 @@ export default {
                     950: '#0b0b0a',
                 },
                 // The accent. Named indigo so every existing button, link and focus ring picks it up.
-                indigo: {
-                    50: '#eef7ea',
-                    100: '#dcefd3',
-                    200: '#bfe3ad',
-                    300: '#93d879',
-                    400: '#79c160',
-                    500: '#4e7f3c',
-                    600: '#3f6b30',
-                    700: '#345a28',
-                    800: '#2a4721',
-                    900: '#1f3519',
-                    950: '#12200e',
-                },
-                brand: '#93d879',
+                // Admins can change it, so the shades come from the --accent-* variables (see app.css).
+                indigo: Object.fromEntries(
+                    [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950]
+                        .map((shade) => [shade, `rgb(var(--accent-${shade}) / <alpha-value>)`]),
+                ),
+                brand: 'rgb(var(--accent-300) / <alpha-value>)',
             },
             borderRadius: {
                 md: '6px',
