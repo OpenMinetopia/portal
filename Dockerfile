@@ -48,11 +48,13 @@ ENV HOME=/home/container \
     XDG_DATA_HOME=/home/container/.caddy/data \
     XDG_CONFIG_HOME=/home/container/.caddy/config
 
+# Wings drops every capability, and exec refuses a binary that still asks for one.
 RUN useradd --create-home --home-dir /home/container --shell /bin/bash container \
     && rm -rf /app/storage /app/.env \
     && ln -s /home/container/storage /app/storage \
     && ln -s /home/container/.env /app/.env \
-    && chmod -R a+rwX /app/bootstrap/cache
+    && chmod -R a+rwX /app/bootstrap/cache \
+    && setcap -r /usr/local/bin/frankenphp
 
 COPY docker/pterodactyl-entrypoint.sh /entrypoint.sh
 COPY docker/pterodactyl-start.sh /usr/local/bin/portal-start
