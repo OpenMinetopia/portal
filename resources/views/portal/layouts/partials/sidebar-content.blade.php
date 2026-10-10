@@ -23,7 +23,11 @@
             <x-portal.nav-link :href="route('portal.criminal-records.index')" :active="request()->routeIs('portal.criminal-records.*')" icon="document-text">Mijn strafblad</x-portal.nav-link>
         @endif
         @if ($can('use-broker'))
-            <x-portal.nav-link :href="route('portal.plots.listings.index')" :active="request()->routeIs('portal.plots.listings.*')" icon="currency-dollar">Makelaar</x-portal.nav-link>
+            <x-portal.nav-link :href="route('portal.plots.listings.index')" :active="request()->routeIs('portal.plots.listings.*', 'portal.plots.rentals.rent.*')" icon="currency-dollar">Makelaar</x-portal.nav-link>
+        @endif
+        {{-- A running rental can always be seen and ended, also with the makelaar off. --}}
+        @if ($can('use-broker') || \App\Models\PlotRental::active()->where(fn ($query) => $query->where('renter_id', $user->id)->orWhere('landlord_id', $user->id))->exists())
+            <x-portal.nav-link :href="route('portal.plots.rentals.index')" :active="request()->routeIs('portal.plots.rentals.index')" icon="key">Mijn huur</x-portal.nav-link>
         @endif
     </ul>
 

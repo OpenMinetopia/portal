@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Portal\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Portal\PlotListingController;
 use App\Models\PlotListing;
+use App\Services\PlotRentalService;
 use App\Services\Plugin\PlotService;
 use Illuminate\Http\Request;
 
@@ -30,6 +32,11 @@ class AdminPlotListingController extends Controller
                     'title' => 'Actie niet mogelijk',
                     'message' => 'Dit plot staat al te koop.'
                 ]);
+        }
+
+        if (PlotRentalService::isRented($name)) {
+            return redirect()->route('portal.admin.plots.show', $name)
+                ->with('error', PlotListingController::RENTED_ERROR);
         }
 
         return view('portal.plots.listings.create', [
@@ -62,6 +69,11 @@ class AdminPlotListingController extends Controller
                     'title' => 'Actie niet mogelijk',
                     'message' => 'Dit plot staat al te koop.'
                 ]);
+        }
+
+        if (PlotRentalService::isRented($name)) {
+            return redirect()->route('portal.admin.plots.show', $name)
+                ->with('error', PlotListingController::RENTED_ERROR);
         }
 
         $imagePath = null;

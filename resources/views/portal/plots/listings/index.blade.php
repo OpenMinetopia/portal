@@ -5,6 +5,14 @@
 
 @section('content')
     <div class="space-y-6">
+        <div class="flex items-center justify-between gap-4">
+            <h2 class="text-base font-semibold text-gray-900 dark:text-white">Te koop</h2>
+            <a href="{{ route('portal.plots.rentals.index') }}" class="inline-flex items-center gap-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">
+                <x-heroicon-s-key class="w-4 h-4"/>
+                Mijn huur
+            </a>
+        </div>
+
         <!-- Listings Grid -->
         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             @forelse($listings as $listing)
@@ -81,6 +89,66 @@
                         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                             Er staan momenteel geen plots te koop.
                         </p>
+                    </div>
+                </div>
+            @endforelse
+        </div>
+
+        <h2 id="te-huur" class="pt-4 text-base font-semibold text-gray-900 dark:text-white">Te huur</h2>
+
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            @forelse($rentalOffers as $offer)
+                <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg overflow-hidden">
+                    @if($offer->image_path)
+                        <img src="{{ Storage::url($offer->image_path) }}"
+                             alt="Afbeelding van {{ $offer->plot_name }}"
+                             class="w-full h-48 object-cover">
+                    @else
+                        <div class="w-full h-48 bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                            <x-heroicon-o-key class="w-12 h-12 text-gray-400 dark:text-gray-500"/>
+                        </div>
+                    @endif
+
+                    <div class="p-6">
+                        <div class="flex justify-between items-start gap-3">
+                            <div class="min-w-0">
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white break-all">{{ $offer->plot_name }}</h3>
+                                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Verhuurder: {{ $offer->landlord_name }}</p>
+                            </div>
+                            <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-blue-50 text-blue-700 ring-blue-600/20 dark:bg-blue-500/10 dark:text-blue-400 dark:ring-blue-500/20 whitespace-nowrap">
+                                {{ $offer->formatted_price }} {{ $offer->period_text }}
+                            </span>
+                        </div>
+
+                        <p class="mt-4 text-sm text-gray-600 dark:text-gray-300">{{ Str::limit($offer->description, 150) }}</p>
+
+                        <div class="mt-4 flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+                            <span class="flex items-center gap-1">
+                                <x-heroicon-s-map-pin class="w-4 h-4"/>
+                                {{ $offer->min_x }}, {{ $offer->min_y }}, {{ $offer->min_z }}
+                            </span>
+                            <span>{{ $offer->dimensions['width'] }}x{{ $offer->dimensions['length'] }} ({{ $offer->area }} m²)</span>
+                        </div>
+
+                        <div class="mt-6 flex justify-end">
+                            @if($offer->landlord_id === auth()->id() && !$offer->is_server_listing)
+                                <span class="text-sm text-gray-500 dark:text-gray-400">Jouw plot</span>
+                            @else
+                                <a href="{{ route('portal.plots.rentals.rent.show', $offer) }}"
+                                   class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700">
+                                    <x-heroicon-s-key class="w-4 h-4 mr-2"/>
+                                    Huren
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <div class="col-span-full">
+                    <div class="text-center bg-white dark:bg-gray-800 rounded-lg shadow-sm px-6 py-8">
+                        <x-heroicon-o-key class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500"/>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">Geen plots te huur</h3>
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Er staan momenteel geen plots te huur.</p>
                     </div>
                 </div>
             @endforelse

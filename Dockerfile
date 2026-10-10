@@ -35,6 +35,7 @@ WORKDIR /app
 
 COPY --from=vendor /app /app
 COPY --from=assets /app/public/build /app/public/build
+COPY docker/scheduler.sh /usr/local/bin/portal-scheduler
 
 RUN php artisan package:discover --ansi \
     && ln -s /app/storage/app/public /app/public/storage

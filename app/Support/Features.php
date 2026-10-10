@@ -16,7 +16,7 @@ final class Features
         'bank' => ['Bankrekeningen', 'Spelers zien hun bankrekeningen en saldo.', null, true],
         'transactions' => ['Overboekingen', 'Spelers maken geld over naar andere rekeningen.', 'bank', false],
         'plots' => ['Plots', 'Spelers zien hun plots en beheren eigenaren en leden.', null, true],
-        'broker' => ['Makelaar', 'Plots kopen en verkopen.', 'plots', false],
+        'broker' => ['Makelaar', 'Plots kopen, verkopen, huren en verhuren.', 'plots', false],
         'criminal_records' => ['Strafblad', 'Spelers zien hun eigen strafblad.', null, true],
         'permits' => ['Vergunningen', 'Vergunningen aanvragen en behandelen.', null, false],
         'companies' => ['Bedrijven', 'Bedrijven aanvragen, het bedrijvenregister en de KvK.', null, false],
@@ -52,16 +52,18 @@ final class Features
     /** Read once per request; PortalFeature forgets it when a row changes. */
     public static function enabledKeys(): Collection
     {
-        if (! app()->bound('portal.features')) {
-            app()->instance('portal.features', PortalFeature::where('is_enabled', true)->pluck('key'));
+        $attributes = request()->attributes;
+
+        if (! $attributes->has('portal.features')) {
+            $attributes->set('portal.features', PortalFeature::where('is_enabled', true)->pluck('key'));
         }
 
-        return app('portal.features');
+        return $attributes->get('portal.features');
     }
 
     public static function forget(): void
     {
-        app()->forgetInstance('portal.features');
+        request()->attributes->remove('portal.features');
     }
 
     /** Adds missing features and keeps names and descriptions current; never touches is_enabled of existing rows. */

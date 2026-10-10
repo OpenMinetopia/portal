@@ -24,9 +24,12 @@ use App\Http\Controllers\Portal\Police\PlayerDatabaseController;
 use App\Http\Controllers\Portal\BankAccountController;
 use App\Http\Controllers\Portal\PlotController;
 use App\Http\Controllers\Portal\PlotListingController;
+use App\Http\Controllers\Portal\PlotRentalController;
+use App\Http\Controllers\Portal\PlotRentalOfferController;
 use App\Http\Controllers\Portal\BankTransactionController;
 use App\Http\Controllers\Portal\Admin\AdminPlotController;
 use App\Http\Controllers\Portal\Admin\AdminPlotListingController;
+use App\Http\Controllers\Portal\Admin\AdminPlotRentalOfferController;
 use App\Http\Controllers\Auth\AdminClaimController;
 use App\Http\Controllers\Demo\DemoLoginController;
 
@@ -102,12 +105,28 @@ Route::middleware('auth')->group(function () {
                     ->name('portal.plots.listings.create');
                 Route::post('/plots/{plot}/verkopen', [PlotListingController::class, 'store'])
                     ->name('portal.plots.listings.store');
+
+                Route::get('/plots/te-huur/{offer}/huren', [PlotRentalOfferController::class, 'showRentForm'])
+                    ->name('portal.plots.rentals.rent.show');
+                Route::post('/plots/te-huur/{offer}/huren', [PlotRentalOfferController::class, 'rent'])
+                    ->name('portal.plots.rentals.rent');
+                Route::get('/plots/{plot}/verhuren', [PlotRentalOfferController::class, 'create'])
+                    ->name('portal.plots.rentals.create');
+                Route::post('/plots/{plot}/verhuren', [PlotRentalOfferController::class, 'store'])
+                    ->name('portal.plots.rentals.store');
             });
 
-            // The seller (use-broker) or a manager (manage-broker); checked in the controller.
+            // The seller or landlord (use-broker) or a manager (manage-broker); checked in the controller.
             Route::delete('/plots/te-koop/{listing}', [PlotListingController::class, 'destroy'])
                 ->name('portal.plots.listings.destroy');
+            Route::delete('/plots/te-huur/{offer}', [PlotRentalOfferController::class, 'destroy'])
+                ->name('portal.plots.rentals.offers.destroy');
         });
+
+        // Outside the broker feature: a running rental can always be seen and ended.
+        Route::get('/plots/huur', [PlotRentalController::class, 'index'])->name('portal.plots.rentals.index');
+        Route::post('/plots/huur/{rental}/opzeggen', [PlotRentalController::class, 'cancel'])->name('portal.plots.rentals.cancel');
+        Route::post('/plots/huur/{rental}/betalen', [PlotRentalController::class, 'pay'])->name('portal.plots.rentals.pay');
 
         Route::prefix('portal')->name('portal.')->group(function () {
             Route::prefix('admin')->name('admin.')->group(function () {
@@ -165,6 +184,8 @@ Route::middleware('auth')->group(function () {
                     Route::middleware(['feature:broker', 'can:manage-broker'])->group(function () {
                         Route::get('/plots/{name}/verkopen', [AdminPlotListingController::class, 'create'])->name('plots.listings.create');
                         Route::post('/plots/{name}/verkopen', [AdminPlotListingController::class, 'store'])->name('plots.listings.store');
+                        Route::get('/plots/{name}/verhuren', [AdminPlotRentalOfferController::class, 'create'])->name('plots.rentals.create');
+                        Route::post('/plots/{name}/verhuren', [AdminPlotRentalOfferController::class, 'store'])->name('plots.rentals.store');
                     });
                 });
             });

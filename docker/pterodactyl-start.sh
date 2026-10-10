@@ -1,7 +1,7 @@
 #!/bin/bash
 # Starts the portal on Pterodactyl: sets it up from the egg's variables, migrates,
-# prints what to put in the plugin's config.yml, then serves on SERVER_PORT and
-# answers the commands typed in the panel's console.
+# prints what to put in the plugin's config.yml, then serves on SERVER_PORT, runs
+# the scheduler (plot rentals) and answers the commands typed in the panel's console.
 set -e
 
 # Stopping before the web server is up just ends the start.
@@ -52,8 +52,13 @@ print_help() {
 frankenphp php-server --listen "0.0.0.0:${SERVER_PORT}" --root /app/public &
 server=$!
 
+# Renews plot rentals; it must not read the console, that is for the commands below.
+portal-scheduler </dev/null &
+scheduler=$!
+
 stop_portal() {
     echo "Portaal stoppen..."
+    kill -TERM "$scheduler" 2>/dev/null || true
     kill -TERM "$server" 2>/dev/null || true
     wait "$server" 2>/dev/null || true
     exit 0
@@ -86,4 +91,5 @@ while kill -0 "$server" 2>/dev/null; do
 done
 
 # The web server stopped by itself.
+kill -TERM "$scheduler" 2>/dev/null || true
 wait "$server"

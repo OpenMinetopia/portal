@@ -14,6 +14,38 @@
                         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $plot['name'] }}</p>
                     </div>
                     @if($brokerEnabled)
+                        <div class="flex flex-wrap items-center justify-end gap-2">
+                        @if($rentalOffer)
+                            <span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-600/20 dark:bg-blue-500/10 dark:text-blue-400 dark:ring-blue-500/20">
+                                @if($rentalOffer->activeRental)
+                                    Verhuurd aan {{ $rentalOffer->activeRental->renter_name }} voor {{ $rentalOffer->formatted_price }} {{ $rentalOffer->period_text }}
+                                @else
+                                    Te huur voor {{ $rentalOffer->formatted_price }} {{ $rentalOffer->period_text }}
+                                @endif
+                            </span>
+                            @if($rentalOffer->activeRental)
+                                <a href="{{ route('portal.plots.rentals.index') }}"
+                                   class="inline-flex items-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-white dark:ring-gray-600 dark:hover:bg-gray-600">
+                                    Huur beheren
+                                </a>
+                            @else
+                                <form action="{{ route('portal.plots.rentals.offers.destroy', $rentalOffer) }}" method="POST"
+                                      onsubmit="return confirm('Weet je zeker dat je dit plot niet meer wilt verhuren?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit"
+                                            class="inline-flex items-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-white dark:ring-gray-600 dark:hover:bg-gray-600">
+                                        Niet meer verhuren
+                                    </button>
+                                </form>
+                            @endif
+                        @else
+                            <a href="{{ route('portal.admin.plots.rentals.create', $plot['name']) }}"
+                               class="inline-flex items-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-white dark:ring-gray-600 dark:hover:bg-gray-600">
+                                <x-heroicon-m-key class="h-4 w-4"/>
+                                Verhuren
+                            </a>
+                        @endif
                         @if($activeListing)
                             <div class="flex items-center gap-2">
                                 <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20 dark:bg-green-500/10 dark:text-green-400 dark:ring-green-500/20">
@@ -36,6 +68,7 @@
                                 Te koop zetten
                             </a>
                         @endif
+                        </div>
                     @endif
                 </div>
             </div>

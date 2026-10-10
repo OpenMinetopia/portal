@@ -31,6 +31,20 @@ php artisan optimize
 `tenants:migrate-safe` prints a table per tenant and exits non-zero if any tenant
 failed, after trying all of them. `--tenants=<id>` limits it to some tenants.
 
+## Scheduler
+
+Plot rentals renew through `plots:process-rentals`, scheduled hourly in
+`routes/console.php`. Enable the Shipways scheduler for the site, so
+`php artisan schedule:run` runs every minute. In hosted mode the command loops
+over every active tenant and runs in each tenant's context (database and plugin);
+one failing tenant never stops the others. It is safe to run by hand at any time,
+also for one tenant: `php artisan plots:process-rentals --tenants=<id>`. A period
+is never charged twice: each payment is a row, unique per rental and period,
+written before the withdrawal.
+
+The Docker and Pterodactyl images start the scheduler themselves
+(`docker/scheduler.sh`); `PORTAL_SCHEDULER=0` turns it off in the Docker image.
+
 ## Environment
 
 See `.env.example`. The ones that matter for tenancy:

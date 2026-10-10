@@ -107,6 +107,14 @@ php artisan portal:install
 
 Laat je webserver (nginx, Apache, Caddy) naar de map `public` wijzen. Bijwerken doe je met `git pull`, dezelfde `composer` en `npm` commando's, en `php artisan migrate --force`.
 
+Plots verhuren werkt met een taak die elk uur de huur verlengt. Zet daarvoor deze cron-regel op je server (`crontab -e` als de gebruiker van je webserver):
+
+```
+* * * * * cd /pad/naar/portal && php artisan schedule:run >> /dev/null 2>&1
+```
+
+Met Docker en Pterodactyl draait die taak vanzelf.
+
 ## De plugin koppelen
 
 `portal:install` (en dus het installatiescript en het Pterodactyl-egg) laat precies zien wat je in `plugins/OpenMinetopia/config.yml` zet, met je eigen sleutels:

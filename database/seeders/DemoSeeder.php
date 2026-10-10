@@ -10,6 +10,7 @@ use App\Models\Permission;
 use App\Models\PermitRequest;
 use App\Models\PermitType;
 use App\Models\PlotListing;
+use App\Models\PlotRentalOffer;
 use App\Models\PortalFeature;
 use App\Models\Role;
 use App\Models\User;
@@ -117,6 +118,15 @@ class DemoSeeder extends Seeder
             'price' => 85000, 'description' => 'Karakteristiek grachtenpand met uitzicht op de Kade. Drie verdiepingen en een kelder.',
             'min_x' => 240, 'min_y' => 64, 'min_z' => -280, 'max_x' => 252, 'max_y' => 95, 'max_z' => -268,
             'instant_buy' => true, 'status' => 'active',
+        ]);
+
+        // Only created once: renting it in the demo must survive a second seed.
+        PlotRentalOffer::firstOrCreate(['plot_name' => 'noordhaven_loods_3', 'landlord_id' => $users['Daan']->id], [
+            'payout_bank_account_uuid' => DemoWorld::PLAYERS['Daan'],
+            'price' => 250, 'period' => 'week',
+            'description' => 'Ruime loods aan het water in Noordhaven. Ideaal als opslag of werkplaats.',
+            'min_x' => -410, 'min_y' => 63, 'min_z' => 520, 'max_x' => -380, 'max_y' => 80, 'max_z' => 548,
+            'status' => 'active',
         ]);
     }
 }

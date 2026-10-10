@@ -24,6 +24,13 @@
                                     <x-heroicon-m-currency-euro class="h-4 w-4"/>
                                     Plot Verkopen
                                 </a>
+                                @unless($rentalOffer)
+                                    <a href="{{ route('portal.plots.rentals.create', $plot['name']) }}"
+                                       class="inline-flex items-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-white dark:ring-gray-600 dark:hover:bg-gray-600">
+                                        <x-heroicon-m-key class="h-4 w-4"/>
+                                        Plot Verhuren
+                                    </a>
+                                @endunless
                             @endcan
                         </div>
                     @endif
@@ -119,6 +126,54 @@
                     </div>
                 </div>
             @endif
+        @endif
+
+        @if($isOwner && $rentalOffer)
+            @php($rental = $rentalOffer->activeRental)
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+                <div class="px-4 py-5 sm:px-6 border-b border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center justify-between gap-4">
+                        <div class="flex items-center gap-2">
+                            <x-heroicon-s-key class="h-5 w-5 text-gray-400 dark:text-gray-500"/>
+                            <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ $rental ? 'Verhuurd' : 'Te Huur' }}</h3>
+                        </div>
+                        @if($rental)
+                            <a href="{{ route('portal.plots.rentals.index') }}" class="text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">Beheren in Mijn huur</a>
+                        @else
+                            <form action="{{ route('portal.plots.rentals.offers.destroy', $rentalOffer) }}" method="POST">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit"
+                                        class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-50 hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20">
+                                    <x-heroicon-s-x-mark class="w-4 h-4 mr-1.5"/>
+                                    Van de markt halen
+                                </button>
+                            </form>
+                        @endif
+                    </div>
+                </div>
+                <dl class="px-4 py-5 sm:p-6 grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-3 text-sm">
+                    <div>
+                        <dt class="font-medium text-gray-500 dark:text-gray-400">Huurprijs</dt>
+                        <dd class="mt-1 text-lg font-semibold text-gray-900 dark:text-white">{{ $rentalOffer->formatted_price }} <span class="text-sm font-normal">{{ $rentalOffer->period_text }}</span></dd>
+                    </div>
+                    @if($rental)
+                        <div>
+                            <dt class="font-medium text-gray-500 dark:text-gray-400">Huurder</dt>
+                            <dd class="mt-1 text-gray-900 dark:text-white">{{ $rental->renter_name }}</dd>
+                        </div>
+                        <div>
+                            <dt class="font-medium text-gray-500 dark:text-gray-400">Status</dt>
+                            <dd class="mt-1 text-gray-900 dark:text-white">{{ $rental->status_text }} · betaald tot {{ $rental->paid_until->format('d-m-Y') }}</dd>
+                        </div>
+                    @else
+                        <div class="sm:col-span-2">
+                            <dt class="font-medium text-gray-500 dark:text-gray-400">Beschrijving</dt>
+                            <dd class="mt-1 text-gray-900 dark:text-white">{{ $rentalOffer->description }}</dd>
+                        </div>
+                    @endif
+                </dl>
+            </div>
         @endif
 
         <!-- Users Grid -->

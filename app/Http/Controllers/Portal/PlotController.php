@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\Portal;
 
 use App\Http\Controllers\Controller;
+use App\Models\PlotRental;
+use App\Models\PlotRentalOffer;
 use App\Models\User;
+use App\Services\PlotRentalService;
 use App\Services\Plugin\PlotService;
 use Illuminate\Http\Request;
 
@@ -44,7 +47,8 @@ class PlotController extends Controller
         return view('portal.plots.show', [
             'plot' => $plot,
             'users' => $users,
-            'isOwner' => $plot['permission'] === 'OWNER'
+            'isOwner' => $plot['permission'] === 'OWNER',
+            'rentalOffer' => PlotRentalOffer::where('plot_name', $name)->whereIn('status', ['active', 'rented'])->with('activeRental.renter')->first(),
         ]);
     }
 
@@ -164,6 +168,14 @@ class PlotController extends Controller
         $validated = $request->validate([
             'user_uuid' => 'required|string'
         ]);
+
+        $renterUuids = PlotRental::active()->where('plot_name', $name)->with('renter')->get()->pluck('renter.minecraft_plain_uuid');
+        if ($renterUuids->contains(fn ($uuid) => PlotRentalService::sameUuid($uuid, $validated['user_uuid']))) {
+            return back()->with('error', [
+                'title' => 'Actie niet mogelijk',
+                'message' => 'Dit lid huurt het plot. Zeg de huur op via Mijn huur.'
+            ]);
+        }
 
         $success = $this->plotService->removeMember($name, $validated['user_uuid']);
 

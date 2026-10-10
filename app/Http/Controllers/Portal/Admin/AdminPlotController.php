@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Portal\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\PlotListing;
+use App\Models\PlotRentalOffer;
 use App\Models\User;
 use App\Services\Plugin\PlotService;
 use App\Services\MojangApiService;
@@ -27,7 +28,8 @@ class AdminPlotController extends Controller
         return view('portal.admin.plots.index', [
             'plots' => $plots,
             'brokerEnabled' => auth()->user()->can('manage-broker'),
-            'listedPlotNames' => PlotListing::where('status', 'active')->pluck('plot_name')
+            'listedPlotNames' => PlotListing::where('status', 'active')->pluck('plot_name'),
+            'rentalPlotNames' => PlotRentalOffer::whereIn('status', ['active', 'rented'])->pluck('plot_name'),
         ]);
     }
 
@@ -51,7 +53,8 @@ class AdminPlotController extends Controller
             'plot' => $plot,
             'users' => $users,
             'brokerEnabled' => auth()->user()->can('manage-broker'),
-            'activeListing' => PlotListing::where('plot_name', $name)->where('status', 'active')->first()
+            'activeListing' => PlotListing::where('plot_name', $name)->where('status', 'active')->first(),
+            'rentalOffer' => PlotRentalOffer::where('plot_name', $name)->whereIn('status', ['active', 'rented'])->with('activeRental.renter')->first(),
         ]);
     }
 

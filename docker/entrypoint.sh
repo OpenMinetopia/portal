@@ -1,5 +1,6 @@
 #!/bin/sh
-# Prepares the portal on every start: waits for the database, migrates and caches.
+# Prepares the portal on every start: waits for the database, migrates and caches,
+# then starts the scheduler next to the web server.
 # Before `php artisan portal:install` has run there is no APP_KEY yet; then only
 # the web server starts.
 set -e
@@ -20,6 +21,13 @@ if [ "${PORTAL_SKIP_BOOT:-0}" != "1" ]; then
             echo "Het portaal is nog niet ingericht. Draai: php artisan portal:install"
         fi
     fi
+fi
+
+# The scheduler renews plot rentals. It runs next to the web server only, not for
+# a one-off `docker compose run portal php artisan …`; PORTAL_SCHEDULER=0 turns it
+# off (for example when a cron job on the host already runs schedule:run).
+if [ "${PORTAL_SCHEDULER:-1}" = "1" ] && [ "${1:-}" = "frankenphp" ]; then
+    portal-scheduler &
 fi
 
 exec "$@"

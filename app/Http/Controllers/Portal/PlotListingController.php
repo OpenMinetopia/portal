@@ -9,9 +9,16 @@ use Illuminate\Support\Facades\Storage;
 use App\Services\Plugin\BankingService;
 use App\Services\Plugin\PlotService;
 use App\Notifications\PlotTransactionNotification;
+use App\Models\PlotRentalOffer;
+use App\Services\PlotRentalService;
 
 class PlotListingController extends Controller
 {
+    public const RENTED_ERROR = [
+        'title' => 'Plot wordt verhuurd',
+        'message' => 'Een verhuurd plot kun je niet verkopen. Zeg eerst de huur op.'
+    ];
+
     protected BankingService $bankingService;
     protected PlotService $plotService;
 
@@ -29,7 +36,8 @@ class PlotListingController extends Controller
             ->get();
 
         return view('portal.plots.listings.index', [
-            'listings' => $listings
+            'listings' => $listings,
+            'rentalOffers' => PlotRentalOffer::with('landlord')->where('status', 'active')->latest()->get(),
         ]);
     }
 
@@ -48,6 +56,11 @@ class PlotListingController extends Controller
         if (PlotListing::where('plot_name', $plotName)->where('status', 'active')->exists()) {
             return redirect()->route('portal.plots.show', $plotName)
                 ->with('error', 'Dit plot staat al te koop.');
+        }
+
+        if (PlotRentalService::isRented($plotName)) {
+            return redirect()->route('portal.plots.show', $plotName)
+                ->with('error', self::RENTED_ERROR);
         }
 
         return view('portal.plots.listings.create', [
@@ -75,6 +88,11 @@ class PlotListingController extends Controller
                     'title' => 'Actie niet mogelijk',
                     'message' => 'Je kunt alleen je eigen plots verkopen.'
                 ]);
+        }
+
+        if (PlotRentalService::isRented($plotName)) {
+            return redirect()->route('portal.plots.show', $plotName)
+                ->with('error', self::RENTED_ERROR);
         }
 
         $imagePath = null;
@@ -161,6 +179,13 @@ class PlotListingController extends Controller
             ]);
         }
 
+        if (PlotRentalService::isRented($listing->plot_name)) {
+            return back()->with('error', [
+                'title' => 'Plot niet beschikbaar',
+                'message' => 'Dit plot wordt op dit moment verhuurd en kan niet worden gekocht.'
+            ]);
+        }
+
         // Get buyer's bank account
         $buyerAccount = collect(auth()->user()->bank_accounts)
             ->firstWhere('uuid', $validated['buyer_bank_account_uuid']);
@@ -224,6 +249,9 @@ class PlotListingController extends Controller
                 'status' => 'sold',
                 'buyer_bank_account_uuid' => $validated['buyer_bank_account_uuid']
             ]);
+
+            // Sold, so the plot is no longer for rent either
+            PlotRentalOffer::where('plot_name', $listing->plot_name)->where('status', 'active')->update(['status' => 'cancelled']);
 
             // Send notifications to both buyer and seller
             $listing->seller->notify(new PlotTransactionNotification($listing, 'sold'));
