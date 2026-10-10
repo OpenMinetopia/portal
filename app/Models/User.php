@@ -46,6 +46,14 @@ class User extends Authenticatable
         $this->notify((new ResetPassword($token))->locale('nl'));
     }
 
+    protected static function booted(): void
+    {
+        // Every new user gets the default roles, e.g. Speler.
+        static::created(function (User $user) {
+            $user->roles()->syncWithoutDetaching(Role::where('is_default', true)->pluck('id'));
+        });
+    }
+
     // Relationships
     public function roles(): BelongsToMany
     {
@@ -57,15 +65,24 @@ class User extends Authenticatable
         return $this->roles->contains('is_admin', true);
     }
 
+    /** Whether one of the user's roles grants it. Use can() to also check that its feature is on. */
     public function hasPermission(string $permission): bool
     {
+        $this->loadMissing('roles.permissions');
+
+        return $this->roles->contains(fn (Role $role) => $role->hasPermission($permission));
+    }
+
+    /** @return list<string> */
+    public function permissionSlugs(): array
+    {
         if ($this->isAdmin()) {
-            return true;
+            return array_keys(\App\Support\Permissions::ALL);
         }
 
-        return $this->roles->contains(function ($role) use ($permission) {
-            return $role->hasPermission($permission);
-        });
+        $this->loadMissing('roles.permissions');
+
+        return $this->roles->flatMap->permissions->pluck('slug')->unique()->values()->all();
     }
 
     public function hasRole($role)

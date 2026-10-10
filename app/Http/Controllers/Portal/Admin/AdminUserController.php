@@ -50,7 +50,7 @@ class AdminUserController extends Controller
 
         return view('portal.admin.users.show', [
             'user' => $user->load(['roles']),
-            'roles' => Role::all(),
+            'roles' => Role::with('permissions')->get(),
             'playerData' => $playerData,
             'plots' => $plots,
             'bankAccounts' => $bankAccounts,
@@ -62,7 +62,7 @@ class AdminUserController extends Controller
     {
         return view('portal.admin.users.edit', [
             'user' => $user->load(['roles']),
-            'roles' => Role::all()
+            'roles' => Role::with('permissions')->get()
         ]);
     }
 
@@ -97,7 +97,20 @@ class AdminUserController extends Controller
             'roles.*' => 'exists:roles,id'
         ]);
 
-        $user->roles()->sync($validated['roles'] ?? []);
+        // Roles the current user may not hand out stay as they are on this user.
+        $roles = Role::with('permissions')->get();
+        $grantable = $roles->filter->canBeGrantedBy($request->user())->pluck('id');
+        $kept = $user->roles->pluck('id')->diff($grantable);
+        $requested = collect($validated['roles'] ?? [])->map(fn ($id) => (int) $id);
+
+        if ($requested->diff($grantable)->diff($kept)->isNotEmpty()) {
+            return back()->with('error', [
+                'title' => 'Actie niet mogelijk',
+                'message' => 'Je kunt alleen rollen toewijzen met permissies die je zelf hebt.'
+            ]);
+        }
+
+        $user->roles()->sync($kept->merge($requested->intersect($grantable))->unique()->values());
 
         return back()->with('success', 'Rollen succesvol bijgewerkt');
     }

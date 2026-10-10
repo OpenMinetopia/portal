@@ -7,7 +7,7 @@
     <div class="space-y-6">
         <!-- Back Button -->
         <div>
-            <a href="{{ route('portal.admin.users.index') }}" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
+            <a href="{{ route('dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
                 <x-heroicon-s-arrow-left class="w-5 h-5 mr-1" />
                 Terug naar overzicht
             </a>
@@ -23,7 +23,7 @@
                         <div class="flex items-center justify-between">
                             <div>
                                 <h3 class="text-base font-semibold text-gray-900 dark:text-white">Portal Functies</h3>
-                                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Beheer welke functies beschikbaar zijn in het portal</p>
+                                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Wat uitstaat is voor niemand zichtbaar, ook niet voor beheerders. Wie wat mag binnen een feature stel je in bij Rollen.</p>
                             </div>
                         </div>
                     </div>
@@ -47,6 +47,9 @@
                                         </label>
                                         @if($feature->description)
                                             <p class="text-sm text-gray-500 dark:text-gray-400">{{ $feature->description }}</p>
+                                        @endif
+                                        @if($requires = \App\Support\Features::requires($feature->key))
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">Werkt alleen als {{ \App\Support\Features::name($requires) }} aanstaat.</p>
                                         @endif
                                     </div>
                                 </div>
@@ -87,7 +90,7 @@
                 </div>
 
                 <!-- Permit Settings -->
-                @if(\App\Models\PortalFeature::where('key', 'permits')->where('is_enabled', true)->exists())
+                @feature('permits')
                     <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg">
                         <div class="px-4 py-5 sm:px-6 border-b border-gray-200 dark:border-gray-700">
                             <div class="flex items-center justify-between">
@@ -159,7 +162,7 @@
                 @endif
 
                 <!-- After Permit Settings -->
-                @if(\App\Models\PortalFeature::where('key', 'companies')->where('is_enabled', true)->exists())
+                @feature('companies')
                     <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg">
                         <div class="px-4 py-5 sm:px-6 border-b border-gray-200 dark:border-gray-700">
                             <div class="flex items-center justify-between">

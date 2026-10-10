@@ -57,7 +57,7 @@ class UserSetAdminCommand extends Command
 
         try {
             // Check if user already has the role
-            if ($user->hasRole($role)) {
+            if ($user->roles->contains($role)) {
                 $this->warn("User '{$user->name}' already has the role '{$role->name}'.");
                 return Command::SUCCESS;
             }

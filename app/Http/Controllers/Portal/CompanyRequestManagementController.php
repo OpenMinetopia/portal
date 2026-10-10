@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Portal;
 use App\Http\Controllers\Controller;
 use App\Models\CompanyRequest;
 use App\Models\Company;
+use App\Models\CompanyType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Services\Plugin\BankingService;
@@ -22,7 +23,9 @@ class CompanyRequestManagementController extends Controller
 
     public function index()
     {
+        // Only requests for the company types this user may handle
         $requests = CompanyRequest::with(['type', 'user'])
+            ->whereIn('company_type_id', CompanyType::manageableIdsFor(auth()->user()))
             ->latest()
             ->paginate(10);
 
@@ -31,11 +34,15 @@ class CompanyRequestManagementController extends Controller
 
     public function show(CompanyRequest $companyRequest)
     {
+        abort_unless($companyRequest->type->userCanManage(auth()->user()), 403, 'Je hebt geen toegang tot deze bedrijfsaanvraag.');
+
         return view('portal.companies.manage.show', compact('companyRequest'));
     }
 
     public function handle(Request $request, CompanyRequest $companyRequest)
     {
+        abort_unless($companyRequest->type->userCanManage(auth()->user()), 403, 'Je hebt geen toegang tot deze bedrijfsaanvraag.');
+
         // Validate request
         $validated = $request->validate([
             'status' => 'required|in:approved,denied',

@@ -6,13 +6,13 @@
 @section('content')
     @php
         $user = auth()->user();
-        $stats = [
-            ['label' => 'Saldo', 'value' => $user->formatted_balance_with_currency, 'href' => route('portal.bank-accounts.index')],
-            ['label' => 'Plots', 'value' => count($user->getPlotsAttribute()), 'href' => route('portal.plots.index')],
+        $stats = array_filter([
+            $user->can('use-bank') ? ['label' => 'Saldo', 'value' => $user->formatted_balance_with_currency, 'href' => route('portal.bank-accounts.index')] : null,
+            $user->can('use-plots') ? ['label' => 'Plots', 'value' => count($user->getPlotsAttribute()), 'href' => route('portal.plots.index')] : null,
             ['label' => 'Baan', 'value' => $user->getPrefixAttribute(), 'href' => null],
             ['label' => 'Level', 'value' => $user->level, 'href' => null],
             ['label' => 'Fitheid', 'value' => $user->getFitnessAttribute(), 'href' => null],
-        ];
+        ]);
     @endphp
 
     <div class="flex items-center gap-4">

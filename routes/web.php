@@ -63,62 +63,80 @@ Route::middleware('auth')->group(function () {
         ->name('minecraft.verify');
     Route::post('/verify-minecraft', [MinecraftVerificationController::class, 'verify']);
 
+    // Every page checks its feature (404 while it is off) and a permission (see App\Support\Permissions).
     Route::middleware('minecraft.verified')->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
         Route::get('/portal/criminal-records', [CriminalRecordController::class, 'index'])
+            ->middleware(['feature:criminal_records', 'can:view-criminal-record'])
             ->name('portal.criminal-records.index');
 
-        Route::get('/portal/bank-accounts', [BankAccountController::class, 'index'])
-            ->name('portal.bank-accounts.index');
+        Route::middleware(['feature:bank', 'can:use-bank'])->group(function () {
+            Route::get('/portal/bank-accounts', [BankAccountController::class, 'index'])
+                ->name('portal.bank-accounts.index');
 
-        Route::get('/portal/bank-accounts/{uuid}', [BankAccountController::class, 'show'])
-            ->name('portal.bank-accounts.show');
+            Route::get('/portal/bank-accounts/{uuid}', [BankAccountController::class, 'show'])
+                ->name('portal.bank-accounts.show');
+        });
 
-        Route::get('/portal/plots', [PlotController::class, 'index'])->name('portal.plots.index');
-        Route::get('/portal/plots/{name}', [PlotController::class, 'show'])->name('portal.plots.show');
-        Route::post('/portal/plots/{name}/owners', [PlotController::class, 'addOwner'])->name('portal.plots.owners.add');
-        Route::delete('/portal/plots/{name}/owners', [PlotController::class, 'removeOwner'])->name('portal.plots.owners.remove');
-        Route::post('/portal/plots/{name}/members', [PlotController::class, 'addMember'])->name('portal.plots.members.add');
-        Route::delete('/portal/plots/{name}/members', [PlotController::class, 'removeMember'])->name('portal.plots.members.remove');
+        Route::middleware(['feature:plots', 'can:use-plots'])->group(function () {
+            Route::get('/portal/plots', [PlotController::class, 'index'])->name('portal.plots.index');
+            Route::get('/portal/plots/{name}', [PlotController::class, 'show'])->name('portal.plots.show');
+            Route::post('/portal/plots/{name}/owners', [PlotController::class, 'addOwner'])->name('portal.plots.owners.add');
+            Route::delete('/portal/plots/{name}/owners', [PlotController::class, 'removeOwner'])->name('portal.plots.owners.remove');
+            Route::post('/portal/plots/{name}/members', [PlotController::class, 'addMember'])->name('portal.plots.members.add');
+            Route::delete('/portal/plots/{name}/members', [PlotController::class, 'removeMember'])->name('portal.plots.members.remove');
+        });
 
-        Route::middleware('broker.enabled')->group(function () {
-            Route::get('/plots/te-koop', [PlotListingController::class, 'index'])
-                ->name('portal.plots.listings.index');
+        Route::middleware('feature:broker')->group(function () {
+            Route::middleware('can:use-broker')->group(function () {
+                Route::get('/plots/te-koop', [PlotListingController::class, 'index'])
+                    ->name('portal.plots.listings.index');
 
-            Route::get('/plots/te-koop/{listing}/kopen', [PlotListingController::class, 'showBuyForm'])
-                ->name('portal.plots.listings.buy.show');
-            Route::post('/plots/te-koop/{listing}/kopen', [PlotListingController::class, 'buy'])
-                ->name('portal.plots.listings.buy');
+                Route::get('/plots/te-koop/{listing}/kopen', [PlotListingController::class, 'showBuyForm'])
+                    ->name('portal.plots.listings.buy.show');
+                Route::post('/plots/te-koop/{listing}/kopen', [PlotListingController::class, 'buy'])
+                    ->name('portal.plots.listings.buy');
 
-            Route::get('/plots/{plot}/verkopen', [PlotListingController::class, 'create'])
-                ->name('portal.plots.listings.create');
-            Route::post('/plots/{plot}/verkopen', [PlotListingController::class, 'store'])
-                ->name('portal.plots.listings.store');
+                Route::get('/plots/{plot}/verkopen', [PlotListingController::class, 'create'])
+                    ->name('portal.plots.listings.create');
+                Route::post('/plots/{plot}/verkopen', [PlotListingController::class, 'store'])
+                    ->name('portal.plots.listings.store');
+            });
+
+            // The seller (use-broker) or a manager (manage-broker); checked in the controller.
             Route::delete('/plots/te-koop/{listing}', [PlotListingController::class, 'destroy'])
                 ->name('portal.plots.listings.destroy');
         });
 
         Route::prefix('portal')->name('portal.')->group(function () {
-                    Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-            // User & Role Management
-            Route::resource('users', AdminUserController::class);
-            Route::post('users/{user}/roles', [AdminUserController::class, 'updateRoles'])->name('users.roles.update');
-            Route::resource('roles', AdminRoleController::class);
+            Route::prefix('admin')->name('admin.')->group(function () {
+                Route::middleware('can:manage-users')->group(function () {
+                    Route::resource('users', AdminUserController::class)->except(['create', 'store', 'destroy']);
+                    Route::post('users/{user}/roles', [AdminUserController::class, 'updateRoles'])->name('users.roles.update');
+                });
 
-            // Settings
-            Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
-            Route::put('settings/features', [SettingsController::class, 'updateFeatures'])->name('settings.update-features');
-            Route::put('settings/permit-settings', [SettingsController::class, 'updatePermitSettings'])->name('settings.update-permit-settings');
-            Route::put('settings/company-settings', [SettingsController::class, 'updateCompanySettings'])->name('settings.update-company-settings');
+                Route::resource('roles', AdminRoleController::class)->except('show')->middleware('can:manage-roles');
 
-            // Appearance: accent colour and logo
-            Route::get('appearance', [BrandingController::class, 'edit'])->name('branding.edit');
-            Route::put('appearance', [BrandingController::class, 'update'])->name('branding.update');
-            Route::delete('appearance', [BrandingController::class, 'reset'])->name('branding.reset');
+                Route::middleware('can:manage-settings')->group(function () {
+                    Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
+                    Route::put('settings/features', [SettingsController::class, 'updateFeatures'])->name('settings.update-features');
+                    Route::put('settings/permit-settings', [SettingsController::class, 'updatePermitSettings'])
+                        ->middleware('feature:permits')
+                        ->name('settings.update-permit-settings');
+                    Route::put('settings/company-settings', [SettingsController::class, 'updateCompanySettings'])
+                        ->middleware('feature:companies')
+                        ->name('settings.update-company-settings');
+                });
 
-                // Admin permit type management
-                Route::prefix('permits')->name('permits.')->group(function () {
+                // Appearance: accent colour and logo
+                Route::middleware('can:manage-appearance')->group(function () {
+                    Route::get('appearance', [BrandingController::class, 'edit'])->name('branding.edit');
+                    Route::put('appearance', [BrandingController::class, 'update'])->name('branding.update');
+                    Route::delete('appearance', [BrandingController::class, 'reset'])->name('branding.reset');
+                });
+
+                Route::prefix('permits')->name('permits.')->middleware(['feature:permits', 'can:manage-permit-types'])->group(function () {
                     Route::get('/types', [PermitTypeController::class, 'index'])->name('types.index');
                     Route::get('/types/create', [PermitTypeController::class, 'create'])->name('types.create');
                     Route::post('/types', [PermitTypeController::class, 'store'])->name('types.store');
@@ -127,102 +145,88 @@ Route::middleware('auth')->group(function () {
                     Route::delete('/types/{permitType}', [PermitTypeController::class, 'destroy'])->name('types.destroy');
                 });
 
-                // Admin overview routes
-                Route::get('/plots', [AdminPlotController::class, 'index'])->name('plots.index');
-                Route::get('/plots/{name}', [AdminPlotController::class, 'show'])->name('plots.show');
-                Route::post('/plots/{name}/owners', [AdminPlotController::class, 'addOwner'])->name('plots.owners.add');
-                Route::delete('/plots/{name}/owners', [AdminPlotController::class, 'removeOwner'])->name('plots.owners.remove');
-                Route::post('/plots/{name}/members', [AdminPlotController::class, 'addMember'])->name('plots.members.add');
-                Route::delete('/plots/{name}/members', [AdminPlotController::class, 'removeMember'])->name('plots.members.remove');
-                Route::middleware('broker.enabled')->group(function () {
-                    Route::get('/plots/{name}/verkopen', [AdminPlotListingController::class, 'create'])->name('plots.listings.create');
-                    Route::post('/plots/{name}/verkopen', [AdminPlotListingController::class, 'store'])->name('plots.listings.store');
+                Route::prefix('companies')->name('companies.')->middleware(['feature:companies', 'can:manage-company-types'])->group(function () {
+                    Route::get('/types', [CompanyTypeController::class, 'index'])->name('types.index');
+                    Route::get('/types/create', [CompanyTypeController::class, 'create'])->name('types.create');
+                    Route::post('/types', [CompanyTypeController::class, 'store'])->name('types.store');
+                    Route::get('/types/{companyType}/edit', [CompanyTypeController::class, 'edit'])->name('types.edit');
+                    Route::put('/types/{companyType}', [CompanyTypeController::class, 'update'])->name('types.update');
+                    Route::delete('/types/{companyType}', [CompanyTypeController::class, 'destroy'])->name('types.destroy');
+                });
+
+                Route::middleware(['feature:plots', 'can:manage-plots'])->group(function () {
+                    Route::get('/plots', [AdminPlotController::class, 'index'])->name('plots.index');
+                    Route::get('/plots/{name}', [AdminPlotController::class, 'show'])->name('plots.show');
+                    Route::post('/plots/{name}/owners', [AdminPlotController::class, 'addOwner'])->name('plots.owners.add');
+                    Route::delete('/plots/{name}/owners', [AdminPlotController::class, 'removeOwner'])->name('plots.owners.remove');
+                    Route::post('/plots/{name}/members', [AdminPlotController::class, 'addMember'])->name('plots.members.add');
+                    Route::delete('/plots/{name}/members', [AdminPlotController::class, 'removeMember'])->name('plots.members.remove');
+
+                    Route::middleware(['feature:broker', 'can:manage-broker'])->group(function () {
+                        Route::get('/plots/{name}/verkopen', [AdminPlotListingController::class, 'create'])->name('plots.listings.create');
+                        Route::post('/plots/{name}/verkopen', [AdminPlotListingController::class, 'store'])->name('plots.listings.store');
+                    });
                 });
             });
 
-            // Company Management Routes
-            Route::prefix('companies')->name('companies.')->middleware(['companies.manage', 'companies.enabled'])->group(function () {
-                Route::get('/requests', [CompanyRequestManagementController::class, 'index'])->name('requests.index');
-                Route::get('/requests/{companyRequest}', [CompanyRequestManagementController::class, 'show'])->name('requests.show');
-                Route::post('/requests/{companyRequest}/handle', [CompanyRequestManagementController::class, 'handle'])->name('requests.handle');
-
-                Route::get('/dissolutions', [DissolutionRequestManagementController::class, 'index'])->name('dissolutions.index');
-                Route::get('/dissolutions/{dissolutionRequest}', [DissolutionRequestManagementController::class, 'show'])->name('dissolutions.show');
-                Route::post('/dissolutions/{dissolutionRequest}/handle', [DissolutionRequestManagementController::class, 'handle'])->name('dissolutions.handle');
-            });
-
-
-            // Regular portal routes
-            Route::middleware('permits.enabled')->group(function () {
-                Route::get('/permits', [PermitsController::class, 'index'])->name('permits.index');
-                Route::get('/permits/{permitType}/request', [PermitsController::class, 'request'])->name('permits.request');
-                Route::post('/permits/{permitType}/request', [PermitsController::class, 'store'])->name('permits.store');
-                Route::get('/permits/requests/{permitRequest}', [PermitsController::class, 'show'])->name('permits.show');
-
-                // Permit management routes (for authorized roles)
-                Route::middleware('permit.manage')->group(function () {
+            Route::middleware('feature:permits')->group(function () {
+                // Before /permits/{permitType}/..., and per permit type limited to its roles.
+                Route::middleware('can:manage-permits')->group(function () {
                     Route::get('/permits/manage', [PermitRequestManagementController::class, 'index'])->name('permits.manage.index');
                     Route::get('/permits/manage/{permitRequest}', [PermitRequestManagementController::class, 'show'])->name('permits.manage.show');
                     Route::post('/permits/manage/{permitRequest}/handle', [PermitRequestManagementController::class, 'handle'])->name('permits.manage.handle');
                 });
+
+                Route::middleware('can:request-permits')->group(function () {
+                    Route::get('/permits', [PermitsController::class, 'index'])->name('permits.index');
+                    Route::get('/permits/{permitType}/request', [PermitsController::class, 'request'])->name('permits.request');
+                    Route::post('/permits/{permitType}/request', [PermitsController::class, 'store'])->name('permits.store');
+                    Route::get('/permits/requests/{permitRequest}', [PermitsController::class, 'show'])->name('permits.show');
+                });
             });
 
-            // Company routes for users
-            Route::middleware('companies.enabled')->group(function () {
-                Route::get('/companies/register/search', [CompanyRegistryController::class, 'index'])
-                    ->name('companies.registry');
-                Route::get('/companies/registry/search', [CompanyRegistryController::class, 'search'])
-                    ->name('companies.registry.search');
-                Route::get('/companies/registry/{company}', [CompanyRegistryController::class, 'show'])
-                    ->name('companies.registry.show');
+            Route::middleware('feature:companies')->prefix('companies')->name('companies.')->group(function () {
+                // Before /companies/{company}, which would otherwise catch /manage and /dissolutions.
+                Route::middleware('can:manage-companies')->group(function () {
+                    Route::get('/manage', [CompanyRequestManagementController::class, 'index'])->name('manage.index');
+                    Route::get('/manage/{companyRequest}', [CompanyRequestManagementController::class, 'show'])->name('manage.show');
+                    Route::post('/manage/{companyRequest}/handle', [CompanyRequestManagementController::class, 'handle'])->name('manage.handle');
 
-                Route::prefix('companies')->name('companies.')->group(function () {
+                    Route::get('/dissolutions', [DissolutionRequestManagementController::class, 'index'])->name('dissolutions.index');
+                    Route::get('/dissolutions/{dissolutionRequest}', [DissolutionRequestManagementController::class, 'show'])->name('dissolutions.show');
+                    Route::post('/dissolutions/{dissolutionRequest}/handle', [DissolutionRequestManagementController::class, 'handle'])->name('dissolutions.handle');
+                });
+
+                Route::middleware('can:view-company-registry')->group(function () {
+                    Route::get('/register/search', [CompanyRegistryController::class, 'index'])->name('registry');
+                    Route::get('/registry/search', [CompanyRegistryController::class, 'search'])->name('registry.search');
+                    Route::get('/registry/{company}', [CompanyRegistryController::class, 'show'])->name('registry.show');
+                });
+
+                Route::middleware('can:use-companies')->group(function () {
                     Route::get('/', [CompaniesController::class, 'index'])->name('index');
                     Route::get('/register', [CompaniesController::class, 'register'])->name('register');
+                    Route::get('/lookup', [CompaniesController::class, 'lookup'])->name('lookup');
+                    Route::get('/requests/{companyRequest}', [CompaniesController::class, 'showRequest'])->name('request-details');
                     Route::get('/{companyType}/request', [CompaniesController::class, 'request'])->name('request');
                     Route::post('/{companyType}/request', [CompaniesController::class, 'store'])->name('store');
-                    Route::get('/lookup', [CompaniesController::class, 'lookup'])->name('lookup');
                     Route::post('/{company}/dissolve', [CompaniesController::class, 'dissolve'])->name('dissolve');
-                    Route::get('/requests/{companyRequest}', [CompaniesController::class, 'showRequest'])->name('request-details');
                     Route::get('/{company}', [CompaniesController::class, 'show'])->name('show');
-
-                    // Company management routes (for authorized roles)
-                    Route::middleware('companies.manage')->group(function () {
-                        Route::get('/manage', [CompanyRequestManagementController::class, 'index'])->name('manage.index');
-                        Route::get('/manage/{companyRequest}', [CompanyRequestManagementController::class, 'show'])->name('manage.show');
-                        Route::post('/manage/{companyRequest}/handle', [CompanyRequestManagementController::class, 'handle'])->name('manage.handle');
-                    });
-                });
-
-                // Admin company type management
-                Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-                    Route::prefix('companies')->name('companies.')->group(function () {
-                        Route::get('/types', [CompanyTypeController::class, 'index'])->name('types.index');
-                        Route::get('/types/create', [CompanyTypeController::class, 'create'])->name('types.create');
-                        Route::post('/types', [CompanyTypeController::class, 'store'])->name('types.store');
-                        Route::get('/types/{companyType}/edit', [CompanyTypeController::class, 'edit'])->name('types.edit');
-                        Route::put('/types/{companyType}', [CompanyTypeController::class, 'update'])->name('types.update');
-                        Route::delete('/types/{companyType}', [CompanyTypeController::class, 'destroy'])->name('types.destroy');
-                    });
                 });
             });
 
-            // Police routes
-            Route::middleware(['police.access'])->prefix('police')->name('police.')->group(function () {
+            Route::middleware(['feature:police', 'can:manage-police'])->prefix('police')->name('police.')->group(function () {
                 Route::get('/players', [PlayerDatabaseController::class, 'index'])->name('players.index');
                 Route::get('/players/{user}', [PlayerDatabaseController::class, 'show'])->name('players.show');
             });
 
-            Route::prefix('bank-accounts')->name('bank-accounts.')->group(function () {
-                Route::middleware('transactions.enabled')->group(function () {
-                    Route::get('/{accountUuid}/transfer', [BankTransactionController::class, 'create'])->name('transactions.create');
-                    Route::post('/{accountUuid}/transfer', [BankTransactionController::class, 'store'])->name('transactions.store');
-                    Route::get('/search/users', [BankTransactionController::class, 'search'])->name('transactions.search-users');
-                    Route::get('/accounts/{userId}', [BankTransactionController::class, 'getUserAccounts'])
-                        ->name('transactions.get-accounts');
-                });
+            Route::prefix('bank-accounts')->name('bank-accounts.')->middleware(['feature:transactions', 'can:use-transactions'])->group(function () {
+                Route::get('/{accountUuid}/transfer', [BankTransactionController::class, 'create'])->name('transactions.create');
+                Route::post('/{accountUuid}/transfer', [BankTransactionController::class, 'store'])->name('transactions.store');
+                Route::get('/search/users', [BankTransactionController::class, 'search'])->name('transactions.search-users');
+                Route::get('/accounts/{userId}', [BankTransactionController::class, 'getUserAccounts'])
+                    ->name('transactions.get-accounts');
             });
-
         });
     });
 

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\PortalFeature;
 use App\Models\PermitSetting;
 use App\Models\CompanySetting;
+use App\Support\Features;
 use Illuminate\Http\Request;
 
 class SettingsController extends Controller
@@ -13,7 +14,8 @@ class SettingsController extends Controller
     public function index()
     {
         return view('portal.admin.settings.index', [
-            'features' => PortalFeature::all(),
+            'features' => PortalFeature::whereIn('key', array_keys(Features::ALL))->get()
+                ->sortBy(fn (PortalFeature $feature) => array_search($feature->key, array_keys(Features::ALL))),
             'permitSettings' => PermitSetting::first() ?? PermitSetting::create([]),
             'companySettings' => CompanySetting::first() ?? CompanySetting::create([])
         ]);
@@ -21,8 +23,8 @@ class SettingsController extends Controller
 
     public function updateFeatures(Request $request)
     {
-        $features = PortalFeature::all();
-        
+        $features = PortalFeature::whereIn('key', array_keys(Features::ALL))->get();
+
         foreach ($features as $feature) {
             $feature->update([
                 'is_enabled' => $request->has("features.{$feature->key}")

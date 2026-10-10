@@ -52,49 +52,11 @@
                         @enderror
                     </div>
 
-                    <!-- Role Type -->
-                    <div class="space-y-4">
-                        <div class="relative flex items-start">
-                            <div class="flex h-6 items-center">
-                                <input type="checkbox" name="is_admin" id="is_admin" value="1" {{ old('is_admin') ? 'checked' : '' }}
-                                       class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800">
-                            </div>
-                            <div class="ml-3">
-                                <label for="is_admin" class="text-sm font-medium text-gray-700 dark:text-gray-300">Admin Rol</label>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">Deze rol heeft toegang tot het admin paneel</p>
-                            </div>
-                        </div>
-                    </div>
+                    @include('portal.admin.roles.partials.role-type', ['role' => null])
                 </div>
             </div>
 
-            <!-- Permissions -->
-            <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg">
-                <div class="px-4 py-5 sm:px-6 border-b border-gray-200 dark:border-gray-700">
-                    <h3 class="text-base font-semibold text-gray-900 dark:text-white">Permissies</h3>
-                </div>
-                <div class="px-4 py-5 sm:p-6">
-                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        @foreach($permissions as $permission)
-                            <div class="relative flex items-start">
-                                <div class="flex h-6 items-center">
-                                    <input type="checkbox" name="permissions[]" id="permission_{{ $permission->id }}" 
-                                           value="{{ $permission->id }}" {{ in_array($permission->id, old('permissions', [])) ? 'checked' : '' }}
-                                           class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800">
-                                </div>
-                                <div class="ml-3">
-                                    <label for="permission_{{ $permission->id }}" class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                        {{ $permission->name }}
-                                    </label>
-                                    @if($permission->description)
-                                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ $permission->description }}</p>
-                                    @endif
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
+            @include('portal.admin.roles.partials.permissions', ['role' => null])
 
             <!-- Submit Button -->
             <div class="flex justify-end">

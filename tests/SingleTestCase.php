@@ -14,11 +14,10 @@ abstract class SingleTestCase extends BaseTestCase
 {
     use RefreshDatabase;
 
-    public const DATABASE = 'omt_portal_test_single';
+    private static ?string $database = null;
 
     private const ENV = [
         'PORTAL_MODE' => 'single',
-        'DB_DATABASE' => self::DATABASE,
         'PLUGIN_API_URL' => 'http://127.0.0.1:4567',
         'PLUGIN_API_KEY' => 'plt_single',
         'MINECRAFT_API_KEY' => 'ist_single',
@@ -27,15 +26,24 @@ abstract class SingleTestCase extends BaseTestCase
 
     private array $previous = [];
 
+    /**
+     * The hosted test database plus _single, so a checkout run with its own
+     * DB_DATABASE (e.g. a worktree) never shares databases with another run.
+     */
+    public static function database(): string
+    {
+        return self::$database ??= (getenv('DB_DATABASE') ?: 'omt_portal_test').'_single';
+    }
+
     public function createApplication()
     {
-        foreach (self::ENV as $key => $value) {
+        foreach (self::ENV + ['DB_DATABASE' => self::database()] as $key => $value) {
             $this->previous[$key] = $_ENV[$key] ?? null;
             $_ENV[$key] = $_SERVER[$key] = $value;
             putenv("{$key}={$value}");
         }
 
-        TestCase::server()->exec('CREATE DATABASE IF NOT EXISTS `'.self::DATABASE.'`');
+        TestCase::server()->exec('CREATE DATABASE IF NOT EXISTS `'.self::database().'`');
 
         return parent::createApplication();
     }
@@ -43,7 +51,7 @@ abstract class SingleTestCase extends BaseTestCase
     /** Before RefreshDatabase runs migrate:fresh. */
     protected function beforeRefreshingDatabase()
     {
-        if ($this->app->configurationIsCached() || config('database.connections.mysql.database') !== self::DATABASE) {
+        if ($this->app->configurationIsCached() || config('database.connections.mysql.database') !== self::database()) {
             throw new \RuntimeException('Run `php artisan config:clear` first: the tests would use the wrong database.');
         }
     }

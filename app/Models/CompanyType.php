@@ -43,8 +43,23 @@ class CompanyType extends Model
         return $this->hasMany(CompanyRequest::class);
     }
 
+    /**
+     * Needs manage-companies; a type with roles is limited to those roles (no roles: every manager).
+     */
     public function userCanManage(User $user): bool
     {
-        return $user->isAdmin() || $user->roles->pluck('id')->intersect($this->authorized_roles)->isNotEmpty();
+        if (! $user->can('manage-companies')) {
+            return false;
+        }
+
+        $roles = array_map('intval', $this->authorized_roles ?? []);
+
+        return $user->isAdmin() || $roles === [] || $user->roles->pluck('id')->intersect($roles)->isNotEmpty();
+    }
+
+    /** Ids of the types the user may handle requests for. */
+    public static function manageableIdsFor(User $user): array
+    {
+        return static::all()->filter->userCanManage($user)->pluck('id')->all();
     }
 } 

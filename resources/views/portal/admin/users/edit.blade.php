@@ -138,13 +138,18 @@
 
                         <div class="space-y-4">
                             @foreach($roles as $role)
-                                <div class="relative flex items-start p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                @php($grantable = $role->canBeGrantedBy(auth()->user()))
+                                <div @class(['relative flex items-start p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50', 'opacity-60' => !$grantable])>
                                     <div class="flex h-6 items-center">
+                                        @if(!$grantable && $user->roles->contains($role))
+                                            <input type="hidden" name="roles[]" value="{{ $role->id }}">
+                                        @endif
                                         <input type="checkbox" 
                                                id="role_{{ $role->id }}" 
                                                name="roles[]" 
                                                value="{{ $role->id }}"
                                                {{ $user->roles->contains($role) ? 'checked' : '' }}
+                                               @disabled(!$grantable)
                                                class="h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700">
                                     </div>
                                     <div class="ml-3 flex-1">
@@ -152,6 +157,9 @@
                                         @if($role->description)
                                             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ $role->description }}</p>
                                         @endif
+                                        @unless($grantable)
+                                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Deze rol heeft rechten die jij niet hebt.</p>
+                                        @endunless
                                     </div>
                                 </div>
                             @endforeach

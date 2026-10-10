@@ -7,7 +7,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Blade;
-use App\Models\PortalFeature;
+use App\Models\User;
+use App\Support\Features;
+use App\Support\Permissions;
+use Illuminate\Support\Facades\Gate;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -28,8 +31,18 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Blade::if('feature', function ($feature) {
-            return PortalFeature::isEnabled($feature);
+        Blade::if('feature', fn (string $feature) => Features::enabled($feature));
+
+        // A portal permission needs its feature on and a role that grants it; admins have them all.
+        Gate::before(function (User $user, string $ability) {
+            if (! Permissions::exists($ability)) {
+                return null;
+            }
+
+            $feature = Permissions::feature($ability);
+
+            return ($feature === null || Features::enabled($feature))
+                && ($user->isAdmin() || $user->hasPermission($ability));
         });
 
         // Per tenant and IP, so one busy portal never locks out another.

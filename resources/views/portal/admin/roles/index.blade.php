@@ -96,7 +96,12 @@
                                                 </span>
                                             @else
                                                 <span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/20 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20">
-                                                    Standaard
+                                                    Rol
+                                                </span>
+                                            @endif
+                                            @if($role->is_default)
+                                                <span class="ml-1 inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-600/20 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/20">
+                                                    Standaardrol
                                                 </span>
                                             @endif
                                         </td>
@@ -108,11 +113,13 @@
                                         </td>
                                         <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-3">
                                             <div class="flex items-center justify-end gap-4">
+                                                @if($role->canBeGrantedBy(auth()->user()))
                                                 <a href="{{ route('portal.admin.roles.edit', $role) }}"
                                                    class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300">
                                                     Bewerken<span class="sr-only">, {{ $role->name }}</span>
                                                 </a>
-                                                @if($role->slug !== 'admin')
+                                                @endif
+                                                @if($role->slug !== 'admin' && $role->canBeGrantedBy(auth()->user()))
                                                     <form action="{{ route('portal.admin.roles.destroy', $role) }}" method="POST"
                                                           onsubmit="return confirm({{ Js::from('Weet je zeker dat je de rol '.$role->name.' wilt verwijderen? '.$role->users_count.' gebruiker(s) verliezen deze rol.') }})">
                                                         @csrf

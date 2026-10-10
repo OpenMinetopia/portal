@@ -21,38 +21,19 @@ class PermitRequestManagementController extends Controller
 
     public function index()
     {
-        // Get permit requests based on user's role
-        $requests = PermitRequest::with(['type', 'user', 'handler'])
-            ->when(!auth()->user()->isAdmin(), function ($query) {
-                // If not admin, only show requests for permit types they can manage
-                $query->whereHas('type', function ($q) {
-                    $q->whereJsonContains('authorized_roles', auth()->user()->roles->pluck('id'));
-                });
-            })
+        // Only requests for the permit types this user may handle
+        $typeIds = PermitType::manageableIdsFor(auth()->user());
+        $scoped = fn () => PermitRequest::whereIn('permit_type_id', $typeIds);
+
+        $requests = $scoped()->with(['type', 'user', 'handler'])
             ->latest()
             ->paginate(10);
 
-        // Get statistics
         $stats = [
             'total' => $requests->total(),
-            'pending' => PermitRequest::where('status', 'pending')
-                ->when(!auth()->user()->isAdmin(), function ($query) {
-                    $query->whereHas('type', function ($q) {
-                        $q->whereJsonContains('authorized_roles', auth()->user()->roles->pluck('id'));
-                    });
-                })->count(),
-            'approved' => PermitRequest::where('status', 'approved')
-                ->when(!auth()->user()->isAdmin(), function ($query) {
-                    $query->whereHas('type', function ($q) {
-                        $q->whereJsonContains('authorized_roles', auth()->user()->roles->pluck('id'));
-                    });
-                })->count(),
-            'denied' => PermitRequest::where('status', 'denied')
-                ->when(!auth()->user()->isAdmin(), function ($query) {
-                    $query->whereHas('type', function ($q) {
-                        $q->whereJsonContains('authorized_roles', auth()->user()->roles->pluck('id'));
-                    });
-                })->count(),
+            'pending' => $scoped()->where('status', 'pending')->count(),
+            'approved' => $scoped()->where('status', 'approved')->count(),
+            'denied' => $scoped()->where('status', 'denied')->count(),
         ];
 
         return view('portal.permits.manage.index', compact('requests', 'stats'));
@@ -61,7 +42,7 @@ class PermitRequestManagementController extends Controller
     public function show(PermitRequest $permitRequest)
     {
         // Check if user can manage this permit type
-        if (!auth()->user()->isAdmin() && !$permitRequest->type->userCanManage(auth()->user())) {
+        if (!$permitRequest->type->userCanManage(auth()->user())) {
             abort(403, 'Je hebt geen toegang tot deze vergunning aanvraag.');
         }
 
@@ -71,7 +52,7 @@ class PermitRequestManagementController extends Controller
     public function handle(Request $request, PermitRequest $permitRequest)
     {
         // Check if user can manage this permit type
-        if (!auth()->user()->isAdmin() && !$permitRequest->type->userCanManage(auth()->user())) {
+        if (!$permitRequest->type->userCanManage(auth()->user())) {
             abort(403, 'Je hebt geen toegang tot deze vergunning aanvraag.');
         }
 

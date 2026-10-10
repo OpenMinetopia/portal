@@ -107,8 +107,8 @@ class PlotListingController extends Controller
 
     public function showBuyForm(PlotListing $listing)
     {
-        // Only prevent non-admins from buying their own plots
-        if ($listing->seller_id === auth()->id() && !auth()->user()->isAdmin()) {
+        // Only managers may buy their own listings, e.g. to test a server listing
+        if ($listing->seller_id === auth()->id() && !auth()->user()->can('manage-broker')) {
             return redirect()->route('portal.plots.listings.index')
                 ->with('error', [
                     'title' => 'Actie niet mogelijk',
@@ -147,7 +147,7 @@ class PlotListingController extends Controller
             'terms.accepted' => 'Je moet akkoord gaan met de voorwaarden.'
         ]);
 
-        if ($listing->seller_id === auth()->id() && !auth()->user()->isAdmin()) {
+        if ($listing->seller_id === auth()->id() && !auth()->user()->can('manage-broker')) {
             return back()->with('error', [
                 'title' => 'Actie niet mogelijk',
                 'message' => 'Je kunt je eigen plot niet kopen.'
@@ -251,7 +251,10 @@ class PlotListingController extends Controller
 
     public function destroy(PlotListing $listing)
     {
-        if ($listing->seller_id !== auth()->id() && !auth()->user()->isAdmin()) {
+        $isSeller = $listing->seller_id === auth()->id() && auth()->user()->can('use-broker');
+        $isManager = auth()->user()->can('manage-broker');
+
+        if (!$isSeller && !$isManager) {
             return back()->with('error', [
                 'title' => 'Actie niet mogelijk',
                 'message' => 'Je kunt alleen je eigen listings verwijderen.'
@@ -260,9 +263,13 @@ class PlotListingController extends Controller
 
         $listing->update(['status' => 'cancelled']);
 
-        $redirect = auth()->user()->isAdmin() && ($listing->is_server_listing || $listing->seller_id !== auth()->id())
-            ? redirect()->route('portal.admin.plots.show', $listing->plot_name)
-            : redirect()->route('portal.plots.show', $listing->plot_name);
+        if ($isSeller && !$listing->is_server_listing) {
+            $redirect = redirect()->route('portal.plots.show', $listing->plot_name);
+        } elseif (auth()->user()->can('manage-plots')) {
+            $redirect = redirect()->route('portal.admin.plots.show', $listing->plot_name);
+        } else {
+            $redirect = back();
+        }
 
         return $redirect
             ->with('success', [

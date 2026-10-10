@@ -18,11 +18,13 @@
                             <span class="inline-flex items-center rounded-md bg-green-50 dark:bg-green-500/10 px-2 py-1 text-xs font-medium text-green-700 dark:text-green-400 ring-1 ring-inset ring-green-600/20 dark:ring-green-500/20">
                                 Eigenaar
                             </span>
-                            <a href="{{ route('portal.plots.listings.create', $plot['name']) }}"
-                               class="inline-flex items-center gap-x-1.5 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                                <x-heroicon-m-currency-euro class="h-4 w-4"/>
-                                Plot Verkopen
-                            </a>
+                            @can('use-broker')
+                                <a href="{{ route('portal.plots.listings.create', $plot['name']) }}"
+                                   class="inline-flex items-center gap-x-1.5 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                                    <x-heroicon-m-currency-euro class="h-4 w-4"/>
+                                    Plot Verkopen
+                                </a>
+                            @endcan
                         </div>
                     @endif
                 </div>
@@ -40,7 +42,7 @@
             </div>
         </div>
 
-        @if($plot['permission'] === 'OWNER')
+        @if($plot['permission'] === 'OWNER' && auth()->user()->can('use-broker'))
             @php
                 $activeListing = \App\Models\PlotListing::where('plot_name', $plot['name'])
                     ->where('status', 'active')

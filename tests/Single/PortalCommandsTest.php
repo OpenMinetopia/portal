@@ -28,7 +28,7 @@ function installFlags(array $override = []): array
         '--db-connection' => 'mysql',
         '--db-host' => env('DB_HOST'),
         '--db-port' => env('DB_PORT'),
-        '--db-database' => Tests\SingleTestCase::DATABASE,
+        '--db-database' => Tests\SingleTestCase::database(),
         '--db-username' => env('DB_USERNAME'),
         '--db-password' => 'geheim wachtwoord',
         '--environment' => 'production',
@@ -58,7 +58,7 @@ it('installs without questions and prints the plugin config', function () {
         ->and($env['PLUGIN_API_KEY'])->toMatch('/^plt_[0-9a-f]{64}$/')
         ->and($env['MINECRAFT_API_KEY'])->toMatch('/^ist_[0-9a-f]{64}$/')
         ->and($env['MC_SERVER_ADDRESS'])->toBe('play.griepje.nl')
-        ->and($env['DB_DATABASE'])->toBe(Tests\SingleTestCase::DATABASE);
+        ->and($env['DB_DATABASE'])->toBe(Tests\SingleTestCase::database());
 });
 
 it('keeps keys and the app key when run again', function () {

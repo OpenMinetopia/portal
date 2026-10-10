@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Portal\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\PlotListing;
-use App\Models\PortalFeature;
 use App\Models\User;
 use App\Services\Plugin\PlotService;
 use App\Services\MojangApiService;
@@ -27,7 +26,7 @@ class AdminPlotController extends Controller
 
         return view('portal.admin.plots.index', [
             'plots' => $plots,
-            'brokerEnabled' => $this->brokerEnabled(),
+            'brokerEnabled' => auth()->user()->can('manage-broker'),
             'listedPlotNames' => PlotListing::where('status', 'active')->pluck('plot_name')
         ]);
     }
@@ -51,15 +50,11 @@ class AdminPlotController extends Controller
         return view('portal.admin.plots.show', [
             'plot' => $plot,
             'users' => $users,
-            'brokerEnabled' => $this->brokerEnabled(),
+            'brokerEnabled' => auth()->user()->can('manage-broker'),
             'activeListing' => PlotListing::where('plot_name', $name)->where('status', 'active')->first()
         ]);
     }
 
-    protected function brokerEnabled(): bool
-    {
-        return PortalFeature::where('key', 'broker')->where('is_enabled', true)->exists();
-    }
 
     public function addOwner(Request $request, string $name)
     {

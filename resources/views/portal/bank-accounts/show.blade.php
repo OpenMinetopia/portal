@@ -151,7 +151,7 @@
             </div>
         </div>
 
-        @if(\App\Models\PortalFeature::isEnabled('transactions'))
+        @can('use-transactions')
             <!-- Transfer Button -->
             <div class="flex justify-end">
                 <a href="{{ route('portal.bank-accounts.transactions.create', $account['uuid']) }}"
@@ -243,6 +243,6 @@
                     </div>
                 </div>
             </div>
-        @endif
+        @endcan
     </div>
 @endsection

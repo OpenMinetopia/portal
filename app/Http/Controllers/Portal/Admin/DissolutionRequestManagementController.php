@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Portal\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\CompanyType;
 use App\Models\DissolutionRequest;
 use Illuminate\Http\Request;
 
@@ -11,7 +12,9 @@ class DissolutionRequestManagementController extends Controller
 
     public function index()
     {
+        // Only companies of the types this user may handle
         $requests = DissolutionRequest::with(['company', 'user'])
+            ->whereHas('company', fn ($query) => $query->whereIn('type_id', CompanyType::manageableIdsFor(auth()->user())))
             ->latest()
             ->paginate(10);
 
@@ -20,11 +23,15 @@ class DissolutionRequestManagementController extends Controller
 
     public function show(DissolutionRequest $dissolutionRequest)
     {
+        abort_unless($dissolutionRequest->company->type->userCanManage(auth()->user()), 403, 'Je hebt geen toegang tot deze opheffingsaanvraag.');
+
         return view('portal.admin.companies.dissolutions.show', compact('dissolutionRequest'));
     }
 
     public function handle(Request $request, DissolutionRequest $dissolutionRequest)
     {
+        abort_unless($dissolutionRequest->company->type->userCanManage(auth()->user()), 403, 'Je hebt geen toegang tot deze opheffingsaanvraag.');
+
         // Validate request
         $validated = $request->validate([
             'status' => 'required|in:approved,denied',

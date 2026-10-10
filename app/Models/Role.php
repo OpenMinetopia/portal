@@ -12,11 +12,13 @@ class Role extends Model
         'slug',
         'description',
         'is_admin',
+        'is_default',
         'is_game_role'
     ];
 
     protected $casts = [
         'is_admin' => 'boolean',
+        'is_default' => 'boolean',
         'is_game_role' => 'boolean'
     ];
 
@@ -33,5 +35,19 @@ class Role extends Model
     public function hasPermission(string $permission): bool
     {
         return $this->is_admin || $this->permissions->contains('slug', $permission);
+    }
+
+    /**
+     * Whether the user may give this role to someone, or change it: admins always,
+     * others only a non-admin role with no permission they lack themselves.
+     */
+    public function canBeGrantedBy(User $user): bool
+    {
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        return ! $this->is_admin
+            && $this->permissions->pluck('slug')->diff($user->permissionSlugs())->isEmpty();
     }
 }
