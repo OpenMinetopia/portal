@@ -10,7 +10,7 @@
 @section('title', 'Plot huren')
 @section('header')
     <div class="flex items-center gap-4">
-        <a href="{{ route('portal.plots.listings.index') }}"
+        <a href="{{ route('portal.plots.listings.index', ['soort' => 'huur']) }}"
            class="group flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
             <x-heroicon-s-arrow-left class="w-5 h-5"/>
             Terug naar de makelaar

@@ -36,6 +36,7 @@ class PlotListingController extends Controller
             ->get();
 
         return view('portal.plots.listings.index', [
+            'tab' => request('soort') === 'huur' ? 'huur' : 'koop',
             'listings' => $listings,
             'rentalOffers' => PlotRentalOffer::with('landlord')->where('status', 'active')->latest()->get(),
         ]);

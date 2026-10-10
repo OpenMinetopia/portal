@@ -22,7 +22,7 @@
             <div class="flex items-center justify-between">
                 <h2 class="text-base font-semibold text-gray-900 dark:text-white">Plots die ik huur</h2>
                 @can('use-broker')
-                    <a href="{{ route('portal.plots.listings.index') }}#te-huur" class="text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">Plots te huur bekijken</a>
+                    <a href="{{ route('portal.plots.listings.index', ['soort' => 'huur']) }}" class="text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">Plots te huur bekijken</a>
                 @endcan
             </div>
 

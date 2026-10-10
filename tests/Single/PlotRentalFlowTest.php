@@ -83,7 +83,9 @@ it('lets an owner offer a plot for rent and a player rent it', function () {
     $offer = PlotRentalOffer::sole();
     expect($offer->status)->toBe('active')->and($offer->is_server_listing)->toBeFalse();
 
-    $this->actingAs($this->renter)->get(BASE.'/plots/te-koop')->assertOk()->assertSee('Te huur')->assertSee('kade_1')->assertSee('€ 150,00 per week');
+    // Buying and renting are tabs, so many sale listings never push the rentals out of sight.
+    $this->actingAs($this->renter)->get(BASE.'/plots/te-koop')->assertOk()->assertSee('Te huur')->assertDontSee('€ 150,00 per week');
+    $this->actingAs($this->renter)->get(BASE.'/plots/te-koop?soort=huur')->assertOk()->assertSee('kade_1')->assertSee('€ 150,00 per week');
     $this->get(BASE."/plots/te-huur/{$offer->id}/huren")->assertOk()->assertSee('automatisch');
 
     $this->post(BASE."/plots/te-huur/{$offer->id}/huren", ['renter_bank_account_uuid' => 'acc-tenant', 'terms' => '1'])
@@ -96,7 +98,7 @@ it('lets an owner offer a plot for rent and a player rent it', function () {
 
     $this->get(BASE.'/plots/huur')->assertOk()->assertSee('kade_1')->assertSee('Betaald tot')->assertSee('08-10-2026 12:00');
     $this->actingAs($this->owner)->get(BASE.'/plots/huur')->assertOk()->assertSee('Plots die ik verhuur')->assertSee('Huurder');
-    $this->get(BASE.'/plots/te-koop')->assertDontSee('/plots/te-huur/'.$offer->id.'/huren');
+    $this->get(BASE.'/plots/te-koop?soort=huur')->assertDontSee('/plots/te-huur/'.$offer->id.'/huren');
 });
 
 it('does not let a player rent with someone else\'s account or without enough money', function () {
@@ -118,7 +120,7 @@ it('does not let a player rent with someone else\'s account or without enough mo
 it('does not let an owner rent out their own plot to themselves or pay out to a foreign account', function () {
     $offer = offerKade($this->owner);
 
-    $this->actingAs($this->owner)->get(BASE."/plots/te-huur/{$offer->id}/huren")->assertRedirect(BASE.'/plots/te-koop');
+    $this->actingAs($this->owner)->get(BASE."/plots/te-huur/{$offer->id}/huren")->assertRedirect(BASE.'/plots/te-koop?soort=huur');
 
     $offer->update(['status' => 'cancelled']);
     $this->post(BASE.'/plots/kade_1/verhuren', [

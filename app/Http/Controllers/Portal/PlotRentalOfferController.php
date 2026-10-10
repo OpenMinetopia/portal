@@ -63,7 +63,7 @@ class PlotRentalOfferController extends Controller
     public function showRentForm(PlotRentalOffer $offer)
     {
         if ($error = $this->cannotRent($offer)) {
-            return redirect()->route('portal.plots.listings.index')->with('error', $error);
+            return redirect()->route('portal.plots.listings.index', ['soort' => 'huur'])->with('error', $error);
         }
 
         return view('portal.plots.rentals.rent', ['offer' => $offer]);
