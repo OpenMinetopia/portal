@@ -64,17 +64,6 @@
                                 <p class="text-sm text-gray-500 dark:text-gray-400">Deze rol heeft toegang tot het admin paneel</p>
                             </div>
                         </div>
-
-                        <div class="relative flex items-start">
-                            <div class="flex h-6 items-center">
-                                <input type="checkbox" name="is_game_role" id="is_game_role" value="1" {{ old('is_game_role') ? 'checked' : '' }}
-                                       class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800">
-                            </div>
-                            <div class="ml-3">
-                                <label for="is_game_role" class="text-sm font-medium text-gray-700 dark:text-gray-300">Game Rol</label>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">Deze rol heeft speciale permissies in de game</p>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>

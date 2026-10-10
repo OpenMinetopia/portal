@@ -19,8 +19,7 @@ class AdminRoleController extends Controller
             'roles' => $roles,
             'stats' => [
                 'total' => Role::count(),
-                'admin_roles' => Role::where('is_admin', true)->count(),
-                'game_roles' => Role::where('is_game_role', true)->count()
+                'admin_roles' => Role::where('is_admin', true)->count()
             ]
         ]);
     }
@@ -39,12 +38,11 @@ class AdminRoleController extends Controller
             'slug' => 'required|string|max:255|unique:roles',
             'description' => 'nullable|string',
             'is_admin' => 'boolean',
-            'is_game_role' => 'boolean',
             'permissions' => 'array',
             'permissions.*' => 'exists:permissions,id'
         ]);
 
-        $role = Role::create($validated);
+        $role = Role::create(['is_admin' => $request->boolean('is_admin')] + $validated);
         $role->permissions()->sync($validated['permissions'] ?? []);
 
         return redirect()
@@ -66,16 +64,34 @@ class AdminRoleController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'is_admin' => 'boolean',
-            'is_game_role' => 'boolean',
             'permissions' => 'array',
             'permissions.*' => 'exists:permissions,id'
         ]);
 
-        $role->update($validated);
+        // An unchecked checkbox is not sent, so read it as a boolean; the admin role always stays admin.
+        $role->update(['is_admin' => $role->slug === 'admin' || $request->boolean('is_admin')] + $validated);
         $role->permissions()->sync($validated['permissions'] ?? []);
 
         return redirect()
             ->route('portal.admin.roles.index')
             ->with('success', 'Rol succesvol bijgewerkt');
+    }
+
+    public function destroy(Role $role)
+    {
+        if ($role->slug === 'admin') {
+            return back()->with('error', [
+                'title' => 'Actie niet mogelijk',
+                'message' => 'De admin rol kan niet worden verwijderd.'
+            ]);
+        }
+
+        $role->users()->detach();
+        $role->permissions()->detach();
+        $role->delete();
+
+        return redirect()
+            ->route('portal.admin.roles.index')
+            ->with('success', 'Rol succesvol verwijderd');
     }
 } 

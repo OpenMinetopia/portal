@@ -6,7 +6,7 @@
 @section('content')
     <div class="space-y-6">
         <!-- Stats Overview -->
-        <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
             <!-- Total Roles -->
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-lg">
                 <div class="p-6">
@@ -32,21 +32,6 @@
                         <div class="ml-4">
                             <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Admin Rollen</h3>
                             <p class="text-2xl font-semibold text-gray-900 dark:text-white">{{ number_format($stats['admin_roles']) }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Game Roles -->
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-lg">
-                <div class="p-6">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0 p-3 bg-green-100 dark:bg-green-500/10 rounded-lg">
-                            <x-heroicon-s-puzzle-piece class="h-6 w-6 text-green-600 dark:text-green-400" />
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Game Rollen</h3>
-                            <p class="text-2xl font-semibold text-gray-900 dark:text-white">{{ number_format($stats['game_roles']) }}</p>
                         </div>
                     </div>
                 </div>
@@ -110,8 +95,8 @@
                                                     Admin
                                                 </span>
                                             @else
-                                                <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20 dark:bg-green-400/10 dark:text-green-400 dark:ring-green-400/20">
-                                                    Game
+                                                <span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/20 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20">
+                                                    Standaard
                                                 </span>
                                             @endif
                                         </td>
@@ -122,10 +107,22 @@
                                             {{ Str::limit($role->description, 50) }}
                                         </td>
                                         <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-3">
-                                            <a href="{{ route('portal.admin.roles.edit', $role) }}"
-                                               class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300">
-                                                Bewerken<span class="sr-only">, {{ $role->name }}</span>
-                                            </a>
+                                            <div class="flex items-center justify-end gap-4">
+                                                <a href="{{ route('portal.admin.roles.edit', $role) }}"
+                                                   class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300">
+                                                    Bewerken<span class="sr-only">, {{ $role->name }}</span>
+                                                </a>
+                                                @if($role->slug !== 'admin')
+                                                    <form action="{{ route('portal.admin.roles.destroy', $role) }}" method="POST"
+                                                          onsubmit="return confirm({{ Js::from('Weet je zeker dat je de rol '.$role->name.' wilt verwijderen? '.$role->users_count.' gebruiker(s) verliezen deze rol.') }})">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300">
+                                                            Verwijderen<span class="sr-only">, {{ $role->name }}</span>
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty
