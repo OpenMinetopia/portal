@@ -177,6 +177,15 @@ class PlotService
     }
 
     /**
+     * Sorts names the way people count: AB-2 before AB-10 and AB-023 after AB-10,
+     * by padding every number to the same length. Case is ignored.
+     */
+    public static function sortKey(string $name): string
+    {
+        return preg_replace_callback('/\d+/', fn ($digits) => str_pad(ltrim($digits[0], '0'), 20, '0', STR_PAD_LEFT), mb_strtolower($name));
+    }
+
+    /**
      * Get player plots.
      *
      * @param string $uuid
@@ -204,7 +213,7 @@ class PlotService
                 'flags' => $plot['flags'] ?? [],
                 'priority' => $plot['priority'] ?? 0,
             ];
-        })->values()->toArray();
+        })->sortBy(fn ($plot) => self::sortKey($plot['name']))->values()->toArray();
     }
 
     /**
@@ -233,7 +242,7 @@ class PlotService
                 'flags' => $plot['flags'] ?? [],
                 'priority' => $plot['priority'] ?? 0,
             ];
-        })->values()->toArray();
+        })->sortBy(fn ($plot) => self::sortKey($plot['name']))->values()->toArray();
     }
 
     /**
