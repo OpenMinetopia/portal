@@ -50,6 +50,9 @@ class PlotRentalService
         if (! $plot) {
             throw new PlotRentalException('Er ging iets mis', 'Het plot kon niet worden opgehaald. Probeer het later opnieuw.');
         }
+        if (! PlotService::isTransferable($plot)) {
+            throw new PlotRentalException(PlotService::NOT_TRANSFERABLE['title'], PlotService::NOT_TRANSFERABLE['message']);
+        }
         if ($this->hasAccess($plot, $renter)) {
             throw new PlotRentalException('Actie niet mogelijk', 'Je hebt al toegang tot dit plot.');
         }

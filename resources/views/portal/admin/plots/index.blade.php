@@ -4,7 +4,7 @@
 @section('header', 'Plots Beheer')
 
 @section('content')
-    @php($allNames = collect($plots)->pluck('name')->values())
+    @php($allNames = collect($plots)->filter(fn ($plot) => \App\Services\Plugin\PlotService::isTransferable($plot))->pluck('name')->values())
     <div class="space-y-6">
         <!-- Stats Overview -->
         <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
@@ -70,9 +70,11 @@
                                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                         @if($brokerEnabled)
                                             <td class="w-10 py-4 pl-4 sm:pl-3">
-                                                <input type="checkbox" name="plots[]" value="{{ $plot['name'] }}" x-model="selected"
-                                                       aria-label="{{ $plot['name'] }} selecteren"
-                                                       class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700">
+                                                @if(\App\Services\Plugin\PlotService::isTransferable($plot))
+                                                    <input type="checkbox" name="plots[]" value="{{ $plot['name'] }}" x-model="selected"
+                                                           aria-label="{{ $plot['name'] }} selecteren"
+                                                           class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700">
+                                                @endif
                                             </td>
                                         @endif
                                         <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 dark:text-white sm:pl-3">
@@ -95,6 +97,8 @@
                                                     <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20 dark:bg-green-500/10 dark:text-green-400 dark:ring-green-500/20">
                                                         Te koop
                                                     </span>
+                                                @elseif(!\App\Services\Plugin\PlotService::isTransferable($plot))
+                                                    <span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20" title="De plot-flag openmt-transfer staat op DENY">Niet overdraagbaar</span>
                                                 @else
                                                     <a href="{{ route('portal.admin.plots.listings.create', $plot['name']) }}"
                                                        class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300">

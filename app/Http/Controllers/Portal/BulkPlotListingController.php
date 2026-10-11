@@ -101,7 +101,7 @@ class BulkPlotListingController extends Controller
             $skipped = [];
 
             foreach ($plots as $name => $plot) {
-                if ($reason = $this->skipReason($name, $rent)) {
+                if ($reason = $this->skipReason($plot, $rent)) {
                     $skipped[$name] = $reason;
                     continue;
                 }
@@ -156,10 +156,16 @@ class BulkPlotListingController extends Controller
     }
 
     /** Why a plot cannot be listed this way, or null. */
-    protected function skipReason(string $name, bool $rent): ?string
+    protected function skipReason(array $plot, bool $rent): ?string
     {
+        $name = $plot['name'];
+
+        if (!PlotService::isTransferable($plot)) {
+            return 'mag niet verkocht of verhuurd worden';
+        }
+
         if ($rent) {
-            return PlotRentalOfferController::unavailable($name) ? 'staat al te huur of wordt verhuurd' : null;
+            return PlotRentalOfferController::unavailable($plot) ? 'staat al te huur of wordt verhuurd' : null;
         }
 
         return match (true) {

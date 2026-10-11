@@ -14,7 +14,11 @@
                         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $plot['name'] }}</p>
                     </div>
                     @if($brokerEnabled)
+                        @php($transferable = \App\Services\Plugin\PlotService::isTransferable($plot))
                         <div class="flex flex-wrap items-center justify-end gap-2">
+                        @unless($transferable)
+                            <span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20" title="De plot-flag openmt-transfer staat op DENY">Niet overdraagbaar</span>
+                        @endunless
                         @if($rentalOffer)
                             <span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-600/20 dark:bg-blue-500/10 dark:text-blue-400 dark:ring-blue-500/20">
                                 @if($rentalOffer->activeRental)
@@ -39,7 +43,7 @@
                                     </button>
                                 </form>
                             @endif
-                        @else
+                        @elseif($transferable)
                             <a href="{{ route('portal.admin.plots.rentals.create', $plot['name']) }}"
                                class="inline-flex items-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-white dark:ring-gray-600 dark:hover:bg-gray-600">
                                 <x-heroicon-m-key class="h-4 w-4"/>
@@ -61,7 +65,7 @@
                                     </button>
                                 </form>
                             </div>
-                        @else
+                        @elseif($transferable)
                             <a href="{{ route('portal.admin.plots.listings.create', $plot['name']) }}"
                                class="inline-flex items-center gap-x-1.5 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
                                 <x-heroicon-m-currency-euro class="h-4 w-4"/>

@@ -65,6 +65,11 @@ class PlotListingController extends Controller
                 ->with('error', self::RENTED_ERROR);
         }
 
+        if (!PlotService::isTransferable($plot)) {
+            return redirect()->route('portal.plots.show', $plotName)
+                ->with('error', PlotService::NOT_TRANSFERABLE);
+        }
+
         return view('portal.plots.listings.create', [
             'plot' => $plot
         ]);
@@ -95,6 +100,11 @@ class PlotListingController extends Controller
         if (PlotRentalService::isRented($plotName)) {
             return redirect()->route('portal.plots.show', $plotName)
                 ->with('error', self::RENTED_ERROR);
+        }
+
+        if (!PlotService::isTransferable($plot)) {
+            return redirect()->route('portal.plots.show', $plotName)
+                ->with('error', PlotService::NOT_TRANSFERABLE);
         }
 
         $imagePath = null;
@@ -186,6 +196,11 @@ class PlotListingController extends Controller
                 'title' => 'Plot niet beschikbaar',
                 'message' => 'Dit plot wordt op dit moment verhuurd en kan niet worden gekocht.'
             ]);
+        }
+
+        // The flag can have been turned off after the plot was put up for sale.
+        if (!PlotService::isTransferable($this->plotService->getPlot($listing->plot_name))) {
+            return back()->with('error', PlotService::NOT_TRANSFERABLE);
         }
 
         // Get buyer's bank account

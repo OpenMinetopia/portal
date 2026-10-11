@@ -18,7 +18,7 @@ class AdminPlotRentalOfferController extends Controller
     {
         $plot = $this->plotService->getPlot($name) ?? abort(404);
 
-        if ($error = PlotRentalOfferController::unavailable($name)) {
+        if ($error = PlotRentalOfferController::unavailable($plot)) {
             return redirect()->route('portal.admin.plots.show', $name)->with('error', $error);
         }
 
@@ -36,7 +36,7 @@ class AdminPlotRentalOfferController extends Controller
 
         $plot = $this->plotService->getPlot($name) ?? abort(404);
 
-        if ($error = PlotRentalOfferController::unavailable($name)) {
+        if ($error = PlotRentalOfferController::unavailable($plot)) {
             return redirect()->route('portal.admin.plots.show', $name)->with('error', $error);
         }
 

@@ -40,6 +40,11 @@ class AdminPlotListingController extends Controller
                 ->with('error', PlotListingController::RENTED_ERROR);
         }
 
+        if (!PlotService::isTransferable($plot)) {
+            return redirect()->route('portal.admin.plots.show', $name)
+                ->with('error', PlotService::NOT_TRANSFERABLE);
+        }
+
         return view('portal.plots.listings.create', [
             'plot' => $plot,
             'isServerListing' => true,
@@ -75,6 +80,11 @@ class AdminPlotListingController extends Controller
         if (PlotRentalService::isRented($name)) {
             return redirect()->route('portal.admin.plots.show', $name)
                 ->with('error', PlotListingController::RENTED_ERROR);
+        }
+
+        if (!PlotService::isTransferable($plot)) {
+            return redirect()->route('portal.admin.plots.show', $name)
+                ->with('error', PlotService::NOT_TRANSFERABLE);
         }
 
         $imagePath = null;

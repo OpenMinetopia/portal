@@ -7,7 +7,7 @@ use App\Services\Plugin\PlotService;
 /** Plots in memory, with owners and members as player UUIDs. */
 class FakePlotService extends PlotService
 {
-    /** @var array<string, array{owners: list<string>, members: list<string>}> */
+    /** @var array<string, array{owners: list<string>, members: list<string>, flags: array<string, string>}> */
     public array $plots = [];
 
     public bool $reachable = true;
@@ -16,9 +16,9 @@ class FakePlotService extends PlotService
     {
     }
 
-    public function addPlot(string $name, array $owners, array $members = []): void
+    public function addPlot(string $name, array $owners, array $members = [], array $flags = []): void
     {
-        $this->plots[$name] = ['owners' => $owners, 'members' => $members];
+        $this->plots[$name] = ['owners' => $owners, 'members' => $members, 'flags' => $flags];
     }
 
     public function members(string $name): array
@@ -32,7 +32,7 @@ class FakePlotService extends PlotService
             return null;
         }
 
-        return ['name' => $name, 'description' => null, 'priority' => 0, 'flags' => [],
+        return ['name' => $name, 'description' => null, 'priority' => 0, 'flags' => $this->plots[$name]['flags'] ?? [],
             'location' => ['min' => ['x' => 0, 'y' => 60, 'z' => 0], 'max' => ['x' => 9, 'y' => 80, 'z' => 9]]] + $this->plots[$name];
     }
 

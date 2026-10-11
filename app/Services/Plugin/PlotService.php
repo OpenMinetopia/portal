@@ -4,6 +4,14 @@ namespace App\Services\Plugin;
 
 class PlotService
 {
+    /** The plugin's flag that blocks selling and renting a plot through the portal (/plot transfer false). */
+    public const TRANSFER_FLAG = 'openmt-transfer';
+
+    public const NOT_TRANSFERABLE = [
+        'title' => 'Plot niet overdraagbaar',
+        'message' => 'Dit plot mag niet verkocht of verhuurd worden. Een beheerder kan dat in-game aanzetten met /plot transfer true.'
+    ];
+
     protected PluginApiService $apiService;
 
     public function __construct(PluginApiService $apiService)
@@ -174,6 +182,12 @@ class PlotService
             ]);
             return false;
         }
+    }
+
+    /** False when the plot's openmt-transfer flag is DENY; a plot without the flag may be sold and rented. */
+    public static function isTransferable(?array $plot): bool
+    {
+        return strtoupper((string) ($plot['flags'][self::TRANSFER_FLAG] ?? 'ALLOW')) !== 'DENY';
     }
 
     /**

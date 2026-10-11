@@ -5,7 +5,7 @@
 
 @section('content')
     @php
-        $selectable = collect($plots)->where('permission', 'OWNER')->pluck('name')->values();
+        $selectable = collect($plots)->where('permission', 'OWNER')->filter(fn ($plot) => \App\Services\Plugin\PlotService::isTransferable($plot))->pluck('name')->values();
         $bulk = auth()->user()->can('use-broker') && $selectable->isNotEmpty();
     @endphp
     <div class="space-y-6">
@@ -73,7 +73,7 @@
                                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                         @if($bulk)
                                             <td class="w-10 py-4 pl-4 sm:pl-3">
-                                                @if($plot['permission'] === 'OWNER')
+                                                @if($selectable->contains($plot['name']))
                                                     <input type="checkbox" name="plots[]" value="{{ $plot['name'] }}" x-model="selected"
                                                            aria-label="{{ $plot['name'] }} selecteren"
                                                            class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700">
@@ -86,6 +86,9 @@
                                                    class="text-gray-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400">
                                                     {{ $plot['name'] }}
                                                 </a>
+                                                @if($plot['permission'] === 'OWNER' && !\App\Services\Plugin\PlotService::isTransferable($plot))
+                                                    <span class="ml-2"><span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20" title="De plot-flag openmt-transfer staat op DENY">Niet overdraagbaar</span></span>
+                                                @endif
                                             </div>
                                         </td>
                                         <td class="whitespace-nowrap px-3 py-4 text-sm">

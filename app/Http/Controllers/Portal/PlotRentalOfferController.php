@@ -26,7 +26,7 @@ class PlotRentalOfferController extends Controller
                 ->with('error', ['title' => 'Actie niet mogelijk', 'message' => 'Je kunt alleen je eigen plots verhuren.']);
         }
 
-        if ($error = self::unavailable($plotName)) {
+        if ($error = self::unavailable($plot)) {
             return redirect()->route('portal.plots.show', $plotName)->with('error', $error);
         }
 
@@ -48,7 +48,7 @@ class PlotRentalOfferController extends Controller
             return back()->withInput()->withErrors(['payout_bank_account_uuid' => 'Kies een van je eigen bankrekeningen.']);
         }
 
-        if ($error = self::unavailable($plotName)) {
+        if ($error = self::unavailable($plot)) {
             return redirect()->route('portal.plots.show', $plotName)->with('error', $error);
         }
 
@@ -142,9 +142,13 @@ class PlotRentalOfferController extends Controller
     }
 
     /** Why a plot cannot be offered for rent now, or null. Also used for server plots. */
-    public static function unavailable(string $plotName): ?array
+    public static function unavailable(array $plot): ?array
     {
-        if (PlotRentalOffer::where('plot_name', $plotName)->whereIn('status', ['active', 'rented'])->exists()) {
+        if (!PlotService::isTransferable($plot)) {
+            return PlotService::NOT_TRANSFERABLE;
+        }
+
+        if (PlotRentalOffer::where('plot_name', $plot['name'])->whereIn('status', ['active', 'rented'])->exists()) {
             return ['title' => 'Actie niet mogelijk', 'message' => 'Dit plot staat al te huur of wordt verhuurd.'];
         }
 
