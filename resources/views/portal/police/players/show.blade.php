@@ -241,16 +241,22 @@
                                 De plugin is niet bereikbaar of kent nog geen VOG's. Werk OpenMinetopia bij of geef een VOG in-game met <code>/boek krijg vog</code>.
                             </p>
                         @else
-                            <form method="POST" action="{{ route('portal.police.players.vog', $user) }}">
-                                @csrf
-                                <button type="submit"
-                                        class="inline-flex w-full items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700">
-                                    <x-heroicon-s-document-check class="w-4 h-4 mr-2"/>
-                                    VOG afgeven
-                                </button>
-                            </form>
+                            @if($vogs['automatic'])
+                                <form method="POST" action="{{ route('portal.police.players.vog', $user) }}">
+                                    @csrf
+                                    <button type="submit"
+                                            class="inline-flex w-full items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700">
+                                        <x-heroicon-s-document-check class="w-4 h-4 mr-2"/>
+                                        VOG afgeven
+                                    </button>
+                                </form>
+                            @else
+                                <p class="text-sm text-gray-500 dark:text-gray-400">
+                                    Op deze server vullen agenten de uitslag zelf in. Geef een VOG in-game met <code>/boek krijg vog</code>.
+                                </p>
+                            @endif
 
-                            @foreach(array_slice($vogs, 0, 5) as $vog)
+                            @foreach(array_slice($vogs['vogs'], 0, 5) as $vog)
                                 @include('portal.criminal-records.partials.vog', ['vog' => $vog])
                             @endforeach
                         @endif

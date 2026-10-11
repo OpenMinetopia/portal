@@ -23,7 +23,7 @@ class FakePluginApiService extends PluginApiService
             (bool) preg_match('#^api/player/([^/]+)/plots$#', $path, $m) => ['success' => true, 'plots' => $this->playerPlots(DemoWorld::nameFor($m[1]))],
             (bool) preg_match('#^api/player/([^/]+)/bankaccounts$#', $path, $m) => ['success' => true, 'accounts' => $this->playerAccounts(DemoWorld::nameFor($m[1]))],
             (bool) preg_match('#^api/player/([^/]+)/criminalrecords$#', $path, $m) => ['success' => true, 'criminalrecords' => $this->records(DemoWorld::nameFor($m[1]))],
-            (bool) preg_match('#^api/player/([^/]+)/vogs$#', $path, $m) => ['success' => true, 'vogs' => $this->vogs(DemoWorld::nameFor($m[1]))],
+            (bool) preg_match('#^api/player/([^/]+)/vogs$#', $path, $m) => ['success' => true, 'automatic' => true, 'vogs' => $this->vogs(DemoWorld::nameFor($m[1]))],
             (bool) preg_match('#^api/player/([^/]+)/colors$#', $path, $m) => ['success' => true, 'colors' => []],
             (bool) preg_match('#^api/player/([^/]+)/prefixes$#', $path, $m) => ['success' => true, 'prefixes' => []],
             (bool) preg_match('#^api/player/([^/]+)$#', $path, $m) => $this->player(DemoWorld::nameFor($m[1])),

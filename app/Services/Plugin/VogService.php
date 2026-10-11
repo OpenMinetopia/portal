@@ -8,7 +8,8 @@ use Carbon\Carbon;
 /**
  * VOGs (verklaringen omtrent gedrag) live in the plugin: it decides the outcome from the
  * strafblad and gives the officer the VOG book in-game. The portal shows them and asks
- * the plugin to issue one. Plugins from before VOGs answer neither call.
+ * the plugin to issue one, unless the server fills in VOGs by hand (automatic: false in
+ * books.yml). Plugins from before VOGs answer neither call.
  */
 class VogService
 {
@@ -18,14 +19,16 @@ class VogService
         'no_permission' => 'Je mag in-game geen VOG afgeven (openminetopia.books.vog).',
         'book_disabled' => 'Het VOG-boek staat uit in books.yml van de plugin.',
         'player_not_found' => 'Deze speler is nog nooit op de server geweest.',
+        'vog_manual' => 'Op deze server vullen agenten VOG\'s in-game met de hand in, met /boek krijg vog.',
     ];
 
     public function __construct(protected PluginApiService $apiService) {}
 
     /**
-     * The player's VOGs, newest first, or null when the plugin gave no answer.
+     * The player's VOGs, newest first, and whether the portal may issue one; null when the
+     * plugin gave no answer.
      *
-     * @return list<array{positive: bool, record_count: int, officer_name: ?string, date: Carbon, valid_until: Carbon, valid: bool}>|null
+     * @return array{automatic: bool, vogs: list<array{positive: bool, record_count: int, officer_name: ?string, date: Carbon, valid_until: Carbon, valid: bool}>}|null
      */
     public function forPlayer(string $uuid): ?array
     {
@@ -35,7 +38,10 @@ class VogService
             return null;
         }
 
-        return array_map(fn (array $vog) => $this->present($vog), array_values($data['vogs']));
+        return [
+            'automatic' => (bool) ($data['automatic'] ?? true),
+            'vogs' => array_map(fn (array $vog) => $this->present($vog), array_values($data['vogs'])),
+        ];
     }
 
     /**

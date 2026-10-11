@@ -25,14 +25,16 @@ class VogPlugin extends FakePluginApiService
 
     public ?array $vogs = null;
 
+    public bool $automatic = true;
+
     public function get(string $endpoint, array $query = []): mixed
     {
         if (str_ends_with($endpoint, '/vogs') && ! $this->knowsVogs) {
             return null;
         }
 
-        if (str_ends_with($endpoint, '/vogs') && $this->vogs !== null) {
-            return ['success' => true, 'vogs' => $this->vogs];
+        if (str_ends_with($endpoint, '/vogs') && ($this->vogs !== null || ! $this->automatic)) {
+            return ['success' => true, 'automatic' => $this->automatic, 'vogs' => $this->vogs ?? []];
         }
 
         return parent::get($endpoint, $query);
@@ -132,4 +134,15 @@ it('hides the button when the plugin does not know VOGs yet', function () {
 
     $this->actingAs($this->lotte)->get(VOG_BASE.'/portal/criminal-records')
         ->assertOk()->assertDontSee('Mijn VOG');
+});
+
+it('leaves VOGs to the agent in-game when the server fills them in by hand', function () {
+    $this->plugin->automatic = false;
+
+    $this->actingAs($this->agent)->get(VOG_BASE.'/portal/police/players/'.$this->lotte->id)
+        ->assertOk()->assertDontSee('VOG afgeven')->assertSee('vullen agenten de uitslag zelf in');
+
+    $this->plugin->answer = ['success' => false, 'code' => 'vog_manual', 'error' => 'VOGs are filled in by hand.'];
+    $this->post(VOG_BASE.'/portal/police/players/'.$this->lotte->id.'/vog')
+        ->assertSessionHas('error', fn ($error) => str_contains($error['message'], 'met de hand'));
 });
