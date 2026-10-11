@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Portal\Police;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\Plugin\VogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
@@ -54,11 +55,34 @@ class PlayerDatabaseController extends Controller
         return view('portal.police.players.index', compact('users'));
     }
 
-    public function show(User $user)
+    public function show(User $user, VogService $vogs)
     {
         return view('portal.police.players.show', [
             'user' => $user,
-            'records' => $user->criminal_records
+            'records' => $user->criminal_records,
+            'vogs' => $user->minecraft_plain_uuid ? $vogs->forPlayer($user->minecraft_plain_uuid) : null,
         ]);
+    }
+
+    /** The plugin issues the VOG and gives the agent the book in-game. */
+    public function issueVog(User $user, VogService $vogs)
+    {
+        $officer = auth()->user();
+
+        if (! $user->minecraft_plain_uuid || ! $officer->minecraft_plain_uuid) {
+            return back()->with('error', ['title' => 'Geen VOG afgegeven', 'message' => 'Een Minecraft-account ontbreekt.']);
+        }
+
+        $result = $vogs->issue($user->minecraft_plain_uuid, $officer->minecraft_plain_uuid);
+
+        if (isset($result['error'])) {
+            return back()->with('error', ['title' => 'Geen VOG afgegeven', 'message' => $result['error']]);
+        }
+
+        return back()->with('success', sprintf(
+            'VOG voor %s is %s. Het boek staat in je inventory.',
+            $user->minecraft_username,
+            $result['vog']['positive'] ? 'positief' : 'negatief',
+        ));
     }
 } 

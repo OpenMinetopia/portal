@@ -23,6 +23,7 @@ class FakePluginApiService extends PluginApiService
             (bool) preg_match('#^api/player/([^/]+)/plots$#', $path, $m) => ['success' => true, 'plots' => $this->playerPlots(DemoWorld::nameFor($m[1]))],
             (bool) preg_match('#^api/player/([^/]+)/bankaccounts$#', $path, $m) => ['success' => true, 'accounts' => $this->playerAccounts(DemoWorld::nameFor($m[1]))],
             (bool) preg_match('#^api/player/([^/]+)/criminalrecords$#', $path, $m) => ['success' => true, 'criminalrecords' => $this->records(DemoWorld::nameFor($m[1]))],
+            (bool) preg_match('#^api/player/([^/]+)/vogs$#', $path, $m) => ['success' => true, 'vogs' => $this->vogs(DemoWorld::nameFor($m[1]))],
             (bool) preg_match('#^api/player/([^/]+)/colors$#', $path, $m) => ['success' => true, 'colors' => []],
             (bool) preg_match('#^api/player/([^/]+)/prefixes$#', $path, $m) => ['success' => true, 'prefixes' => []],
             (bool) preg_match('#^api/player/([^/]+)$#', $path, $m) => $this->player(DemoWorld::nameFor($m[1])),
@@ -34,6 +35,17 @@ class FakePluginApiService extends PluginApiService
 
     public function post(string $endpoint, array|string $data = []): mixed
     {
+        return ['success' => true];
+    }
+
+    public function postOrError(string $endpoint, array $data = []): ?array
+    {
+        if (preg_match('#^api/player/([^/]+)/vogs$#', trim($endpoint, '/'), $m)) {
+            $records = count($this->records(DemoWorld::nameFor($m[1])));
+
+            return ['success' => true, 'vog' => $this->vog($records, $data['officer'] ?? DemoWorld::PLAYERS['Agent_Sanne'], now())];
+        }
+
         return ['success' => true];
     }
 
@@ -104,6 +116,21 @@ class FakePluginApiService extends PluginApiService
             'chat_color' => '<gray>',
             'prefix_color' => '<gold>',
             'level_color' => '<green>',
+        ];
+    }
+
+    private function vogs(?string $name): array
+    {
+        return $name === 'Lotte' ? [$this->vog(0, DemoWorld::PLAYERS['Agent_Sanne'], now()->subDays(2))] : [];
+    }
+
+    private function vog(int $records, string $officer, \DateTimeInterface $date): array
+    {
+        $date = \Carbon\Carbon::instance($date);
+
+        return [
+            'id' => 1, 'positive' => $records === 0, 'record_count' => $records, 'officer' => $officer,
+            'date' => $date->getTimestampMs(), 'valid_until' => $date->copy()->addWeek()->getTimestampMs(),
         ];
     }
 

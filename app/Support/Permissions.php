@@ -40,7 +40,7 @@ final class Permissions
         'manage-permit-types' => ['Vergunningtypes', 'Vergunningtypes aanmaken en bewerken.', self::MANAGE, 'permits'],
         'manage-companies' => ['Bedrijfsaanvragen', 'Bedrijfs- en opheffingsaanvragen behandelen.', self::MANAGE, 'companies'],
         'manage-company-types' => ['Bedrijfstypes', 'Bedrijfstypes aanmaken en bewerken.', self::MANAGE, 'companies'],
-        'manage-police' => ['Politie', 'De spelersdatabase gebruiken.', self::MANAGE, 'police'],
+        'manage-police' => ['Politie', "De spelersdatabase gebruiken en VOG's afgeven.", self::MANAGE, 'police'],
     ];
 
     public static function exists(string $slug): bool

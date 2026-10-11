@@ -227,6 +227,36 @@
 
             <!-- Right Column -->
             <div class="space-y-6">
+                <!-- VOG -->
+                <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg">
+                    <div class="px-4 py-5 sm:px-6 border-b border-gray-200 dark:border-gray-700">
+                        <h3 class="text-base font-semibold text-gray-900 dark:text-white">VOG</h3>
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                            De plugin kijkt naar het strafblad en geeft je het VOG-boek in-game. Je moet daarvoor online zijn.
+                        </p>
+                    </div>
+                    <div class="px-4 py-5 sm:p-6 space-y-4">
+                        @if($vogs === null)
+                            <p class="text-sm text-gray-500 dark:text-gray-400">
+                                De plugin is niet bereikbaar of kent nog geen VOG's. Werk OpenMinetopia bij of geef een VOG in-game met <code>/boek krijg vog</code>.
+                            </p>
+                        @else
+                            <form method="POST" action="{{ route('portal.police.players.vog', $user) }}">
+                                @csrf
+                                <button type="submit"
+                                        class="inline-flex w-full items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700">
+                                    <x-heroicon-s-document-check class="w-4 h-4 mr-2"/>
+                                    VOG afgeven
+                                </button>
+                            </form>
+
+                            @foreach(array_slice($vogs, 0, 5) as $vog)
+                                @include('portal.criminal-records.partials.vog', ['vog' => $vog])
+                            @endforeach
+                        @endif
+                    </div>
+                </div>
+
                 <!-- Stats Overview -->
                 <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg">
                     <div class="px-4 py-5 sm:px-6 border-b border-gray-200 dark:border-gray-700">

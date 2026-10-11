@@ -250,6 +250,7 @@ Route::middleware('auth')->group(function () {
             Route::middleware(['feature:police', 'can:manage-police'])->prefix('police')->name('police.')->group(function () {
                 Route::get('/players', [PlayerDatabaseController::class, 'index'])->name('players.index');
                 Route::get('/players/{user}', [PlayerDatabaseController::class, 'show'])->name('players.show');
+                Route::post('/players/{user}/vog', [PlayerDatabaseController::class, 'issueVog'])->name('players.vog');
             });
 
             Route::prefix('bank-accounts')->name('bank-accounts.')->middleware(['feature:transactions', 'can:use-transactions'])->group(function () {

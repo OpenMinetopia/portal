@@ -35,7 +35,16 @@ class PluginApiService
         return $this->makeRequest('POST', $endpoint, $data);
     }
 
-    private function makeRequest(string $method, string $endpoint, array|string $data = []): mixed
+    /**
+     * A POST that also returns the plugin's refusal ({success: false, code, error}), so the
+     * caller can say why. Null only when the plugin gave no answer at all.
+     */
+    public function postOrError(string $endpoint, array $data = []): ?array
+    {
+        return $this->makeRequest('POST', $endpoint, $data, keepErrors: true);
+    }
+
+    private function makeRequest(string $method, string $endpoint, array|string $data = [], bool $keepErrors = false): mixed
     {
         if (! $this->baseUrl || ! $this->apiKey) {
             return null;
@@ -54,6 +63,10 @@ class PluginApiService
                                          : $request->post($url, $data),
                 default => throw new \InvalidArgumentException("Unsupported HTTP method: {$method}")
             };
+
+            if ($keepErrors && is_array($response->json()) && isset($response->json()['success'])) {
+                return $response->json();
+            }
 
             if ($response->successful()) {
                 $json = $response->json();

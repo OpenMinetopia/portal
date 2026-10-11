@@ -48,6 +48,21 @@
             </div>
         </div>
 
+        @if(! empty($vogs))
+            <!-- VOG -->
+            <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg">
+                <div class="px-4 py-5 sm:px-6 border-b border-gray-200 dark:border-gray-700">
+                    <h3 class="text-base font-semibold text-gray-900 dark:text-white">Mijn VOG</h3>
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Verklaringen omtrent gedrag die de politie je heeft gegeven</p>
+                </div>
+                <div class="px-4 py-5 sm:p-6 space-y-4">
+                    @foreach(array_slice($vogs, 0, 5) as $vog)
+                        @include('portal.criminal-records.partials.vog', ['vog' => $vog])
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
         <!-- Records Table -->
         <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg">
             <div class="px-4 py-5 sm:px-6 border-b border-gray-200 dark:border-gray-700">
