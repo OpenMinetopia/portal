@@ -151,6 +151,16 @@ MAIL_FROM_NAME="Jouw Portaal"
 
 Herstart daarna het portaal (bij Docker: `docker compose restart portal` in `/opt/openminetopia-portal`). Zonder mailserver komen de e-mails in `storage/logs/laravel.log` terecht en niet bij de speler.
 
+## Grotere foto's
+
+Spelers mogen standaard foto's tot 2 MB bij een plot zetten. Zet `PORTAL_MAX_UPLOAD_MB` op het aantal MB dat je wilt toestaan:
+
+- **Docker:** in `portal.env` in `/opt/openminetopia-portal`, daarna `openminetopia-portal stop` en `openminetopia-portal start`. Hoogstens 64.
+- **Pterodactyl:** bij **Startup** → *Maximale grootte van foto's (MB)*, daarna de server herstarten. Hoogstens 64.
+- **Zelf geïnstalleerd:** in `.env`, en zet in `php.ini` ook `upload_max_filesize` en `post_max_size` minstens zo hoog. Het portaal houdt zich aan de laagste van de drie.
+
+Staat er nginx voor het portaal? Die weigert standaard alles boven 1 MB: zet `client_max_body_size` in je nginx-config op dezelfde grootte (bijvoorbeeld `client_max_body_size 16M;`). Cloudflare laat op het gratis plan uploads tot 100 MB door.
+
 ## Proberen zonder Minecraft-server
 
 Zet `PORTAL_DEMO=true` in `.env` en laad de demodata:

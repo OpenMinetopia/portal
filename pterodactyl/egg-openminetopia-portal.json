@@ -79,6 +79,16 @@
             "field_type": "text"
         },
         {
+            "name": "Maximale grootte van foto's (MB)",
+            "description": "Hoe groot een foto bij een plot mag zijn, in MB. Hoogstens 64.",
+            "env_variable": "PORTAL_MAX_UPLOAD_MB",
+            "default_value": "2",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|integer|between:1,64",
+            "field_type": "text"
+        },
+        {
             "name": "Database host",
             "description": "Van het tabblad Databases van deze server.",
             "env_variable": "DB_HOST",

@@ -215,7 +215,7 @@
                                             <p class="pl-1">of sleep deze hier naartoe</p>
                                         </div>
                                         <p class="text-xs text-gray-500 dark:text-gray-400">
-                                            PNG, JPG, GIF tot 2MB
+                                            PNG, JPG, GIF tot {{ \App\Support\Portal::maxUploadLabel() }}
                                         </p>
                                     </div>
                                 </div>

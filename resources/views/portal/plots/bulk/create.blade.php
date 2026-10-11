@@ -136,7 +136,7 @@
                         </label>
                         <input type="file" id="image" name="image" accept="image/*"
                                class="block w-full text-sm text-gray-600 dark:text-gray-300 file:mr-4 file:rounded-md file:border-0 file:bg-gray-100 file:px-4 file:py-2 file:text-sm file:font-medium file:text-gray-700 hover:file:bg-gray-200 dark:file:bg-gray-700 dark:file:text-gray-200">
-                        <p class="text-xs text-gray-500 dark:text-gray-400">PNG, JPG, GIF tot 2MB, voor alle plots</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">PNG, JPG, GIF tot {{ \App\Support\Portal::maxUploadLabel() }}, voor alle plots</p>
                     </div>
 
                     <label class="flex items-start gap-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4" x-show="type === 'sale'">
