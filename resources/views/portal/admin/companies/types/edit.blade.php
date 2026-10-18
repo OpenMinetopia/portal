@@ -105,7 +105,7 @@
                             </div>
 
                             <!-- Status Toggle -->
-                            <div x-data="{ enabled: {{ json_encode(old('is_active', $companyType->is_active)) }} }">
+                            <div x-data="{ enabled: {{ old('is_active', $companyType->is_active) ? 'true' : 'false' }} }">
                                 <div class="flex items-center justify-between">
                                     <div class="flex-grow flex flex-col">
                                         <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Status</span>

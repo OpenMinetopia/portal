@@ -86,9 +86,6 @@ class PermitTypeController extends Controller
         ]);
 
         try {
-            $data = $request->all();
-            $data['is_active'] = filter_var($data['is_active'] ?? false, FILTER_VALIDATE_BOOLEAN);
-
             $validated = $request->validate([
                 'name' => 'required|string|max:255|unique:permit_types,name,' . $permitType->id,
                 'description' => 'nullable|string',
