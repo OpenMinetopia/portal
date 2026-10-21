@@ -154,11 +154,13 @@ Route::middleware('auth')->group(function () {
                         ->name('settings.update-company-settings');
                 });
 
-                // Appearance: accent colour and logo
+                // Appearance: theme and logo
                 Route::middleware('can:manage-appearance')->group(function () {
                     Route::get('appearance', [BrandingController::class, 'edit'])->name('branding.edit');
                     Route::put('appearance', [BrandingController::class, 'update'])->name('branding.update');
                     Route::delete('appearance', [BrandingController::class, 'reset'])->name('branding.reset');
+                    Route::get('appearance/export', [BrandingController::class, 'export'])->name('branding.export');
+                    Route::post('appearance/import', [BrandingController::class, 'import'])->name('branding.import');
                 });
 
                 Route::prefix('permits')->name('permits.')->middleware(['feature:permits', 'can:manage-permit-types'])->group(function () {

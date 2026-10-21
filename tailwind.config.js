@@ -1,5 +1,10 @@
 import defaultTheme from 'tailwindcss/defaultTheme';
 
+const themeColor = (name) => Object.fromEntries(
+    [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950]
+        .map((shade) => [shade, `rgb(var(--${name}-${shade}) / <alpha-value>)`]),
+);
+
 /**
  * The OpenMinetopia look: warm neutrals instead of cool grays, and the logo's
  * green as the accent. The views keep using `gray-*` and `indigo-*` classes;
@@ -19,35 +24,20 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['"Schibsted Grotesk"', ...defaultTheme.fontFamily.sans],
+                sans: ['var(--font-sans)', ...defaultTheme.fontFamily.sans],
                 mono: ['"JetBrains Mono"', ...defaultTheme.fontFamily.mono],
             },
             colors: {
-                gray: {
-                    50: '#f4f4f1',
-                    100: '#f0f0ec',
-                    200: '#e3e3de',
-                    300: '#cfcfc8',
-                    400: '#9a9a93',
-                    500: '#6b6b65',
-                    600: '#55554f',
-                    700: '#2d2d2b',
-                    800: '#1c1c1b',
-                    900: '#131313',
-                    950: '#0b0b0a',
-                },
+                // Neutrals and accent come from the theme variables in app.css, so admins can change them.
+                gray: themeColor('gray'),
                 // The accent. Named indigo so every existing button, link and focus ring picks it up.
-                // Admins can change it, so the shades come from the --accent-* variables (see app.css).
-                indigo: Object.fromEntries(
-                    [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950]
-                        .map((shade) => [shade, `rgb(var(--accent-${shade}) / <alpha-value>)`]),
-                ),
+                indigo: themeColor('accent'),
                 brand: 'rgb(var(--accent-300) / <alpha-value>)',
             },
             borderRadius: {
-                md: '6px',
-                lg: '8px',
-                xl: '10px',
+                md: 'var(--radius-md)',
+                lg: 'var(--radius-lg)',
+                xl: 'var(--radius-xl)',
             },
             boxShadow: {
                 // Cards are outlined, not lifted: the small shadows become nothing.

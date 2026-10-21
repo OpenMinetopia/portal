@@ -19,7 +19,7 @@
         <img src="https://mc-heads.net/avatar/{{ $user->minecraft_username }}/64" alt=""
              class="omt-pixel h-14 w-14 rounded-md bg-gray-100 dark:bg-gray-800">
         <div>
-            <p class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Hoi {{ $user->name }}</p>
+            <p class="omt-heading text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Hoi {{ $user->name }}</p>
             <p class="text-gray-600 dark:text-gray-400">Zo staat het ervoor met <span class="font-mono text-sm">{{ $user->minecraft_username }}</span>.</p>
         </div>
     </div>

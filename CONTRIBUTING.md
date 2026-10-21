@@ -44,6 +44,10 @@ Er zijn twee soorten tests:
 - `tests/Single`: een eigen portaal (`PORTAL_MODE=single`);
 - `tests/Feature`: het gehoste platform met meerdere portalen (`PORTAL_MODE=hosted`).
 
+## Een thema toevoegen
+
+De thema's onder **Beheer → Uiterlijk & logo** zijn de bestanden in `resources/themes`. Maak je thema in je eigen portaal, kies **Exporteren**, vul `author` en `description` in en zet het bestand in die map. Een thema bevat alleen een accentkleur en de namen van de grijstinten, het lettertype en de hoeken uit `BrandingSetting`; eigen CSS, lettertypes van elders of een logo kunnen er niet in.
+
 ## Pull requests
 
 - Eén onderwerp per pull request, met tests voor nieuw gedrag.

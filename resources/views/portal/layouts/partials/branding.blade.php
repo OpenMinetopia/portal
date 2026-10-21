@@ -1,10 +1,11 @@
-{{-- The admin-chosen accent colour, overriding the default --accent-* variables from app.css. --}}
+{{-- The admin-chosen theme, overriding the default variables from app.css. --}}
 @php($branding = \App\Models\BrandingSetting::current())
-@if ($branding->hasCustomAccent())
+<link href="{{ \App\Models\BrandingSetting::fontStylesheetUrl($branding->fontKey(), $branding->headingFontKey()) }}" rel="stylesheet">
+@if ($variables = $branding->cssVariables())
     <style>
         :root {
-            @foreach ($branding->palette() as $shade => $channels)
-                --accent-{{ $shade }}: {{ $channels }};
+            @foreach ($variables as $name => $value)
+                {{ $name }}: {!! $value !!};
             @endforeach
         }
     </style>

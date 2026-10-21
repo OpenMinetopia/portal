@@ -9,7 +9,6 @@
     @endunless
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400..800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @include('portal.layouts.partials.branding')
     <script>
@@ -31,7 +30,7 @@
     <div class="flex min-h-full flex-col justify-center px-4 py-12">
         <div class="mx-auto w-full max-w-sm animate-omt-rise">
             <div class="flex items-center justify-between">
-                <span class="omt-hop flex items-center gap-3 text-base font-bold tracking-tight">
+                <span class="omt-hop omt-heading flex items-center gap-3 text-base font-bold tracking-tight">
                     <x-portal.logo />
                     {{ config('app.name') }}
                 </span>

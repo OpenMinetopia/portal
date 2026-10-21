@@ -1,0 +1,11 @@
+{
+    "format": "openminetopia-theme",
+    "version": 1,
+    "name": "Amethist",
+    "author": "OpenMinetopia",
+    "description": "Paars accent op neutraal grijs, met een zachte, ronde letter.",
+    "accent": "#7c3aed",
+    "neutrals": "neutral",
+    "font": "nunito",
+    "radius": "large"
+}

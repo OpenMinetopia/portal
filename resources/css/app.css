@@ -2,14 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Monocraft, a Minecraft-style font (SIL OFL, public/fonts/monocraft). Only downloaded when a theme uses it. */
+@font-face { font-family: "Monocraft"; font-weight: 400; font-display: swap; src: url("/fonts/monocraft/monocraft-regular.woff2") format("woff2"); }
+@font-face { font-family: "Monocraft"; font-weight: 500 600; font-display: swap; src: url("/fonts/monocraft/monocraft-semibold.woff2") format("woff2"); }
+@font-face { font-family: "Monocraft"; font-weight: 700 900; font-display: swap; src: url("/fonts/monocraft/monocraft-bold.woff2") format("woff2"); }
+
 @layer base {
-    /* The default accent, as "r g b" channels. An admin-chosen accent overrides these (partials/branding). */
+    /* The default theme, colours as "r g b" channels. An admin-chosen theme overrides these (partials/branding). */
     :root {
         --accent-50: 238 247 234; --accent-100: 220 239 211; --accent-200: 191 227 173; --accent-300: 147 216 121;
         --accent-400: 121 193 96; --accent-500: 78 127 60; --accent-600: 63 107 48; --accent-700: 52 90 40;
         --accent-800: 42 71 33; --accent-900: 31 53 25; --accent-950: 18 32 14;
+        --gray-50: 244 244 241; --gray-100: 240 240 236; --gray-200: 227 227 222; --gray-300: 207 207 200;
+        --gray-400: 154 154 147; --gray-500: 107 107 101; --gray-600: 85 85 79; --gray-700: 45 45 43;
+        --gray-800: 28 28 27; --gray-900: 19 19 19; --gray-950: 11 11 10;
+        --font-sans: "Schibsted Grotesk";
+        --font-heading: var(--font-sans);
+        --radius-md: 6px; --radius-lg: 8px; --radius-xl: 10px;
     }
     html { -webkit-font-smoothing: antialiased; }
+    h1, h2, h3, h4, h5, h6, .omt-heading { font-family: var(--font-heading), ui-sans-serif, system-ui, sans-serif; }
     ::selection { background: rgb(var(--accent-300)); color: #141414; }
     :focus-visible { outline: 3px solid rgb(var(--accent-600)); outline-offset: 2px; }
     .dark :focus-visible { outline-color: rgb(var(--accent-300)); }

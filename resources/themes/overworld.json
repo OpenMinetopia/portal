@@ -1,0 +1,12 @@
+{
+    "format": "openminetopia-theme",
+    "version": 1,
+    "name": "Overworld",
+    "author": "OpenMinetopia",
+    "description": "Koppen in de letter van Minecraft, rechte hoeken en goud op mosgroen grijs.",
+    "accent": "#a16207",
+    "neutrals": "moss",
+    "font": "schibsted",
+    "heading_font": "monocraft",
+    "radius": "none"
+}

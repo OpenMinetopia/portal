@@ -7,7 +7,7 @@
 
 <a href="{{ route('dashboard') }}" class="omt-hop flex h-16 shrink-0 items-center gap-3 text-base font-bold tracking-tight text-gray-900 dark:text-white">
     <x-portal.logo />
-    <span class="truncate">{{ config('app.name') }}</span>
+    <span class="omt-heading truncate">{{ config('app.name') }}</span>
 </a>
 
 <nav class="flex flex-1 flex-col" aria-label="Portaal">

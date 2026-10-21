@@ -1,0 +1,11 @@
+{
+    "format": "openminetopia-theme",
+    "version": 1,
+    "name": "Diamant",
+    "author": "OpenMinetopia",
+    "description": "Koel blauwgrijs met een diamantblauw accent en ronde hoeken.",
+    "accent": "#0e7490",
+    "neutrals": "cool",
+    "font": "inter",
+    "radius": "large"
+}

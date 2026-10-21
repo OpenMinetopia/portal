@@ -1,0 +1,11 @@
+{
+    "format": "openminetopia-theme",
+    "version": 1,
+    "name": "OpenMinetopia",
+    "author": "OpenMinetopia",
+    "description": "Het standaard uiterlijk: warme grijstinten en het groen van het logo.",
+    "accent": "#3f6b30",
+    "neutrals": "warm",
+    "font": "schibsted",
+    "radius": "default"
+}

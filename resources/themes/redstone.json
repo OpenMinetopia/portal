@@ -1,0 +1,11 @@
+{
+    "format": "openminetopia-theme",
+    "version": 1,
+    "name": "Redstone",
+    "author": "OpenMinetopia",
+    "description": "Strak en neutraal, met redstone-rood en kleine hoeken.",
+    "accent": "#b91c1c",
+    "neutrals": "neutral",
+    "font": "space-grotesk",
+    "radius": "small"
+}
